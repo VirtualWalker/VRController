@@ -13,6 +13,7 @@ VRController uses some third-party libraries to work correctly
 * [Qt] - used for all GUIs
 * [Jenkins] - used as the continous server integration
 * [BlueZ] - default linux library for Bluetooth functionnality
+* [QProgressIndicator] - add a progress indicator widget (released with LGPL license)
 
 License
 -------
@@ -25,4 +26,5 @@ JustPlug is licensed under the [GNU GPL] license v.3 . You can get a copy of thi
 [BlueZ]:http://www.bluez.org/
 [GNU GPL]:http://www.gnu.org/licenses/gpl-3.0.en.html
 [RandCity]:https://github.com/Toutjuste/RandCity
+[QProgressIndicator]:https://github.com/mojocorp/QProgressIndicator
 
