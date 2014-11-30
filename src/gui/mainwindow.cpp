@@ -72,21 +72,22 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     // Create the Bluetooth manager and the handlers
     _btMgrStateHandler = [this](BluetoothManager::State newState) {
         const QString str = BluetoothManager::stateString(newState).c_str();
-        //_sbState->setText(tr("State: %1").arg(str));
         emit setStateText(tr("State: %1").arg(str));
         qDebug() << qPrintable(tr("State changed ! New state: %1").arg(str));
 
         // Check for connected state
+        //if(newState == BluetoothManager::State::LISTENING)
         if(newState == BluetoothManager::State::CONNECTED_TO_CLIENT)
         {
             qDebug() << qPrintable(tr("Connected to %1 on channel %2.").arg(_btMgr->clientAddress().c_str()).arg(_btMgr->clientChannel()));
             _listeningWidget->connected();
             _listeningWidget->hide();
             qDebug() << qPrintable(tr("Showing the fake controller ..."));
+            _fakeController->setConnectionAddress(_btMgr->clientAddress().c_str(), _btMgr->clientChannel());
             emit showFakeController();
 
             // Start a timer to send datas 5 time by second
-            _btTimer = startTimer(1000/5, Qt::PreciseTimer);
+            _btTimer = startTimer(200, Qt::PreciseTimer);
         }
     };
     _btMgrErrorHandler = [this](BluetoothManager::Error newError) {

@@ -23,6 +23,10 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
     _mainLayout = new QGridLayout(this);
     setLayout(_mainLayout);
 
+    _connectionLabel = new QLabel(this);
+    _connectionLabel->setAlignment(Qt::AlignCenter);
+    _mainLayout->addWidget(_connectionLabel, 0, 0, 1, 2);
+
     //
     // Set the orientation part
     //
@@ -46,7 +50,9 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
     _orientationLabel->setText(tr("Set the orientation of the player."));
     _orientationLayout->addWidget(_orientationLabel);
 
-    _mainLayout->addLayout(_orientationLayout, 0, 0, 1, 1);
+    _orientationBox = new QGroupBox(this);
+    _orientationBox->setLayout(_orientationLayout);
+    _mainLayout->addWidget(_orientationBox, 1, 0, 1, 1);
 
     //
     // Set the walk speed part
@@ -70,7 +76,9 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
     _walkSpeedLabel->setText(tr("Set the walk speed of the player."));
     _walkSpeedLayout->addWidget(_walkSpeedLabel);
 
-    _mainLayout->addLayout(_walkSpeedLayout, 0, 1, 1, 1);
+    _walkSpeedBox = new QGroupBox(this);
+    _walkSpeedBox->setLayout(_walkSpeedLayout);
+    _mainLayout->addWidget(_walkSpeedBox, 1, 1, 1, 1);
 }
 
 // Getters
@@ -82,6 +90,12 @@ int FakeController::orientationValue() const
 int FakeController::walkSpeedValue() const
 {
     return _walkSpeedDial->value();
+}
+
+// Public slots
+void FakeController::setConnectionAddress(const QString addr, const int channel)
+{
+    _connectionLabel->setText("<b>" + tr("Connected to device %1 on channel %2").arg(addr).arg(channel) + "</b>");
 }
 
 // Private slots

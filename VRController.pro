@@ -49,8 +49,6 @@ LIBS += -lbluetooth
 
 BUILD_PATH = build
 BIN_PATH = bin
-
-# Default value for the dir build if nothing is specified
 BUILD_STR = debug
 
 CONFIG(debug, debug|release) {
@@ -65,7 +63,6 @@ else {
     BUILD_STR = release
     DEFINES += CORE_RELEASE
     CONFIG += warn_off
-
     # Supress qDebug() output
     DEFINES += QT_NO_DEBUG_OUTPUT
 }

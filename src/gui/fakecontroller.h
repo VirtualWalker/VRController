@@ -19,12 +19,11 @@
 #ifndef FAKECONTROLLER_H
 #define FAKECONTROLLER_H
 
-#include <QWidget>
-
 #include <QDial>
 #include <QLabel>
 #include <QGridLayout>
 #include <QVBoxLayout>
+#include <QGroupBox>
 #include <QEvent>
 
 // This class allow the user to control some params like the walk speed and the orientation
@@ -37,6 +36,10 @@ class FakeController : public QWidget
         // Getters
         int orientationValue() const;
         int walkSpeedValue() const;
+
+    public slots:
+
+        void setConnectionAddress(const QString addr, const int channel);
 
     signals:
         void orientationChanged(int newOrientation);
@@ -60,6 +63,11 @@ class FakeController : public QWidget
 
         QLabel *_orientationValue;
         QLabel *_walkSpeedValue;
+
+        QGroupBox *_orientationBox;
+        QGroupBox *_walkSpeedBox;
+
+        QLabel *_connectionLabel;
 
     private slots:
 
