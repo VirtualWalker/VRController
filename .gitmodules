@@ -1,0 +1,3 @@
+[submodule "thirdparty/qprogressindicator"]
+	path = thirdparty/qprogressindicator
+	url = https://github.com/mojocorp/QProgressIndicator
