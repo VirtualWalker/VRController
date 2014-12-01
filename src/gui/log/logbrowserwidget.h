@@ -19,9 +19,10 @@
 #ifndef LOGBROWSERWIDGET_H
 #define LOGBROWSERWIDGET_H
 
-#include <QTextBrowser>
 #include <QPushButton>
 #include <QCheckBox>
+
+#include "../autoscrolltextbrowser.h"
 
 class LogBrowserWidget : public QWidget
 {
@@ -46,7 +47,7 @@ class LogBrowserWidget : public QWidget
         void checkBoxChanged();
 
     protected:
-        QTextBrowser *_browser;
+        AutoScrollTextBrowser *_browser;
         QPushButton *_clearButton;
         QPushButton *_saveButton;
 

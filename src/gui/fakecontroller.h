@@ -21,10 +21,14 @@
 
 #include <QDial>
 #include <QLabel>
+#include <QSpinBox>
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QEvent>
+
+#define MAX_WALK_SPEED 254
+#define MAX_ORIENTATION 359
 
 // This class allow the user to control some params like the walk speed and the orientation
 class FakeController : public QWidget
@@ -61,13 +65,19 @@ class FakeController : public QWidget
         QLabel *_orientationLabel;
         QLabel *_walkSpeedLabel;
 
-        QLabel *_orientationValue;
-        QLabel *_walkSpeedValue;
+        QLabel *_orientationValueLabel;
+        QLabel *_walkSpeedValueLabel;
+
+        QSpinBox *_orientationValue;
+        QSpinBox *_walkSpeedValue;
 
         QGroupBox *_orientationBox;
         QGroupBox *_walkSpeedBox;
 
         QLabel *_connectionLabel;
+
+    protected:
+        void keyPressEvent(QKeyEvent *event);
 
     private slots:
 

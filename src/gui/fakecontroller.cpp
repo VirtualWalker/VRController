@@ -18,10 +18,15 @@
 
 #include "fakecontroller.h"
 
+#include <QKeyEvent>
+
 FakeController::FakeController(QWidget *parent): QWidget(parent)
 {
     _mainLayout = new QGridLayout(this);
     setLayout(_mainLayout);
+
+    setFocusPolicy(Qt::StrongFocus);
+    grabKeyboard();
 
     _connectionLabel = new QLabel(this);
     _connectionLabel->setAlignment(Qt::AlignCenter);
@@ -35,15 +40,22 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
 
     _orientationDial = new QDial(this);
     _orientationDial->setNotchesVisible(true);
-    _orientationDial->setRange(0, 359);
+    _orientationDial->setRange(0, MAX_ORIENTATION);
     _orientationDial->setWrapping(true);
     _orientationLayout->addWidget(_orientationDial, 1);
 
-    _orientationValue = new QLabel(this);
-    _orientationValue->setAlignment(Qt::AlignCenter);
+    _orientationValue = new QSpinBox(this);
+    _orientationValue->setRange(0, MAX_ORIENTATION);
+    _orientationValue->setSuffix(tr(" degrees"));
+    _orientationValue->setWrapping(true);
+    _orientationLayout->addWidget(_orientationValue);
+
+    _orientationValueLabel = new QLabel(this);
+    _orientationValueLabel->setAlignment(Qt::AlignCenter);
     updateOrientationLabel(_orientationDial->value());
     connect(_orientationDial, &QDial::valueChanged, this, &FakeController::updateOrientationLabel);
-    _orientationLayout->addWidget(_orientationValue);
+    connect(_orientationValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FakeController::updateOrientationLabel);
+    _orientationLayout->addWidget(_orientationValueLabel);
 
     _orientationLabel = new QLabel(this);
     _orientationLabel->setAlignment(Qt::AlignCenter);
@@ -62,14 +74,19 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
 
     _walkSpeedDial = new QDial(this);
     _walkSpeedDial->setNotchesVisible(true);
-    _walkSpeedDial->setRange(0, 254);
+    _walkSpeedDial->setRange(0, MAX_WALK_SPEED);
     _walkSpeedLayout->addWidget(_walkSpeedDial, 1);
 
-    _walkSpeedValue = new QLabel(this);
-    _walkSpeedValue->setAlignment(Qt::AlignCenter);
+    _walkSpeedValue = new QSpinBox(this);
+    _walkSpeedValue->setRange(0, MAX_WALK_SPEED);
+    _walkSpeedLayout->addWidget(_walkSpeedValue);
+
+    _walkSpeedValueLabel = new QLabel(this);
+    _walkSpeedValueLabel->setAlignment(Qt::AlignCenter);
     updateWalkSpeedLabel(_walkSpeedDial->value());
     connect(_walkSpeedDial, &QDial::valueChanged, this, &FakeController::updateWalkSpeedLabel);
-    _walkSpeedLayout->addWidget(_walkSpeedValue);
+    connect(_walkSpeedValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FakeController::updateWalkSpeedLabel);
+    _walkSpeedLayout->addWidget(_walkSpeedValueLabel);
 
     _walkSpeedLabel = new QLabel(this);
     _walkSpeedLabel->setAlignment(Qt::AlignCenter);
@@ -101,15 +118,42 @@ void FakeController::setConnectionAddress(const QString addr, const int channel)
 // Private slots
 void FakeController::updateOrientationLabel(int newValue)
 {
-    _orientationValue->setText("<b>" + tr("%1 degrees").arg(newValue) + "</b>");
+    _orientationValueLabel->setText("<b>" + tr("%1 degrees").arg(newValue) + "</b>");
+
+    _orientationDial->setValue(newValue);
+    _orientationValue->setValue(newValue);
+
     emit orientationChanged(newValue);
     emit valueChanged();
 }
 
 void FakeController::updateWalkSpeedLabel(int newValue)
 {
-    _walkSpeedValue->setText("<b>" + QString::number(newValue) + "</b>");
+    _walkSpeedValueLabel->setText("<b>" + QString::number(newValue) + "</b>");
+
+    _walkSpeedDial->setValue(newValue);
+    _walkSpeedValue->setValue(newValue);
+
     emit walkSpeedChanged(newValue);
     emit valueChanged();
+}
+
+// Re-implemented protected methods
+void FakeController::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key())
+    {
+        case Qt::Key_Plus:
+            _walkSpeedDial->setValue(_walkSpeedDial->value() + 1);
+            break;
+        case Qt::Key_NumberSign:
+        case Qt::Key_Minus:
+            _walkSpeedDial->setValue(_walkSpeedDial->value() - 1);
+            break;
+        default:
+            break;
+    }
+
+    event->accept();
 }
 

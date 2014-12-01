@@ -38,7 +38,7 @@ LogBrowserWidget::LogBrowserWidget(QWidget *parent): QWidget(parent)
     QVBoxLayout *layout = new QVBoxLayout;
     setLayout(layout);
 
-    _browser = new QTextBrowser(this);
+    _browser = new AutoScrollTextBrowser(this);
     _browser->setAcceptRichText(true);
     layout->addWidget(_browser);
 
