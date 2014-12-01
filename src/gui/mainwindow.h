@@ -30,19 +30,21 @@
 #include "fakecontroller.h"
 
 #include "../core/bluetoothmanager.h"
+#include "log/logbrowser.h"
 
 class MainWindow : public QMainWindow
 {
         Q_OBJECT
 
     public:
-        explicit MainWindow(QWidget *parent = 0);
+        explicit MainWindow(LogBrowser* logBrowser);
 
     signals:
         //
         // This signals allow the application to manipulate the widgets from an another thread
         // For example, from a bluetooth thread
         void showFakeController();
+        void setConnectionText(QString text, int channel);
         void setStateText(QString text);
         void setErrorText(QString text);
         void addStatusBarWidget(QWidget *widget, int stretch = 0);
@@ -64,10 +66,15 @@ class MainWindow : public QMainWindow
         QLabel *_sbError;
 
         BluetoothManager *_btMgr;
-        int _btTimer;
+        int _btTimer = -1;
         // Functions to handle states and errors of the BT Manager
         std::function<void(BluetoothManager::State)> _btMgrStateHandler;
         std::function<void(BluetoothManager::Error)> _btMgrErrorHandler;
+
+        // Number of time per second BT data are send
+        int _sendDataFrequency = 5;
+        // These variables is used to count the number of executions of the method timerEvent()
+        int _numberOfTimerExec = 0;
 };
 
 #endif // MAINWINDOW_H

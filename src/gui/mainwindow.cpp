@@ -17,6 +17,7 @@
  */
 
 #include "mainwindow.h"
+#include "log/logbrowser.h"
 
 #include <QDebug>
 #include <QCoreApplication>
@@ -24,11 +25,17 @@
 #include <cerrno>
 #include <string>
 
-MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
+MainWindow::MainWindow(LogBrowser *logBrowser)
 {
     setWindowTitle(APPLICATION_NAME);
+    resize(600, 0);
 
-    _btTimer = -1;
+    // Init log browser parents
+    if(logBrowser != nullptr)
+    {
+        logBrowser->setParent(this);
+        logBrowser->widget()->setParent(this);
+    }
 
     // Set the central widget
     _centralWidget = new QWidget(this);
@@ -50,7 +57,12 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     _fakeController = new FakeController(this);
     _fakeController->hide();
     connect(this, &MainWindow::showFakeController, _fakeController, &FakeController::show);
+    connect(this, &MainWindow::setConnectionText, _fakeController, &FakeController::setConnectionAddress);
     mainLayout->addWidget(_fakeController);
+
+    // Add the log browser if needed
+    if(logBrowser != nullptr)
+        mainLayout->addWidget(logBrowser->widget());
 
     // Set the status bar
     _statusBar = new QStatusBar(this);
@@ -83,11 +95,13 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
             _listeningWidget->connected();
             _listeningWidget->hide();
             qDebug() << qPrintable(tr("Showing the fake controller ..."));
-            _fakeController->setConnectionAddress(_btMgr->clientAddress().c_str(), _btMgr->clientChannel());
+            emit setConnectionText(_btMgr->clientAddress().c_str(), _btMgr->clientChannel());
             emit showFakeController();
 
+            qDebug() << qPrintable(tr("Output Bluetooth data in the console every second ..."));
+
             // Start a timer to send datas 5 time by second
-            _btTimer = startTimer(200, Qt::PreciseTimer);
+            _btTimer = startTimer(1000/_sendDataFrequency, Qt::PreciseTimer);
         }
     };
     _btMgrErrorHandler = [this](BluetoothManager::Error newError) {
@@ -115,6 +129,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 {
     if(event->timerId() == _btTimer)
     {
+        _numberOfTimerExec++;
         if(_btMgr == nullptr)
         {
             qCritical() << qPrintable(tr("The bluetooth manager is not created !"));
@@ -132,7 +147,14 @@ void MainWindow::timerEvent(QTimerEvent *event)
         msg[0] = 0xFF;
         msg[1] = walkSpeed;
         msg[2] = orientation / (360.0f/255.0f);
-        qDebug() << qPrintable(tr("Send message: speed=%1 orientation=%2 (real orientation: %3)").arg((int)msg[1]).arg((int)msg[2]).arg(orientation));
+        // Show the debug message only one time per second
+        if(_numberOfTimerExec == _sendDataFrequency)
+        {
+            // Don't show debug message if all data = 0
+            if(walkSpeed != 0 || orientation != 0)
+                qDebug() << qPrintable(tr("Send message: speed=%1 orientation=%2 (real orientation: %3)").arg((int)msg[1]).arg((int)msg[2]).arg(orientation));
+            _numberOfTimerExec = 0;
+        }
 
         _btMgr->sendMessage(&msg, 3);
     }

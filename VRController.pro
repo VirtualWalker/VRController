@@ -79,13 +79,17 @@ SOURCES +=  \
     src/gui/main.cpp \
     src/gui/mainwindow.cpp \
     src/gui/listeningwidget.cpp \
-    src/gui/fakecontroller.cpp
+    src/gui/fakecontroller.cpp \
+    src/gui/log/logbrowser.cpp \
+    src/gui/log/logbrowserwidget.cpp
 
 HEADERS  +=  \
     src/core/bluetoothmanager.h \
     src/gui/mainwindow.h \
     src/gui/listeningwidget.h \
-    src/gui/fakecontroller.h
+    src/gui/fakecontroller.h \
+    src/gui/log/logbrowser.h \
+    src/gui/log/logbrowserwidget.h
 
 # Add progress indicator files
 include($$PWD/thirdparty/qprogressindicator/qprogressindicator.pri)

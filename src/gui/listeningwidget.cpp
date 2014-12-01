@@ -40,6 +40,7 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
         _buttonStartListening->setText(_strListening);
         _listeningProgressIndicator->startAnimation();
         _listeningProgressIndicator->show();
+        _channelBox->setEnabled(false);
 
         // Emit a signal
         emit startListening();
@@ -69,6 +70,7 @@ int ListeningWidget::channelValue() const
 // Public slot
 void ListeningWidget::connected()
 {
+    _channelBox->setEnabled(true);
     _buttonStartListening->setEnabled(true);
     _buttonStartListening->setText(_strStart);
     _listeningProgressIndicator->stopAnimation();

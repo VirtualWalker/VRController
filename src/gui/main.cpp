@@ -17,15 +17,56 @@
  */
 
 #include "mainwindow.h"
+#include "log/logbrowser.h"
+
 #include <QApplication>
 #include <QTranslator>
 #include <QLibraryInfo>
 #include <QLocale>
+#include <QMessageLogContext>
+#include <QDebug>
+
+LogBrowser *globalLogBrowser;
+
+void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString output;
+
+    switch(type)
+    {
+        case QtDebugMsg:
+            output = QString("Debug: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+        case QtWarningMsg:
+            output = QString("Warning: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+        case QtCriticalMsg:
+            output = QString("Critical: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+        case QtFatalMsg:
+            output = QString("Fatal /!\\: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+    }
+
+    // Output to standard error channel
+    fprintf(stderr, "%s\n", output.toLocal8Bit().constData());
+
+    // Add output to log widget
+    if(globalLogBrowser)
+        globalLogBrowser->outputMessage(output);
+
+    // Quit if it's a fatal message
+    if(type == QtFatalMsg)
+        abort();
+}
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    // Install the custom handler
+    qInstallMessageHandler(messageOutput);
+    bool useLogWidget = true;
 
+    QApplication app(argc, argv);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
 
     QString locale = QLocale::system().name().section('_', 0, 0);
@@ -33,8 +74,28 @@ int main(int argc, char *argv[])
     translator.load(QString("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&translator);
 
-    MainWindow window;
+    // Check log param
+    for(int i=1; i < argc; ++i)
+    {
+        if(strcmp(argv[i], "--nologwidget") == 0)
+        {
+            qDebug() << qPrintable(QObject::tr("--nologwidget argument detected ! Hide console output."));
+            useLogWidget = false;
+        }
+    }
+
+    if(useLogWidget)
+        globalLogBrowser = new LogBrowser();
+
+    MainWindow window(globalLogBrowser);
     window.show();
 
-    return app.exec();
+    // Execute the main loop
+    const int result = app.exec();
+
+    // Delete the log browser if needed
+    if(useLogWidget)
+        delete globalLogBrowser;
+
+    return result;
 }
