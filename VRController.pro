@@ -63,8 +63,6 @@ else {
     BUILD_STR = release
     DEFINES += CORE_RELEASE
     CONFIG += warn_off
-    # Supress qDebug() output
-    DEFINES += QT_NO_DEBUG_OUTPUT
 }
 
 # Build and bin paths

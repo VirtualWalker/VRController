@@ -32,24 +32,34 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 {
     QString output;
 
-    switch(type)
+    if(type == QtDebugMsg)
     {
-        case QtDebugMsg:
-            output = QString("Debug: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-            break;
-        case QtWarningMsg:
-            output = QString("Warning: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-            break;
-        case QtCriticalMsg:
-            output = QString("Critical: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-            break;
-        case QtFatalMsg:
-            output = QString("Fatal /!\\: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-            break;
+        output = QString("Debug: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+        // Only output on debug builds
+#ifdef QT_DEBUG
+        fprintf(stderr, "%s\n", output.toLocal8Bit().constData());
+#endif
     }
-
-    // Output to standard error channel
-    fprintf(stderr, "%s\n", output.toLocal8Bit().constData());
+    else
+    {
+        switch(type)
+        {
+            case QtWarningMsg:
+                output = QString("Warning: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+                break;
+            case QtCriticalMsg:
+                output = QString("Critical: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+                break;
+            case QtFatalMsg:
+                output = QString("Fatal /!\\: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+                break;
+            default:
+                output = QString("Unknown: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+                break;
+        }
+        // Output to standard error channel
+        fprintf(stderr, "%s\n", output.toLocal8Bit().constData());
+    }
 
     // Add output to log widget
     if(globalLogBrowser)
