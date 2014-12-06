@@ -21,20 +21,36 @@
 
 #include <QDebug>
 #include <QCoreApplication>
+#include <QTimerEvent>
+#include <QCloseEvent>
+#include <QVariant>
 
 #include <cerrno>
 #include <string>
 
+QString settingChannelStr = "channel";
+QString settingFrequencyStr = "frequency";
+
+QString settingWinGroupStr = "MainWindow";
+QString settingWinSizeStr = "size";
+QString settingWinPosStr = "pos";
+QString settingWinStateStr = "state";
+
+QString settingLogGroupStr = "Log";
+QString settingLogShowDateStr = "showDate";
+
 MainWindow::MainWindow(LogBrowser *logBrowser)
 {
     setWindowTitle(APPLICATION_NAME);
-    resize(600, 0);
+
+    _logBrowser = logBrowser;
+    _settings = new QSettings(this);
 
     // Init log browser parents
-    if(logBrowser != nullptr)
+    if(_logBrowser != nullptr)
     {
-        logBrowser->setParent(this);
-        logBrowser->widget()->setParent(this);
+        _logBrowser->setParent(this);
+        _logBrowser->widget()->setParent(this);
     }
 
     // Set the central widget
@@ -45,8 +61,6 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     setCentralWidget(_centralWidget);
 
     _listeningWidget = new ListeningWidget(this);
-    _listeningWidget->setChannel(DEFAULT_RFCOMM_CHANNEL);
-    _listeningWidget->setFrequency(DEFAULT_MSG_FREQUENCY);
     mainLayout->addWidget(_listeningWidget);
 
     // Connect the start button in the listening widget
@@ -63,8 +77,8 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     mainLayout->addWidget(_fakeController, 1);
 
     // Add the log browser if needed
-    if(logBrowser != nullptr)
-        mainLayout->addWidget(logBrowser->widget());
+    if(_logBrowser != nullptr)
+        mainLayout->addWidget(_logBrowser->widget());
 
     // Set the status bar
     _statusBar = new QStatusBar(this);
@@ -125,6 +139,9 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
 
     // Call the state handler just one time at the start
     _btMgrStateHandler(BluetoothManager::State::NO_STATE);
+
+    // Here, we can read the settings and restore states
+    readSettings();
 }
 
 // Re-implemented protected method
@@ -161,5 +178,46 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
         _btMgr->sendMessage(&msg, 3);
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    writeSettings();
+    event->accept();
+}
+
+// Protected methods to save and restore the settings
+void MainWindow::readSettings()
+{
+    _listeningWidget->setChannel(_settings->value(settingChannelStr, DEFAULT_RFCOMM_CHANNEL).toInt());
+    _listeningWidget->setFrequency(_settings->value(settingFrequencyStr, DEFAULT_MSG_FREQUENCY).toInt());
+
+    _settings->beginGroup(settingWinGroupStr);
+    resize(_settings->value(settingWinSizeStr, QSize(600, 0)).toSize());
+    move(_settings->value(settingWinPosStr, pos()).toPoint());
+    restoreState(_settings->value(settingWinStateStr).toByteArray());
+    _settings->endGroup();
+
+    _settings->beginGroup(settingLogGroupStr);
+    if(_logBrowser != nullptr)
+        _logBrowser->widget()->setShowDate(_settings->value(settingLogShowDateStr, true).toBool());
+    _settings->endGroup();
+}
+
+void MainWindow::writeSettings()
+{
+    _settings->setValue(settingChannelStr, _listeningWidget->channel());
+    _settings->setValue(settingFrequencyStr, _listeningWidget->frequency());
+
+    _settings->beginGroup(settingWinGroupStr);
+    _settings->setValue(settingWinPosStr, pos());
+    _settings->setValue(settingWinSizeStr, size());
+    _settings->setValue(settingWinStateStr, saveState());
+    _settings->endGroup();
+
+    _settings->beginGroup(settingLogGroupStr);
+    if(_logBrowser != nullptr)
+        _settings->setValue(settingLogShowDateStr, _logBrowser->widget()->showDate());
+    _settings->endGroup();
 }
 

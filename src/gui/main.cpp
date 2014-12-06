@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
+    QCoreApplication::setOrganizationName(APPLICATION_NAME);
 
     QString locale = QLocale::system().name().section('_', 0, 0);
     QTranslator translator;

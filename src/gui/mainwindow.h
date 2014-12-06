@@ -24,7 +24,7 @@
 #include <QLabel>
 #include <QThread>
 #include <QStatusBar>
-#include <QTimerEvent>
+#include <QSettings>
 
 #include "listeningwidget.h"
 #include "fakecontroller.h"
@@ -56,11 +56,19 @@ class MainWindow : public QMainWindow
         // Used to send BT data
         void timerEvent(QTimerEvent *event);
 
+        // Used to store the settings
+        void closeEvent(QCloseEvent *event);
+
+        void writeSettings();
+        void readSettings();
+
     private:
         QWidget *_centralWidget;
 
         ListeningWidget *_listeningWidget;
         FakeController *_fakeController;
+
+        LogBrowser *_logBrowser;
 
         QStatusBar *_statusBar;
         // Widgets used in the status bar
@@ -75,6 +83,8 @@ class MainWindow : public QMainWindow
 
         // These variables is used to count the number of executions of the method timerEvent()
         int _numberOfTimerExec = 0;
+
+        QSettings *_settings;
 };
 
 #endif // MAINWINDOW_H
