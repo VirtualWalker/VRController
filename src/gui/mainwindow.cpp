@@ -45,11 +45,13 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     setCentralWidget(_centralWidget);
 
     _listeningWidget = new ListeningWidget(this);
-    _listeningWidget->setChannelValue(DEFAULT_RFCOMM_CHANNEL);
+    _listeningWidget->setChannel(DEFAULT_RFCOMM_CHANNEL);
+    _listeningWidget->setFrequency(DEFAULT_MSG_FREQUENCY);
     mainLayout->addWidget(_listeningWidget);
+
     // Connect the start button in the listening widget
     connect(_listeningWidget, &ListeningWidget::startListening, this, [this]() {
-        _btMgr = new BluetoothManager(_listeningWidget->channelValue(), _btMgrStateHandler, _btMgrErrorHandler);
+        _btMgr = new BluetoothManager(_listeningWidget->channel(), _btMgrStateHandler, _btMgrErrorHandler);
         qDebug() << qPrintable(tr("Start listening on channel %1").arg(_btMgr->rfcommChannel()));
         _btMgr->startListening();
     });
@@ -58,7 +60,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     _fakeController->hide();
     connect(this, &MainWindow::showFakeController, _fakeController, &FakeController::show);
     connect(this, &MainWindow::setConnectionText, _fakeController, &FakeController::setConnectionAddress);
-    mainLayout->addWidget(_fakeController);
+    mainLayout->addWidget(_fakeController, 1);
 
     // Add the log browser if needed
     if(logBrowser != nullptr)
@@ -98,10 +100,11 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
             emit setConnectionText(_btMgr->clientAddress().c_str(), _btMgr->clientChannel());
             emit showFakeController();
 
+            qDebug() << qPrintable(tr("Start sending data %1 times per second.").arg(_listeningWidget->frequency()));
             qDebug() << qPrintable(tr("Output Bluetooth data in the console every second ..."));
 
-            // Start a timer to send datas 5 time by second
-            _btTimer = startTimer(1000/_sendDataFrequency, Qt::PreciseTimer);
+            // Start a timer to send datas at the specified interval
+            _btTimer = startTimer(1000/_listeningWidget->frequency(), Qt::PreciseTimer);
         }
     };
     _btMgrErrorHandler = [this](BluetoothManager::Error newError) {
@@ -148,7 +151,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
         msg[1] = walkSpeed;
         msg[2] = orientation / (360.0f/255.0f);
         // Show the debug message only one time per second
-        if(_numberOfTimerExec == _sendDataFrequency)
+        if(_numberOfTimerExec == _listeningWidget->frequency())
         {
             // Don't show debug message if all data = 0
             if(walkSpeed != 0 || orientation != 0)

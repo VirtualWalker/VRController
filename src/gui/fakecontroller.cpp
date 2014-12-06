@@ -26,7 +26,6 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
     setLayout(_mainLayout);
 
     setFocusPolicy(Qt::StrongFocus);
-    grabKeyboard();
 
     _connectionLabel = new QLabel(this);
     _connectionLabel->setAlignment(Qt::AlignCenter);
@@ -138,11 +137,15 @@ void FakeController::updateWalkSpeedLabel(int newValue)
     emit valueChanged();
 }
 
+#include <QDebug>
+
 // Re-implemented protected methods
 void FakeController::keyPressEvent(QKeyEvent *event)
 {
+    qDebug() << QString::number(event->key());
     switch(event->key())
     {
+        // Walk speed controls
         case Qt::Key_Plus:
             _walkSpeedDial->setValue(_walkSpeedDial->value() + 1);
             break;
@@ -150,6 +153,20 @@ void FakeController::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Minus:
             _walkSpeedDial->setValue(_walkSpeedDial->value() - 1);
             break;
+        case Qt::Key_End:
+            _walkSpeedDial->setValue(_walkSpeedDial->maximum());
+            break;
+        case Qt::Key_Home:
+            _walkSpeedDial->setValue(_walkSpeedDial->minimum());
+
+        // Orientation controls
+        case Qt::Key_Up:
+        case Qt::Key_PageUp:
+            _orientationDial->setValue(_orientationDial->value() + 1);
+            break;
+        case Qt::Key_Down:
+        case Qt::Key_PageDown:
+            _orientationDial->setValue(_orientationDial->value() - 1);
         default:
             break;
     }

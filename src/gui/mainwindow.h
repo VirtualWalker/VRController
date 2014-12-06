@@ -32,6 +32,8 @@
 #include "../core/bluetoothmanager.h"
 #include "log/logbrowser.h"
 
+#define DEFAULT_MSG_FREQUENCY 5
+
 class MainWindow : public QMainWindow
 {
         Q_OBJECT
@@ -71,8 +73,6 @@ class MainWindow : public QMainWindow
         std::function<void(BluetoothManager::State)> _btMgrStateHandler;
         std::function<void(BluetoothManager::Error)> _btMgrErrorHandler;
 
-        // Number of time per second BT data are send
-        int _sendDataFrequency = 5;
         // These variables is used to count the number of executions of the method timerEvent()
         int _numberOfTimerExec = 0;
 };

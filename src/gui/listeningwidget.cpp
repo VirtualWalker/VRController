@@ -18,6 +18,10 @@
 
 #include "listeningwidget.h"
 
+#include <QFormLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+
 ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
 {
     _strStart = tr("Start listening ...");
@@ -41,6 +45,7 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
         _listeningProgressIndicator->startAnimation();
         _listeningProgressIndicator->show();
         _channelBox->setEnabled(false);
+        _frequencyBox->setEnabled(false);
 
         // Emit a signal
         emit startListening();
@@ -52,34 +57,48 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
     hblStart->addWidget(_listeningProgressIndicator);
     _listeningProgressIndicator->hide();
 
-    QHBoxLayout *hblChannel = new QHBoxLayout();
-    vboxLayout->addLayout(hblChannel);
+    QFormLayout *formLayout = new QFormLayout();
+    vboxLayout->addLayout(formLayout);
 
-    _channelLabel = new QLabel(tr("Choose the RFCOMM channel:"), this);
-    hblChannel->addWidget(_channelLabel);
     _channelBox = new QSpinBox(this);
     _channelBox->setRange(0, 30);
-    hblChannel->addWidget(_channelBox);
+    formLayout->addRow(tr("Choose the RFCOMM channel:"), _channelBox);
+
+    _frequencyBox = new QSpinBox(this);
+    _frequencyBox->setRange(1, 100);
+    formLayout->addRow(tr("Set the frequency of data send:"), _frequencyBox);
 }
 
-int ListeningWidget::channelValue() const
+int ListeningWidget::channel() const
 {
     return _channelBox->value();
+}
+
+int ListeningWidget::frequency() const
+{
+    return _frequencyBox->value();
 }
 
 // Public slot
 void ListeningWidget::connected()
 {
     _channelBox->setEnabled(true);
+    _frequencyBox->setEnabled(false);
     _buttonStartListening->setEnabled(true);
     _buttonStartListening->setText(_strStart);
     _listeningProgressIndicator->stopAnimation();
     _listeningProgressIndicator->hide();
 }
 
-void ListeningWidget::setChannelValue(int value)
+void ListeningWidget::setChannel(int value)
 {
-    if(value >=0 && value <= 30)
+    if(value >= 0 && value <= 30)
         _channelBox->setValue(value);
+}
+
+void ListeningWidget::setFrequency(int value)
+{
+    if(value > 0 && value <= 100)
+        _frequencyBox->setValue(value);
 }
 

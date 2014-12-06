@@ -19,12 +19,8 @@
 #ifndef LISTENINGWIDGET_H
 #define LISTENINGWIDGET_H
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QPushButton>
 #include <QSpinBox>
-#include <QLabel>
 
 #include "QProgressIndicator"
 
@@ -34,7 +30,8 @@ class ListeningWidget : public QWidget
     public:
         explicit ListeningWidget(QWidget *parent = 0);
 
-        int channelValue() const;
+        int channel() const;
+        int frequency() const;
 
     signals:
         void startListening();
@@ -45,7 +42,10 @@ class ListeningWidget : public QWidget
         void connected();
 
         // Set the value of the channel box
-        void setChannelValue(int value);
+        void setChannel(int value);
+
+        // Set the frequency for sending data
+        void setFrequency(int value);
 
     private:
 
@@ -56,7 +56,8 @@ class ListeningWidget : public QWidget
         QString _strListening;
 
         QSpinBox *_channelBox;
-        QLabel *_channelLabel;
+
+        QSpinBox *_frequencyBox;
 };
 
 #endif // LISTENINGWIDGET_H
