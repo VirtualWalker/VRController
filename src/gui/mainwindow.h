@@ -32,7 +32,7 @@
 #include "../core/bluetoothmanager.h"
 #include "log/logbrowser.h"
 
-#define DEFAULT_MSG_FREQUENCY 5
+#define DEFAULT_MSG_FREQUENCY 10
 
 class MainWindow : public QMainWindow
 {

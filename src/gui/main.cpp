@@ -81,9 +81,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(APPLICATION_NAME);
 
     QString locale = QLocale::system().name().section('_', 0, 0);
-    QTranslator translator;
-    translator.load(QString("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&translator);
+    QTranslator qtTranslator;
+    qtTranslator.load(QStringLiteral("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
+    QTranslator appTranslator;
+    appTranslator.load(QString(APPLICATION_TARGET) + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&appTranslator);
 
     // Check log param
     for(int i=1; i < argc; ++i)

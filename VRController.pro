@@ -93,3 +93,8 @@ HEADERS  +=  \
 
 # Add progress indicator files
 include($$PWD/thirdparty/qprogressindicator/qprogressindicator.pri)
+
+# Add french translation
+TRANSLATIONS += \
+    i18n/$${APPLICATION_TARGET}_fr.ts
+
