@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QThread>
 #include <QStatusBar>
+#include <QMenuBar>
 #include <QSettings>
 
 #include "listeningwidget.h"
@@ -40,6 +41,10 @@ class MainWindow : public QMainWindow
 
     public:
         explicit MainWindow(LogBrowser* logBrowser);
+
+    public slots:
+
+        void about();
 
     signals:
         //
@@ -74,6 +79,8 @@ class MainWindow : public QMainWindow
         // Widgets used in the status bar
         QLabel *_sbState;
         QLabel *_sbError;
+
+        QMenuBar *_menuBar;
 
         BluetoothManager *_btMgr;
         int _btTimer = -1;

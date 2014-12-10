@@ -38,7 +38,7 @@ class ListeningWidget : public QWidget
 
     public slots:
 
-        // This slot must be called when the BT manager is connected to a client
+        // This slot must be call when the BT manager is connected to a client
         void connected();
 
         // Set the value of the channel box

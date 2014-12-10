@@ -80,7 +80,8 @@ SOURCES +=  \
     src/gui/fakecontroller.cpp \
     src/gui/log/logbrowser.cpp \
     src/gui/log/logbrowserwidget.cpp \
-    src/gui/autoscrolltextbrowser.cpp
+    src/gui/autoscrolltextbrowser.cpp \
+    src/gui/about.cpp
 
 HEADERS  +=  \
     src/core/bluetoothmanager.h \
@@ -89,7 +90,10 @@ HEADERS  +=  \
     src/gui/fakecontroller.h \
     src/gui/log/logbrowser.h \
     src/gui/log/logbrowserwidget.h \
-    src/gui/autoscrolltextbrowser.h
+    src/gui/autoscrolltextbrowser.h \
+    src/gui/about.h \
+    src/gui/utility.h \
+    src/gui/licenses.h
 
 # Add progress indicator files
 include($$PWD/thirdparty/qprogressindicator/qprogressindicator.pri)
@@ -97,4 +101,7 @@ include($$PWD/thirdparty/qprogressindicator/qprogressindicator.pri)
 # Add french translation
 TRANSLATIONS += \
     i18n/$${APPLICATION_TARGET}_fr.ts
+
+RESOURCES += \
+    resources.qrc
 

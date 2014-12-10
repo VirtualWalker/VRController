@@ -19,11 +19,17 @@
 #include "mainwindow.h"
 #include "log/logbrowser.h"
 
+#include "about.h"
+
 #include <QDebug>
 #include <QCoreApplication>
 #include <QTimerEvent>
 #include <QCloseEvent>
 #include <QVariant>
+#include <QDialog>
+#include <QApplication>
+#include <QMenu>
+#include <QAction>
 
 #include <cerrno>
 #include <string>
@@ -97,6 +103,20 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     _statusBar->addPermanentWidget(_sbState);
     setStatusBar(_statusBar);
 
+    // Create the menu bar
+    _menuBar = new QMenuBar(this);
+    setMenuBar(_menuBar);
+    QMenu *aboutMenu = new QMenu(tr("&About"), _menuBar);
+    _menuBar->addMenu(aboutMenu);
+
+    QAction *aboutAction = new QAction(tr("&About"), this);
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+    aboutMenu->addAction(aboutAction);
+
+    QAction *aboutQtAction = new QAction(tr("&About Qt"), this);
+    connect(aboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
+    aboutMenu->addAction(aboutQtAction);
+
     // Create the Bluetooth manager and the handlers
     _btMgrStateHandler = [this](BluetoothManager::State newState) {
         const QString str = BluetoothManager::stateString(newState).c_str();
@@ -158,6 +178,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
         const int walkSpeed = _fakeController->walkSpeedValue();
         const int orientation = _fakeController->orientationValue();
+
         // The message contains 3 numbers
         // First: 0xFF --> specify that the message begins
         // Second: Walk speed, a number between 0 and 254
@@ -167,10 +188,11 @@ void MainWindow::timerEvent(QTimerEvent *event)
         msg[0] = 0xFF;
         msg[1] = walkSpeed;
         msg[2] = orientation / (360.0f/255.0f);
+
         // Show the debug message only one time per second
         if(_numberOfTimerExec == _listeningWidget->frequency())
         {
-            // Don't show debug message if all data = 0
+            // Don't show debug message if all data equals 0
             if(walkSpeed != 0 || orientation != 0)
                 qDebug() << qPrintable(tr("Send message: speed=%1 orientation=%2 (real orientation: %3)").arg((int)msg[1]).arg((int)msg[2]).arg(orientation));
             _numberOfTimerExec = 0;
@@ -184,6 +206,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
     event->accept();
+}
+
+// Public slots
+void MainWindow::about()
+{
+    AboutDialog *dialog = new AboutDialog(this);
+    dialog->exec();
 }
 
 // Protected methods to save and restore the settings
