@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     qtTranslator.load(QStringLiteral("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&qtTranslator);
     QTranslator appTranslator;
-    appTranslator.load(QString(APPLICATION_TARGET) + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    appTranslator.load(QString(APPLICATION_TARGET) + '_' + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&appTranslator);
 
     // Check log param

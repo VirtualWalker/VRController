@@ -2,6 +2,39 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <location filename="../src/gui/about.cpp" line="32"/>
+        <source>About %1</source>
+        <translation>A propos de %1</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/about.cpp" line="75"/>
+        <source>A controller for virtual reality movements with Bluetooth.</source>
+        <translation>Permet de controller les mouvements d&apos;un jeu de réalité virtuelle via Bluetooth.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/about.cpp" line="81"/>
+        <source>&amp;About %1</source>
+        <translation>A &amp;propos de %1</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/about.cpp" line="82"/>
+        <source>&amp;License</source>
+        <translation>&amp;License</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/about.cpp" line="83"/>
+        <source>3rd &amp;party licenses</source>
+        <translation>Licenses &amp;tierces</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/about.cpp" line="85"/>
+        <source>OK</source>
+        <translation>Valider</translation>
+    </message>
+</context>
+<context>
     <name>FakeController</name>
     <message>
         <location filename="../src/gui/fakecontroller.cpp" line="48"/>
@@ -110,62 +143,73 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="69"/>
+        <location filename="../src/gui/mainwindow.cpp" line="75"/>
         <source>Start listening on channel %1</source>
         <translation>Début de l&apos;écoute sur le canal %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="103"/>
+        <location filename="../src/gui/mainwindow.cpp" line="109"/>
+        <location filename="../src/gui/mainwindow.cpp" line="112"/>
+        <source>&amp;About</source>
+        <translation>A &amp;propos</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/mainwindow.cpp" line="116"/>
+        <source>About &amp;Qt</source>
+        <translation>A propos de &amp;Qt</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/mainwindow.cpp" line="123"/>
         <source>State: %1</source>
         <translation>État: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="104"/>
+        <location filename="../src/gui/mainwindow.cpp" line="124"/>
         <source>State changed ! New state: %1</source>
         <translation>Changement d&apos;état ! Nouvel état: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="110"/>
+        <location filename="../src/gui/mainwindow.cpp" line="130"/>
         <source>Connected to %1 on channel %2.</source>
         <translation>Connecté à %1 sur le canal %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="113"/>
+        <location filename="../src/gui/mainwindow.cpp" line="133"/>
         <source>Showing the fake controller ...</source>
         <translation>Affichage du faux controlleur ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="117"/>
+        <location filename="../src/gui/mainwindow.cpp" line="137"/>
         <source>Start sending data %1 times per second.</source>
         <translation>Début de l&apos;envoi de données %1 fois par seconde.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="118"/>
+        <location filename="../src/gui/mainwindow.cpp" line="138"/>
         <source>Output Bluetooth data in the console every second ...</source>
         <translation>Affichage des données Bluetooth dans la console toutes les secondes ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="130"/>
+        <location filename="../src/gui/mainwindow.cpp" line="150"/>
         <source>Error: %1</source>
         <translation>Erreur: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="133"/>
+        <location filename="../src/gui/mainwindow.cpp" line="153"/>
         <source>Bluetooth error: %1 (error code: %2)</source>
         <translation>Erreur bluetooth: %1 (code: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="136"/>
+        <location filename="../src/gui/mainwindow.cpp" line="156"/>
         <source>Error detail: %1 (errno value: %2)</source>
         <translation>Détail de l&apos;erreur: %1 (valeur de errno: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="155"/>
+        <location filename="../src/gui/mainwindow.cpp" line="175"/>
         <source>The bluetooth manager is not created !</source>
         <translation>Le gestionnaire bluetooth n&apos;a pas été créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="175"/>
+        <location filename="../src/gui/mainwindow.cpp" line="197"/>
         <source>Send message: speed=%1 orientation=%2 (real orientation: %3)</source>
         <translation>Envoi d&apos;un message: vitesse=%1 orientation=%2 (vrai orientation: %3)</translation>
     </message>
@@ -173,7 +217,7 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/gui/main.cpp" line="93"/>
+        <location filename="../src/gui/main.cpp" line="96"/>
         <source>--nologwidget argument detected ! Hide console output.</source>
         <translation>Détection de l&apos;argument --nologwidget ! La console ne sera pas affichée.</translation>
     </message>

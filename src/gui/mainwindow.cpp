@@ -113,7 +113,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
     aboutMenu->addAction(aboutAction);
 
-    QAction *aboutQtAction = new QAction(tr("&About Qt"), this);
+    QAction *aboutQtAction = new QAction(tr("About &Qt"), this);
     connect(aboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
     aboutMenu->addAction(aboutQtAction);
 
