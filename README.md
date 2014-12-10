@@ -18,7 +18,7 @@ VRController uses some third-party libraries to work correctly
 License
 -------
 
-JustPlug is licensed under the [GNU GPL] license v.3 . You can get a copy of this license in the LICENSE file at the top of the project hierarchy.
+VRController is licensed under the [GNU GPL] license v.3 . You can get a copy of this license in the LICENSE file at the top of the project hierarchy.
 
 
 [Qt]:http://qt-project.org/
