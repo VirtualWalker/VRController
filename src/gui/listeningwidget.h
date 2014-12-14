@@ -21,6 +21,7 @@
 
 #include <QPushButton>
 #include <QSpinBox>
+#include <QGroupBox>
 
 #include "QProgressIndicator"
 
@@ -32,6 +33,8 @@ class ListeningWidget : public QWidget
 
         int channel() const;
         int frequency() const;
+
+        bool useCustomChannel() const;
 
     signals:
         void startListening();
@@ -47,6 +50,9 @@ class ListeningWidget : public QWidget
         // Set the frequency for sending data
         void setFrequency(int value);
 
+        // Set if we use a custom channel
+        void setCustomChannelUse(bool use);
+
     private:
 
         QPushButton *_buttonStartListening;
@@ -56,8 +62,10 @@ class ListeningWidget : public QWidget
         QString _strListening;
 
         QSpinBox *_channelBox;
-
         QSpinBox *_frequencyBox;
+
+        // Used to know if the channel is set manually
+        QGroupBox *_channelGroup;
 };
 
 #endif // LISTENINGWIDGET_H

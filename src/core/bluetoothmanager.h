@@ -29,11 +29,12 @@
 
 #include <sys/socket.h>
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
 #include <bluetooth/rfcomm.h>
+#include <bluetooth/sdp.h>
+#include <bluetooth/sdp_lib.h>
 
 #define DEFAULT_RFCOMM_CHANNEL 22
+#define AUTO_RFCOMM_CHANNEL 0
 
 //
 // Single Header that manage all bluetooth operations as a server
@@ -49,10 +50,11 @@ class BluetoothManager
             // Default state
             NO_STATE = 0,
 
-            CONNECTED_TO_SOCKET = 1,
-            BOUND_TO_SOCKET = 2,
-            LISTENING = 3,
-            CONNECTED_TO_CLIENT = 4,
+            SDP_SERVICE_REGISTERED = 1,
+            CONNECTED_TO_SOCKET = 2,
+            BOUND_TO_SOCKET = 3,
+            LISTENING = 4,
+            CONNECTED_TO_CLIENT = 5,
         };
 
         // Enumeration that specify the error
@@ -62,20 +64,30 @@ class BluetoothManager
         {
             NO_ERROR = 0,
 
-            SOCKET_CONNECTION = 1,
-            SOCKET_BIND = 2,
-            START_LISTEN = 3,
-            CLIENT_CONNECTION = 4,
-            SEND_MSG = 5,
+            REGISTER_SDP_SERVICE = 1,
+            SOCKET_CONNECTION = 2,
+            SOCKET_BIND = 3,
+            START_LISTEN = 4,
+            CLIENT_CONNECTION = 5,
+
+            SEND_MSG = 50,
+            CLOSE_SDP_SERVICE = 51,
 
             // Errors for not correct state
             NOT_IN_BOUND_STATE = 100,
             NOT_IN_CONNECTED_STATE = 101,
-            // RFCOMM Channel not in range 1-30
+            // RFCOMM channel not in range 0-30 (0 means for auto)
             BAD_RFCOMM_CHANNEL = 200
         };
 
-    private:
+    protected:
+        // Represent any BDADDR address
+        // This is a workaround for the C macro BDADDR_ANY
+        // since it doesn't work in C++ (with -fpermissive)
+        bdaddr_t BDADDRAny = {{0, 0, 0, 0, 0, 0}};
+        bdaddr_t BDADDRLocal = {{0, 0, 0, 0xff, 0xff, 0xff}};
+        bdaddr_t BDADDRAll = {{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
+
         // Network socket
         int _socket;
 
@@ -91,15 +103,14 @@ class BluetoothManager
         // Represent the connected client
         int _client;
 
+        // Represent the session with the SDP service
+        // Create by registerSDPService() method
+        sdp_session_t *_sdpSession = nullptr;
+
         // Current state of the manager
         State _state = State::NO_STATE;
         // Contains all error occured
         std::vector<Error> _errors;
-
-        // Represent any BDADDR address
-        // This is a workaround for the C macro BDADDR_ANY
-        // since it doesn't work in C++ (with -fpermissive)
-        bdaddr_t _bdaddrAny = {{0, 0, 0, 0, 0, 0}};
 
         // Accept thread
         std::thread _acceptThread;
@@ -112,8 +123,12 @@ class BluetoothManager
         // The new error is passed to the handler
         std::function<void(Error)> _newErrorHandler;
 
+        // Contains the UUID used for SDP service
+        // Don't change this since it's the same UUID for all games that used this controller
+        const std::uint32_t UUID[4] = { 0x0123, 0x4567, 0x89AB, 0xCDEF };
+
         //
-        // Private method
+        // Protected methods
         //
 
         // This method is used to change the state, and will call the handler
@@ -131,9 +146,75 @@ class BluetoothManager
             _newErrorHandler(error);
         }
 
+        // Register a SDP service to enable client to connect to this server
+        // Return the error code
+        int registerSDPService()
+        {
+            // Register all informations and UUIDs
+            uuid_t rootUUID, l2capUUID, rfcommUUID, serviceUUID;
+            sdp_list_t *l2capList = 0,
+                       *rfcommList = 0,
+                       *rootList = 0,
+                       *protoList = 0,
+                       *accessProtocolList = 0;
+            sdp_data_t *channel = 0;
+
+            // Contains infos of the SDP service
+            sdp_record_t *record = sdp_record_alloc();
+
+            // Set the general service UUID
+            sdp_uuid128_create(&serviceUUID, &UUID);
+            sdp_set_service_id(record, serviceUUID);
+
+            // Make the service record publicly browsable
+            sdp_uuid16_create(&rootUUID, PUBLIC_BROWSE_GROUP);
+            rootList = sdp_list_append(0, &rootUUID);
+            sdp_set_browse_groups(record, rootList);
+
+            // Set L2CAP information
+            sdp_uuid16_create(&l2capUUID, L2CAP_UUID);
+            l2capList = sdp_list_append(0, &l2capUUID);
+            protoList = sdp_list_append(0, l2capList);
+
+            // Set RFCOMM information
+            sdp_uuid16_create(&rfcommUUID, RFCOMM_UUID);
+            channel = sdp_data_alloc(SDP_UINT8, &_RFCOMMChannel);
+            rfcommList = sdp_list_append(0, &rfcommUUID);
+            sdp_list_append(rfcommList, channel);
+            sdp_list_append(protoList, rfcommList);
+
+            // Attach protocol information to service record
+            accessProtocolList = sdp_list_append(0, protoList);
+            sdp_set_access_protos(record, accessProtocolList);
+
+            // Re-init the session
+            if(_sdpSession != nullptr)
+            {
+                delete _sdpSession;
+                _sdpSession = nullptr;
+            }
+
+            _sdpSession = 0;
+
+            // Connect to the local SDP server, register the service record
+            _sdpSession = sdp_connect(&BDADDRAny, &BDADDRLocal, SDP_RETRY_IF_BUSY);
+            const int errorCode = sdp_record_register(_sdpSession, record, 0);
+
+            // Cleanup all lists
+            sdp_data_free(channel);
+            sdp_list_free(l2capList, 0);
+            sdp_list_free(rfcommList, 0);
+            sdp_list_free(rootList, 0);
+            sdp_list_free(accessProtocolList, 0);
+
+            // Return 0 on success and -1 on error
+            return errorCode;
+        }
+
     public:
 
         // Default constructor
+        // If the RFCOMM channel is set to 0, it will be auto generated by the manager
         BluetoothManager(int rfcommChannel = DEFAULT_RFCOMM_CHANNEL,
                          std::function<void(State)> stateChangedHandler = [](State newState){ (void)newState; },
                          std::function<void(Error)> newErrorHandler = [](Error newError){ (void)newError; })
@@ -150,6 +231,15 @@ class BluetoothManager
             if(!setRFCOMMChannel(rfcommChannel))
                 return;
 
+            // Register the SDP service
+            if(registerSDPService() < 0)
+            {
+                appendError(Error::REGISTER_SDP_SERVICE);
+                return;
+            }
+
+            setState(State::SDP_SERVICE_REGISTERED);
+
             // Create the network socket
             _socket = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
             if(_socket < 0)
@@ -158,14 +248,15 @@ class BluetoothManager
             {
                 setState(State::CONNECTED_TO_SOCKET);
 
-                // Bind the network socket to the default port
-                // local bluetooth adapter
+                // Bind the network socket to the corresponding RFCOMM channel
                 _localSockAddr.rc_family = AF_BLUETOOTH;
-                _localSockAddr.rc_bdaddr = _bdaddrAny;
-                _localSockAddr.rc_channel = (uint8_t) _RFCOMMChannel;
+                _localSockAddr.rc_bdaddr = BDADDRAny;
+                _localSockAddr.rc_channel = (std::uint8_t) _RFCOMMChannel;
 
-                const int bindReturn = bind(_socket, (struct sockaddr *)&_localSockAddr, sizeof(_localSockAddr));
-                if(bindReturn < 0)
+                const int bindReturnValue = bind(_socket, (struct sockaddr *)&_localSockAddr, sizeof(_localSockAddr));
+
+                // Check the return value of bind() function
+                if(bindReturnValue < 0)
                     appendError(Error::SOCKET_BIND);
                 else
                     setState(State::BOUND_TO_SOCKET);
@@ -227,14 +318,16 @@ class BluetoothManager
             _newErrorHandler = handler;
         }
 
-        // The channel must be in range 1-30
+        // The channel must be in range 0-30
+        // If the channel equals 0, it will be auto generated
         bool setRFCOMMChannel(int channel)
         {
-            if(channel > 0 && channel < 31)
+            if(channel >= 0 && channel < 31)
             {
                 _RFCOMMChannel = channel;
                 return true;
             }
+
             appendError(Error::BAD_RFCOMM_CHANNEL);
             return false;
         }
@@ -268,7 +361,12 @@ class BluetoothManager
                     if(_client < 0)
                         appendError(Error::CLIENT_CONNECTION);
                     else
+                    {
                         setState(State::CONNECTED_TO_CLIENT);
+
+                        // Close the SDP service when connected
+                        sdp_close(_sdpSession);
+                    }
                 });
             }
         }
@@ -320,6 +418,13 @@ class BluetoothManager
             sendMessage(&number, 1);
         }
 
+        std::string serviceUUID() const
+        {
+            uuid_t returnUUID;
+            sdp_uuid128_create(&returnUUID, &UUID);
+            return uuidToString(&returnUUID);
+        }
+
         //
         // Static methods
         //
@@ -331,11 +436,21 @@ class BluetoothManager
             return std::string(buffer);
         }
 
+        static std::string uuidToString(const uuid_t *uuid)
+        {
+            char buffer[1024] = {0};
+            sdp_uuid2strn(uuid, buffer, 1024);
+            return std::string(buffer);
+        }
+
         static std::string errorString(Error error)
         {
             switch (error) {
                 case Error::NO_ERROR:
                     return "NO_ERROR";
+                    break;
+                case Error::REGISTER_SDP_SERVICE:
+                    return "REGISTER_SDP_SERVICE";
                     break;
                 case Error::SOCKET_CONNECTION:
                     return "SOCKET_CONNECTION";
@@ -351,6 +466,9 @@ class BluetoothManager
                     break;
                 case Error::SEND_MSG:
                     return "SEND_MSG";
+                    break;
+                case Error::CLOSE_SDP_SERVICE:
+                    return "CLOSE_SDP_SERVICE";
                     break;
                 case Error::NOT_IN_BOUND_STATE:
                     return "NOT_IN_BOUND_STATE";
@@ -372,6 +490,9 @@ class BluetoothManager
             switch (state) {
                 case State::NO_STATE:
                     return "NO_STATE";
+                    break;
+                case State::SDP_SERVICE_REGISTERED:
+                    return "SDP_SERVICE_REGISTERED";
                     break;
                 case State::CONNECTED_TO_SOCKET:
                     return "CONNECTED_TO_SOCKET";

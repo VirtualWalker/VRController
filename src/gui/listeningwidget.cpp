@@ -21,6 +21,7 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGroupBox>
 
 ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
 {
@@ -40,12 +41,10 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
     // Disabled the button on click
     connect(_buttonStartListening, &QPushButton::clicked, this, [this]() {
         // You can't start a new listening
-        _buttonStartListening->setEnabled(false);
         _buttonStartListening->setText(_strListening);
         _listeningProgressIndicator->startAnimation();
         _listeningProgressIndicator->show();
-        _channelBox->setEnabled(false);
-        _frequencyBox->setEnabled(false);
+        setEnabled(false);
 
         // Emit a signal
         emit startListening();
@@ -57,12 +56,19 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
     hblStart->addWidget(_listeningProgressIndicator);
     _listeningProgressIndicator->hide();
 
-    QFormLayout *formLayout = new QFormLayout();
-    vboxLayout->addLayout(formLayout);
+    _channelGroup = new QGroupBox(tr("Use a custom channel"), this);
+    _channelGroup->setCheckable(true);
+    vboxLayout->addWidget(_channelGroup);
+
+    QFormLayout *groupLayout = new QFormLayout();
+    _channelGroup->setLayout(groupLayout);
 
     _channelBox = new QSpinBox(this);
-    _channelBox->setRange(0, 30);
-    formLayout->addRow(tr("Choose the RFCOMM channel:"), _channelBox);
+    _channelBox->setRange(1, 30);
+    groupLayout->addRow(tr("Choose the RFCOMM channel:"), _channelBox);
+
+    QFormLayout *formLayout = new QFormLayout();
+    vboxLayout->addLayout(formLayout);
 
     _frequencyBox = new QSpinBox(this);
     _frequencyBox->setRange(1, 100);
@@ -79,12 +85,15 @@ int ListeningWidget::frequency() const
     return _frequencyBox->value();
 }
 
+bool ListeningWidget::useCustomChannel() const
+{
+    return _channelGroup->isChecked();
+}
+
 // Public slot
 void ListeningWidget::connected()
 {
-    _channelBox->setEnabled(true);
-    _frequencyBox->setEnabled(false);
-    _buttonStartListening->setEnabled(true);
+    setEnabled(true);
     _buttonStartListening->setText(_strStart);
     _listeningProgressIndicator->stopAnimation();
     _listeningProgressIndicator->hide();
@@ -92,7 +101,7 @@ void ListeningWidget::connected()
 
 void ListeningWidget::setChannel(int value)
 {
-    if(value >= 0 && value <= 30)
+    if(value > 0 && value <= 30)
         _channelBox->setValue(value);
 }
 
@@ -100,5 +109,10 @@ void ListeningWidget::setFrequency(int value)
 {
     if(value > 0 && value <= 100)
         _frequencyBox->setValue(value);
+}
+
+void ListeningWidget::setCustomChannelUse(bool use)
+{
+    _channelGroup->setChecked(use);
 }
 

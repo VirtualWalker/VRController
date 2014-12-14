@@ -57,6 +57,8 @@ class MainWindow : public QMainWindow
         void addStatusBarWidget(QWidget *widget, int stretch = 0);
         void showErrorWidget();
 
+        void startDataTimer();
+
     protected:
         // Used to send BT data
         void timerEvent(QTimerEvent *event);
@@ -83,7 +85,7 @@ class MainWindow : public QMainWindow
         QMenuBar *_menuBar;
 
         BluetoothManager *_btMgr;
-        int _btTimer = -1;
+        int _btTimer = 0;
         // Functions to handle states and errors of the BT Manager
         std::function<void(BluetoothManager::State)> _btMgrStateHandler;
         std::function<void(BluetoothManager::Error)> _btMgrErrorHandler;

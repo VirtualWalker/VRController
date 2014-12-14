@@ -65,22 +65,27 @@
 <context>
     <name>ListeningWidget</name>
     <message>
-        <location filename="../src/gui/listeningwidget.cpp" line="27"/>
+        <location filename="../src/gui/listeningwidget.cpp" line="28"/>
         <source>Start listening ...</source>
         <translation>Commencer l&apos;écoute ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/listeningwidget.cpp" line="28"/>
+        <location filename="../src/gui/listeningwidget.cpp" line="29"/>
         <source>Listening ...</source>
         <translation>En cours d&apos;écoute ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/listeningwidget.cpp" line="65"/>
+        <location filename="../src/gui/listeningwidget.cpp" line="59"/>
+        <source>Use a custom channel</source>
+        <translation>Utiliser un canal spécial</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/listeningwidget.cpp" line="68"/>
         <source>Choose the RFCOMM channel:</source>
         <translation>Sélectionnez le canal RFCOMM:</translation>
     </message>
     <message>
-        <location filename="../src/gui/listeningwidget.cpp" line="69"/>
+        <location filename="../src/gui/listeningwidget.cpp" line="75"/>
         <source>Set the frequency of data send:</source>
         <translation>Sélectionnez la fréquence d&apos;envoi des données:</translation>
     </message>
@@ -143,73 +148,78 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="75"/>
-        <source>Start listening on channel %1</source>
-        <translation>Début de l&apos;écoute sur le canal %1</translation>
+        <location filename="../src/gui/mainwindow.cpp" line="80"/>
+        <source>UUID used for the SDP service: %1</source>
+        <translation>UUID utilisé par le service SDP: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="109"/>
-        <location filename="../src/gui/mainwindow.cpp" line="112"/>
+        <location filename="../src/gui/mainwindow.cpp" line="81"/>
+        <source>Start listening on channel %1.</source>
+        <translation>Début de l&apos;écoute sur le canal %1.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/mainwindow.cpp" line="115"/>
+        <location filename="../src/gui/mainwindow.cpp" line="118"/>
         <source>&amp;About</source>
         <translation>A &amp;propos</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="116"/>
+        <location filename="../src/gui/mainwindow.cpp" line="122"/>
         <source>About &amp;Qt</source>
         <translation>A propos de &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="123"/>
+        <location filename="../src/gui/mainwindow.cpp" line="134"/>
         <source>State: %1</source>
         <translation>État: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="124"/>
+        <location filename="../src/gui/mainwindow.cpp" line="135"/>
         <source>State changed ! New state: %1</source>
         <translation>Changement d&apos;état ! Nouvel état: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="130"/>
+        <location filename="../src/gui/mainwindow.cpp" line="141"/>
         <source>Connected to %1 on channel %2.</source>
         <translation>Connecté à %1 sur le canal %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="133"/>
+        <location filename="../src/gui/mainwindow.cpp" line="144"/>
         <source>Showing the fake controller ...</source>
         <translation>Affichage du faux controlleur ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="137"/>
+        <location filename="../src/gui/mainwindow.cpp" line="148"/>
         <source>Start sending data %1 times per second.</source>
         <translation>Début de l&apos;envoi de données %1 fois par seconde.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="138"/>
+        <location filename="../src/gui/mainwindow.cpp" line="149"/>
         <source>Output Bluetooth data in the console every second ...</source>
         <translation>Affichage des données Bluetooth dans la console toutes les secondes ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="150"/>
+        <location filename="../src/gui/mainwindow.cpp" line="161"/>
         <source>Error: %1</source>
         <translation>Erreur: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="153"/>
+        <location filename="../src/gui/mainwindow.cpp" line="164"/>
         <source>Bluetooth error: %1 (error code: %2)</source>
         <translation>Erreur bluetooth: %1 (code: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="156"/>
+        <location filename="../src/gui/mainwindow.cpp" line="167"/>
         <source>Error detail: %1 (errno value: %2)</source>
         <translation>Détail de l&apos;erreur: %1 (valeur de errno: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="175"/>
+        <location filename="../src/gui/mainwindow.cpp" line="186"/>
         <source>The bluetooth manager is not created !</source>
         <translation>Le gestionnaire bluetooth n&apos;a pas été créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="197"/>
+        <location filename="../src/gui/mainwindow.cpp" line="208"/>
         <source>Send message: speed=%1 orientation=%2 (real orientation: %3)</source>
         <translation>Envoi d&apos;un message: vitesse=%1 orientation=%2 (vrai orientation: %3)</translation>
     </message>

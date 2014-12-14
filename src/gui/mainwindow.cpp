@@ -34,16 +34,17 @@
 #include <cerrno>
 #include <string>
 
-QString settingChannelStr = "channel";
-QString settingFrequencyStr = "frequency";
+const QString settingChannelStr = "channel";
+const QString settingUseCustomChannelStr = "useCustomChannel";
+const QString settingFrequencyStr = "frequency";
 
-QString settingWinGroupStr = "MainWindow";
-QString settingWinSizeStr = "size";
-QString settingWinPosStr = "pos";
-QString settingWinStateStr = "state";
+const QString settingWinGroupStr = "MainWindow";
+const QString settingWinSizeStr = "size";
+const QString settingWinPosStr = "pos";
+const QString settingWinStateStr = "state";
 
-QString settingLogGroupStr = "Log";
-QString settingLogShowDateStr = "showDate";
+const QString settingLogGroupStr = "Log";
+const QString settingLogShowDateStr = "showDate";
 
 MainWindow::MainWindow(LogBrowser *logBrowser)
 {
@@ -71,8 +72,13 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
 
     // Connect the start button in the listening widget
     connect(_listeningWidget, &ListeningWidget::startListening, this, [this]() {
-        _btMgr = new BluetoothManager(_listeningWidget->channel(), _btMgrStateHandler, _btMgrErrorHandler);
-        qDebug() << qPrintable(tr("Start listening on channel %1").arg(_btMgr->rfcommChannel()));
+        if(_listeningWidget->useCustomChannel())
+            _btMgr = new BluetoothManager(_listeningWidget->channel(), _btMgrStateHandler, _btMgrErrorHandler);
+        else
+            _btMgr = new BluetoothManager(AUTO_RFCOMM_CHANNEL, _btMgrStateHandler, _btMgrErrorHandler);
+
+        qDebug() << qPrintable(tr("UUID used for the SDP service: %1").arg(_btMgr->serviceUUID().c_str()));
+        qDebug() << qPrintable(tr("Start listening on channel %1.").arg(_btMgr->rfcommChannel()));
         _btMgr->startListening();
     });
 
@@ -117,6 +123,11 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     connect(aboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
     aboutMenu->addAction(aboutQtAction);
 
+    // Connect the signal to start the data timer
+    connect(this, &MainWindow::startDataTimer, this, [this]() {
+        _btTimer = startTimer(1000/_listeningWidget->frequency(), Qt::PreciseTimer);
+    });
+
     // Create the Bluetooth manager and the handlers
     _btMgrStateHandler = [this](BluetoothManager::State newState) {
         const QString str = BluetoothManager::stateString(newState).c_str();
@@ -138,7 +149,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
             qDebug() << qPrintable(tr("Output Bluetooth data in the console every second ..."));
 
             // Start a timer to send datas at the specified interval
-            _btTimer = startTimer(1000/_listeningWidget->frequency(), Qt::PreciseTimer);
+            emit startDataTimer();
         }
     };
     _btMgrErrorHandler = [this](BluetoothManager::Error newError) {
@@ -218,6 +229,7 @@ void MainWindow::about()
 // Protected methods to save and restore the settings
 void MainWindow::readSettings()
 {
+    _listeningWidget->setCustomChannelUse(_settings->value(settingUseCustomChannelStr, true).toBool());
     _listeningWidget->setChannel(_settings->value(settingChannelStr, DEFAULT_RFCOMM_CHANNEL).toInt());
     _listeningWidget->setFrequency(_settings->value(settingFrequencyStr, DEFAULT_MSG_FREQUENCY).toInt());
 
@@ -235,6 +247,7 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
+    _settings->setValue(settingUseCustomChannelStr, _listeningWidget->useCustomChannel());
     _settings->setValue(settingChannelStr, _listeningWidget->channel());
     _settings->setValue(settingFrequencyStr, _listeningWidget->frequency());
 
