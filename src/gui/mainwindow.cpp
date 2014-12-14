@@ -156,6 +156,9 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
 
             // Start a timer to send datas at the specified interval
             emit startDataTimer();
+
+            if(_logBrowser != nullptr)
+                _logBrowser->widget()->scrollToDown();
         }
     };
     _btMgrErrorHandler = [this](BluetoothManager::Error newError) {

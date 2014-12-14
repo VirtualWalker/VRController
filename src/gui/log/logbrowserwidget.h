@@ -39,6 +39,8 @@ class LogBrowserWidget : public QWidget
         void outputMessage(const QString &msg);
         void setShowDate(bool shown);
 
+        void scrollToDown();
+
     signals:
         void showDateChanged(bool shown);
 

@@ -119,6 +119,11 @@ void LogBrowserWidget::setShowDate(bool shown)
     emit showDateChanged(shown);
 }
 
+void LogBrowserWidget::scrollToDown()
+{
+    _browser->scrollToDown();
+}
+
 //Private slots
 void LogBrowserWidget::save()
 {

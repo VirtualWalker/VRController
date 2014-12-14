@@ -28,6 +28,10 @@ class AutoScrollTextBrowser: public QTextBrowser
     public:
         explicit AutoScrollTextBrowser(QWidget *parent = 0);
 
+    public slots:
+        // Used to scroll to the down
+        void scrollToDown();
+
     protected:
         void focusOutEvent(QFocusEvent *event);
 

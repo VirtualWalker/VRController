@@ -48,7 +48,6 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
 
         // Emit a signal
         emit startListening();
-
     });
 
     // Set the listening indicator

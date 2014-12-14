@@ -23,16 +23,19 @@
 
 AutoScrollTextBrowser::AutoScrollTextBrowser(QWidget *parent): QTextBrowser(parent)
 {
+
+}
+
+void AutoScrollTextBrowser::scrollToDown()
+{
+    QScrollBar *sb = verticalScrollBar();
+    sb->setValue(sb->maximum());
 }
 
 // Re-implemented protected events
 void AutoScrollTextBrowser::focusOutEvent(QFocusEvent *event)
 {
-    //focusOutEvent(event);
     if(event->lostFocus())
-    {
-        QScrollBar *sb = verticalScrollBar();
-        sb->setValue(sb->maximum());
-    }
+        scrollToDown();
 }
 

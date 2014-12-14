@@ -88,7 +88,9 @@ class BluetoothManager
         bdaddr_t BDADDRAll = {{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
 
         // Network socket
-        int _socket;
+        int _socket = -1;
+        // Represent the connected client
+        int _client = -1;
 
         // RFCOMM Channel used for the connection
         int _RFCOMMChannel;
@@ -98,9 +100,6 @@ class BluetoothManager
         // Contains information about the remote socket address
         struct sockaddr_rc _remoteSockAddr;
         socklen_t _remoteSockLength = sizeof(_remoteSockAddr);
-
-        // Represent the connected client
-        int _client;
 
         // Represent the session with the SDP service
         // Create by registerSDPService() method
@@ -258,8 +257,10 @@ class BluetoothManager
         ~BluetoothManager()
         {
             errno = 0;
-            shutdown(_client, SHUT_RDWR);
-            shutdown(_socket, SHUT_RDWR);
+            if(_socket >= 0)
+                shutdown(_socket, SHUT_RDWR);
+            if(_client >= 0)
+                shutdown(_client, SHUT_RDWR);
 
             // Join the accept thread here to avoid memory leaks
             _acceptThread.join();
