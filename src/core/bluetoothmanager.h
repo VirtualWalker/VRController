@@ -50,11 +50,10 @@ class BluetoothManager
             // Default state
             NO_STATE = 0,
 
-            SDP_SERVICE_REGISTERED = 1,
-            CONNECTED_TO_SOCKET = 2,
-            BOUND_TO_SOCKET = 3,
-            LISTENING = 4,
-            CONNECTED_TO_CLIENT = 5,
+            CONNECTED_TO_SOCKET = 1,
+            BOUND_TO_SOCKET = 2,
+            LISTENING = 3,
+            CONNECTED_TO_CLIENT = 4
         };
 
         // Enumeration that specify the error
@@ -231,15 +230,6 @@ class BluetoothManager
             if(!setRFCOMMChannel(rfcommChannel))
                 return;
 
-            // Register the SDP service
-            if(registerSDPService() < 0)
-            {
-                appendError(Error::REGISTER_SDP_SERVICE);
-                return;
-            }
-
-            setState(State::SDP_SERVICE_REGISTERED);
-
             // Create the network socket
             _socket = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
             if(_socket < 0)
@@ -353,6 +343,23 @@ class BluetoothManager
             else
             {
                 setState(State::LISTENING);
+
+                // Get the real channel if set to 0 (auto-generated to the first available)
+                if(_RFCOMMChannel == 0)
+                {
+                    struct sockaddr_rc localAddr;
+                    socklen_t addrLength = sizeof(localAddr);
+                    getsockname(_socket, (struct sockaddr *)&localAddr, &addrLength);
+
+                    _RFCOMMChannel = localAddr.rc_channel;
+                }
+
+                // Register the SDP service here (with the correct channel)
+                if(registerSDPService() < 0)
+                {
+                    appendError(Error::REGISTER_SDP_SERVICE);
+                    return;
+                }
 
                 // Accept one connection in an another thread
                 _acceptThread = std::thread(&BluetoothManager::acceptConnection, this, _socket, (struct sockaddr *)&_remoteSockAddr, &_remoteSockLength, [this](int clientID) {
@@ -490,9 +497,6 @@ class BluetoothManager
             switch (state) {
                 case State::NO_STATE:
                     return "NO_STATE";
-                    break;
-                case State::SDP_SERVICE_REGISTERED:
-                    return "SDP_SERVICE_REGISTERED";
                     break;
                 case State::CONNECTED_TO_SOCKET:
                     return "CONNECTED_TO_SOCKET";

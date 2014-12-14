@@ -77,9 +77,15 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
         else
             _btMgr = new BluetoothManager(AUTO_RFCOMM_CHANNEL, _btMgrStateHandler, _btMgrErrorHandler);
 
+        const int oldChannel = _btMgr->rfcommChannel();
+
         qDebug() << qPrintable(tr("UUID used for the SDP service: %1").arg(_btMgr->serviceUUID().c_str()));
         qDebug() << qPrintable(tr("Start listening on channel %1.").arg(_btMgr->rfcommChannel()));
         _btMgr->startListening();
+
+        // Re-print the real channel if auto-generated
+        if(oldChannel == 0)
+            qDebug() << qPrintable(tr("RFCOMM channel has been auto-generated to %1.").arg(_btMgr->rfcommChannel()));
     });
 
     _fakeController = new FakeController(this);
@@ -229,7 +235,7 @@ void MainWindow::about()
 // Protected methods to save and restore the settings
 void MainWindow::readSettings()
 {
-    _listeningWidget->setCustomChannelUse(_settings->value(settingUseCustomChannelStr, true).toBool());
+    _listeningWidget->setCustomChannelUse(_settings->value(settingUseCustomChannelStr, false).toBool());
     _listeningWidget->setChannel(_settings->value(settingChannelStr, DEFAULT_RFCOMM_CHANNEL).toInt());
     _listeningWidget->setFrequency(_settings->value(settingFrequencyStr, DEFAULT_MSG_FREQUENCY).toInt());
 
