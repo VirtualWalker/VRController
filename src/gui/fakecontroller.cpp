@@ -37,7 +37,8 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
 
     _orientationLayout = new QVBoxLayout();
 
-    _orientationDial = new QDial(this);
+    _orientationDial = new Dial(this);
+    _orientationDial->invert(true);
     _orientationDial->setNotchesVisible(true);
     _orientationDial->setRange(0, MAX_ORIENTATION);
     _orientationDial->setWrapping(true);
@@ -71,7 +72,7 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
 
     _walkSpeedLayout = new QVBoxLayout();
 
-    _walkSpeedDial = new QDial(this);
+    _walkSpeedDial = new Dial(this);
     _walkSpeedDial->setNotchesVisible(true);
     _walkSpeedDial->setRange(0, MAX_WALK_SPEED);
     _walkSpeedLayout->addWidget(_walkSpeedDial, 1);
@@ -137,12 +138,9 @@ void FakeController::updateWalkSpeedLabel(int newValue)
     emit valueChanged();
 }
 
-#include <QDebug>
-
 // Re-implemented protected methods
 void FakeController::keyPressEvent(QKeyEvent *event)
 {
-    qDebug() << QString::number(event->key());
     switch(event->key())
     {
         // Walk speed controls
@@ -158,19 +156,24 @@ void FakeController::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_Home:
             _walkSpeedDial->setValue(_walkSpeedDial->minimum());
+            break;
 
         // Orientation controls
+        case Qt::Key_Left:
+            _orientationDial->setValue(270);
+            break;
         case Qt::Key_Up:
-        case Qt::Key_PageUp:
-            _orientationDial->setValue(_orientationDial->value() + 1);
+            _orientationDial->setValue(0);
+            break;
+        case Qt::Key_Right:
+            _orientationDial->setValue(90);
             break;
         case Qt::Key_Down:
-        case Qt::Key_PageDown:
-            _orientationDial->setValue(_orientationDial->value() - 1);
+            _orientationDial->setValue(180);
+            break;
         default:
             break;
     }
-
     event->accept();
 }
 

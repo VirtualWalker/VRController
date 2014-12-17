@@ -26,6 +26,7 @@
 #include <QLabel>
 #include <QTextBrowser>
 #include <QPushButton>
+#include <QPixmap>
 
 AboutDialog::AboutDialog(QWidget *parent): QDialog(parent)
 {
@@ -61,7 +62,8 @@ AboutDialog::AboutDialog(QWidget *parent): QDialog(parent)
     QWidget *aboutTab = new QWidget(tabs);
 
     QLabel *icon = new QLabel(aboutTab);
-    //icon->setPixmap();
+    QPixmap pixmap(":/icon.png");
+    icon->setPixmap(pixmap.scaled(128, 128, Qt::KeepAspectRatio));
 
     QLabel *text = new QLabel(aboutTab);
     text->setOpenExternalLinks(true);

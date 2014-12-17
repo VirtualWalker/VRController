@@ -49,6 +49,7 @@ const QString settingLogShowDateStr = "showDate";
 MainWindow::MainWindow(LogBrowser *logBrowser)
 {
     setWindowTitle(APPLICATION_NAME);
+    setWindowIcon(QIcon(":/icon.png"));
 
     _logBrowser = logBrowser;
     _settings = new QSettings(this);

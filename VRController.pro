@@ -81,7 +81,8 @@ SOURCES +=  \
     src/gui/log/logbrowser.cpp \
     src/gui/log/logbrowserwidget.cpp \
     src/gui/autoscrolltextbrowser.cpp \
-    src/gui/about.cpp
+    src/gui/about.cpp \
+    src/gui/dial.cpp
 
 HEADERS  +=  \
     src/core/bluetoothmanager.h \
@@ -93,7 +94,8 @@ HEADERS  +=  \
     src/gui/autoscrolltextbrowser.h \
     src/gui/about.h \
     src/gui/utility.h \
-    src/gui/licenses.h
+    src/gui/licenses.h \
+    src/gui/dial.h
 
 # Add progress indicator files
 include($$PWD/thirdparty/qprogressindicator/qprogressindicator.pri)

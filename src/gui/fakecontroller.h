@@ -19,13 +19,14 @@
 #ifndef FAKECONTROLLER_H
 #define FAKECONTROLLER_H
 
-#include <QDial>
 #include <QLabel>
 #include <QSpinBox>
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QEvent>
+
+#include "dial.h"
 
 #define MAX_WALK_SPEED 254
 #define MAX_ORIENTATION 359
@@ -56,8 +57,8 @@ class FakeController : public QWidget
         QGridLayout *_mainLayout;
 
         // Dials to control the params
-        QDial *_orientationDial; // A number between 1 and 360 degrees
-        QDial *_walkSpeedDial; // A speed between 0 and 254 (since 255 means the beginning of a transmission)
+        Dial *_orientationDial; // A number between 1 and 360 degrees
+        Dial *_walkSpeedDial; // A speed between 0 and 254 (since 255 means the beginning of a transmission)
 
         QVBoxLayout *_orientationLayout;
         QVBoxLayout *_walkSpeedLayout;
