@@ -22,7 +22,6 @@
 #include "../interfaces/controllercommon.h"
 
 #include <QDebug>
-#include <QCoreApplication>
 #include <QTimerEvent>
 #include <QCloseEvent>
 #include <QVariant>
@@ -30,6 +29,8 @@
 #include <QApplication>
 #include <QMenu>
 #include <QAction>
+#include <QProcess>
+#include <QTimer>
 
 #include <cerrno>
 #include <string>
@@ -134,6 +135,28 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     // Create the menu bar
     _menuBar = new QMenuBar(this);
     setMenuBar(_menuBar);
+
+    QMenu *fileMenu = new QMenu(tr("&File"), _menuBar);
+    _menuBar->addMenu(fileMenu);
+
+    QAction *exitAction = new QAction(tr("&Exit"), this);
+    fileMenu->addAction(exitAction);
+    connect(exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+    QAction *rebootAction = new QAction(tr("&Reboot"), this);
+    fileMenu->addAction(rebootAction);
+    connect(rebootAction, &QAction::triggered, this, [this](){
+        qDebug() << qPrintable(tr("Rebooting the application ..."));
+        QProcess::startDetached(QCoreApplication::applicationFilePath());
+        // Close this app in one second
+        QTimer *timer = new QTimer(this);
+        timer->setSingleShot(true);
+        connect(timer, &QTimer::timeout, this, [this](){
+            qApp->exit();
+        });
+        timer->start(1000);
+    });
+
     QMenu *aboutMenu = new QMenu(tr("&About"), _menuBar);
     _menuBar->addMenu(aboutMenu);
 
