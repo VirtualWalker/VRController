@@ -16,32 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOGBROWSER_H
-#define LOGBROWSER_H
+#ifndef AUTOSCROLLTEXTBROWSER_H
+#define AUTOSCROLLTEXTBROWSER_H
 
-#include <QObject>
+#include <QTextBrowser>
 
-#include "logbrowserwidget.h"
-
-class LogBrowser : public QObject
+// Simple class that just scroll the text area to the end on focus lost.
+class AutoScrollTextBrowser: public QTextBrowser
 {
         Q_OBJECT
-
     public:
-        explicit LogBrowser(QObject *parent = 0);
-        ~LogBrowser();
-
-        LogBrowserWidget* widget();
+        explicit AutoScrollTextBrowser(QWidget *parent = nullptr);
 
     public slots:
-        void outputMessage(const QString &msg);
+        // Used to scroll to the down
+        void scrollToDown();
 
-    signals:
-        void sendMessage(const QString &msg);
-
-    private:
-        LogBrowserWidget *_browserWidget;
+    protected:
+        void focusOutEvent(QFocusEvent *event);
 
 };
 
-#endif // LOGBROWSER_H
+#endif // AUTOSCROLLTEXTBROWSER_H

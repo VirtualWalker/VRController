@@ -16,20 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fakecontroller.h"
+#include "fakecontrollerwidget.h"
+#include "controllercommon.h"
 
 #include <QKeyEvent>
 
-FakeController::FakeController(QWidget *parent): QWidget(parent)
+FakeControllerWidget::FakeControllerWidget(QWidget *parent): QWidget(parent)
 {
     _mainLayout = new QGridLayout(this);
     setLayout(_mainLayout);
 
     setFocusPolicy(Qt::StrongFocus);
-
-    _connectionLabel = new QLabel(this);
-    _connectionLabel->setAlignment(Qt::AlignCenter);
-    _mainLayout->addWidget(_connectionLabel, 0, 0, 1, 2);
 
     //
     // Set the orientation part
@@ -40,12 +37,12 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
     _orientationDial = new Dial(this);
     _orientationDial->invert(true);
     _orientationDial->setNotchesVisible(true);
-    _orientationDial->setRange(0, MAX_ORIENTATION);
+    _orientationDial->setRange(MIN_ORIENTATION, MAX_ORIENTATION);
     _orientationDial->setWrapping(true);
     _orientationLayout->addWidget(_orientationDial, 1);
 
     _orientationValue = new QSpinBox(this);
-    _orientationValue->setRange(0, MAX_ORIENTATION);
+    _orientationValue->setRange(MIN_ORIENTATION, MAX_ORIENTATION);
     _orientationValue->setSuffix(tr(" degrees"));
     _orientationValue->setWrapping(true);
     _orientationLayout->addWidget(_orientationValue);
@@ -53,8 +50,8 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
     _orientationValueLabel = new QLabel(this);
     _orientationValueLabel->setAlignment(Qt::AlignCenter);
     updateOrientationLabel(_orientationDial->value());
-    connect(_orientationDial, &QDial::valueChanged, this, &FakeController::updateOrientationLabel);
-    connect(_orientationValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FakeController::updateOrientationLabel);
+    connect(_orientationDial, &QDial::valueChanged, this, &FakeControllerWidget::updateOrientationLabel);
+    connect(_orientationValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FakeControllerWidget::updateOrientationLabel);
     _orientationLayout->addWidget(_orientationValueLabel);
 
     _orientationLabel = new QLabel(this);
@@ -84,8 +81,8 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
     _walkSpeedValueLabel = new QLabel(this);
     _walkSpeedValueLabel->setAlignment(Qt::AlignCenter);
     updateWalkSpeedLabel(_walkSpeedDial->value());
-    connect(_walkSpeedDial, &QDial::valueChanged, this, &FakeController::updateWalkSpeedLabel);
-    connect(_walkSpeedValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FakeController::updateWalkSpeedLabel);
+    connect(_walkSpeedDial, &QDial::valueChanged, this, &FakeControllerWidget::updateWalkSpeedLabel);
+    connect(_walkSpeedValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FakeControllerWidget::updateWalkSpeedLabel);
     _walkSpeedLayout->addWidget(_walkSpeedValueLabel);
 
     _walkSpeedLabel = new QLabel(this);
@@ -99,24 +96,18 @@ FakeController::FakeController(QWidget *parent): QWidget(parent)
 }
 
 // Getters
-int FakeController::orientationValue() const
+int FakeControllerWidget::orientationValue() const
 {
     return _orientationDial->value();
 }
 
-int FakeController::walkSpeedValue() const
+int FakeControllerWidget::walkSpeedValue() const
 {
     return _walkSpeedDial->value();
 }
 
-// Public slots
-void FakeController::setConnectionAddress(const QString addr, const int channel)
-{
-    _connectionLabel->setText("<b>" + tr("Connected to device %1 on channel %2").arg(addr).arg(channel) + "</b>");
-}
-
 // Private slots
-void FakeController::updateOrientationLabel(int newValue)
+void FakeControllerWidget::updateOrientationLabel(int newValue)
 {
     _orientationValueLabel->setText("<b>" + tr("%1 degrees").arg(newValue) + "</b>");
 
@@ -127,7 +118,7 @@ void FakeController::updateOrientationLabel(int newValue)
     emit valueChanged();
 }
 
-void FakeController::updateWalkSpeedLabel(int newValue)
+void FakeControllerWidget::updateWalkSpeedLabel(int newValue)
 {
     _walkSpeedValueLabel->setText("<b>" + QString::number(newValue) + "</b>");
 
@@ -139,7 +130,7 @@ void FakeController::updateWalkSpeedLabel(int newValue)
 }
 
 // Re-implemented protected methods
-void FakeController::keyPressEvent(QKeyEvent *event)
+void FakeControllerWidget::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key())
     {
@@ -160,16 +151,16 @@ void FakeController::keyPressEvent(QKeyEvent *event)
 
         // Orientation controls
         case Qt::Key_Left:
-            _orientationDial->setValue(270);
+            _orientationDial->setValue(ORIENTATION_LEFT);
             break;
         case Qt::Key_Up:
-            _orientationDial->setValue(0);
+            _orientationDial->setValue(ORIENTATION_FORWARD);
             break;
         case Qt::Key_Right:
-            _orientationDial->setValue(90);
+            _orientationDial->setValue(ORIENTATION_RIGHT);
             break;
         case Qt::Key_Down:
-            _orientationDial->setValue(180);
+            _orientationDial->setValue(ORIENTATION_BACKWARD);
             break;
         default:
             break;

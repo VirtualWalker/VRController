@@ -1,0 +1,5 @@
+{
+    "internalName" : "fakecontroller",
+    "name" : "Fake Controller",
+    "description" : "Allow the user to control the orientation and the walk speed with two dials."
+}

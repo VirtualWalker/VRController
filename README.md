@@ -1,9 +1,9 @@
 VRController [![Build Status](http://ci.tjdev.fr/buildStatus/icon?job=VRController)](http://ci.tjdev.fr/job/VRController/)
 ============
 
-This program is used to transmit data by Bluetooth to a VR android applicaion as [RandCity]. Transmited data are usually the position and the rotation of the user to allow the app to move the player in a 3D world.
+This program is used to transmit data by Bluetooth to a VR android application as [RandCity]. Transmited data are usually the position and the rotation of the user to allow the app to move the player in a 3D world.
 
-In the future, this app will use the kinect to detect the player and its movements.
+In the future, this app will use Kinect to detect the player and its movements.
 
 Third-party
 -----------

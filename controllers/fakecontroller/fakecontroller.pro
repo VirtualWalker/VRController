@@ -18,17 +18,23 @@
 ##
 #############################################################################
 
-# Show an error if we are not in linux since we need the BlueZ library
-# To install bluez packages on ubuntu, type:
-# $ sudo apt-get install bluez bluetooth libbluetooth-dev
-!unix|macx {
-    error(You are not in a linux system !)
-}
+########################################
+# Project file for the fake controller #
+########################################
 
-TEMPLATE = subdirs
-CONFIG += ordered
+CONTROLLER_NAME = fakecontroller
+include($$PWD/../controllerscommon.pri)
 
-SUBDIRS += \
-    app \
-    controllers
+QT += gui widgets
 
+SOURCES += \
+    src/fakecontrollerwidget.cpp \
+    ../../app/src/commonwidgets/dial.cpp
+
+HEADERS += \
+    src/fakecontrollerwidget.h \
+    ../../app/src/commonwidgets/dial.h
+
+# French translation
+TRANSLATIONS += \
+    $$PWD/i18n/$${CONTROLLER_NAME}_fr.ts

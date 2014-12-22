@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mainwindow.h"
-#include "log/logbrowser.h"
+#include "gui/mainwindow.h"
+#include "gui/log/logbrowser.h"
 
 #include <QApplication>
 #include <QTranslator>
@@ -25,6 +25,8 @@
 #include <QLocale>
 #include <QMessageLogContext>
 #include <QDebug>
+#include <QDirIterator>
+#include <QFileInfo>
 
 LogBrowser *globalLogBrowser;
 
@@ -70,6 +72,18 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
         abort();
 }
 
+void loadTranslations(const QString& path, const QString &locale, QApplication *app)
+{
+    QDirIterator iterator(path, QStringList() << "*_" + locale + ".qm", QDir::Files, QDirIterator::Subdirectories);
+    while (iterator.hasNext())
+    {
+        iterator.next();
+        QTranslator *translator = new QTranslator(app);
+        translator->load(iterator.fileName(), iterator.fileInfo().canonicalPath());
+        app->installTranslator(translator);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     // Install the custom handler
@@ -80,13 +94,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setOrganizationName(APPLICATION_NAME);
 
-    QString locale = QLocale::system().name().section('_', 0, 0);
+    // Load default Qt translations
+    const QString locale = QLocale::system().name().section('_', 0, 0);
     QTranslator qtTranslator;
     qtTranslator.load(QStringLiteral("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&qtTranslator);
-    QTranslator appTranslator;
-    appTranslator.load(QString(APPLICATION_TARGET) + '_' + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&appTranslator);
+
+    // Load translations in the "translations" dir
+    loadTranslations(QCoreApplication::applicationDirPath() + QStringLiteral("/translations"), locale, &app);
 
     // Check log param
     for(int i=1; i < argc; ++i)

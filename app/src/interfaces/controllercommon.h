@@ -16,39 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DIAL_H
-#define DIAL_H
+#ifndef CONTROLLERCOMMON
+#define CONTROLLERCOMMON
 
-#include <QDial>
+#define MIN_WALK_SPEED 0
+#define MAX_WALK_SPEED 254
 
-// Allow the inversion of the dial
-class Dial : public QDial
-{
-        Q_OBJECT
+#define MIN_ORIENTATION 0
+#define MAX_ORIENTATION 359
 
-        Q_PROPERTY(int inverted READ isInverted WRITE invert NOTIFY inversionChanged)
+#define ORIENTATION_DECREASE_RATIO (255.0f/360.0f)
+#define ORIENTATION_INCREASE_RATIO (360.0f/255.0f)
 
-    public:
-        explicit Dial(QWidget *parent = 0);
-        void paintEvent(QPaintEvent *event);
+#define ORIENTATION_FORWARD 0
+#define ORIENTATION_RIGHT 90
+#define ORIENTATION_BACKWARD 180
+#define ORIENTATION_LEFT 270
 
-        bool isInverted() const;
+#define PLUGINS_EXT_WITHOUT_DOT QStringLiteral("so")
+#define PLUGINS_EXT QStringLiteral(".") + PLUGINS_EXT_WITHOUT_DOT
+#define PLUGINS_PREFIX QStringLiteral("lib")
+#ifdef QT_DEBUG
+    #define PLUGINS_SUFFIX QStringLiteral("d")
+#else
+    #define PLUGINS_SUFFIX ""
+#endif
 
-    public slots:
-        void invert(bool inversion);
-
-    signals:
-        void inversionChanged(bool inverted);
-
-    protected:
-        void mousePressEvent(QMouseEvent *e);
-        void mouseReleaseEvent(QMouseEvent * e);
-        void mouseMoveEvent(QMouseEvent * e);
-
-    private:
-        bool _inverted = false;
-};
-
-#endif // DIAL_H
-
+#endif // CONTROLLERCOMMON
 

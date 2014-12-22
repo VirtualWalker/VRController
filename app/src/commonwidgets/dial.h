@@ -16,25 +16,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AUTOSCROLLTEXTBROWSER_H
-#define AUTOSCROLLTEXTBROWSER_H
+#ifndef DIAL_H
+#define DIAL_H
 
-#include <QTextBrowser>
+#include <QDial>
 
-// Simple class that just scroll the text area to the end on focus lost.
-class AutoScrollTextBrowser: public QTextBrowser
+// Allow the inversion of the dial
+class Dial : public QDial
 {
         Q_OBJECT
+
+        Q_PROPERTY(int inverted READ isInverted WRITE invert NOTIFY inversionChanged)
+
     public:
-        explicit AutoScrollTextBrowser(QWidget *parent = 0);
+        explicit Dial(QWidget *parent = nullptr);
+        void paintEvent(QPaintEvent *event);
+
+        bool isInverted() const;
 
     public slots:
-        // Used to scroll to the down
-        void scrollToDown();
+        void invert(bool inversion);
+
+    signals:
+        void inversionChanged(bool inverted);
 
     protected:
-        void focusOutEvent(QFocusEvent *event);
+        void mousePressEvent(QMouseEvent *e);
+        void mouseReleaseEvent(QMouseEvent * e);
+        void mouseMoveEvent(QMouseEvent * e);
 
+    private:
+        bool _inverted = false;
 };
 
-#endif // AUTOSCROLLTEXTBROWSER_H
+#endif // DIAL_H
+
+

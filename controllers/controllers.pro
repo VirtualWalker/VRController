@@ -18,17 +18,9 @@
 ##
 #############################################################################
 
-# Show an error if we are not in linux since we need the BlueZ library
-# To install bluez packages on ubuntu, type:
-# $ sudo apt-get install bluez bluetooth libbluetooth-dev
-!unix|macx {
-    error(You are not in a linux system !)
-}
-
 TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
-    app \
-    controllers
+    fakecontroller
 

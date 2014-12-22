@@ -29,10 +29,10 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
     _strListening = tr("Listening ...");
 
     QVBoxLayout *vboxLayout = new QVBoxLayout(this);
+    vboxLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(vboxLayout);
 
     QHBoxLayout *hblStart = new QHBoxLayout();
-    vboxLayout->addLayout(hblStart);
 
     // Set the start button
     _buttonStartListening = new QPushButton(_strStart, this);
@@ -72,6 +72,8 @@ ListeningWidget::ListeningWidget(QWidget *parent): QWidget(parent)
     _frequencyBox = new QSpinBox(this);
     _frequencyBox->setRange(1, 100);
     formLayout->addRow(tr("Set the frequency of data send:"), _frequencyBox);
+
+    vboxLayout->addLayout(hblStart);
 }
 
 int ListeningWidget::channel() const

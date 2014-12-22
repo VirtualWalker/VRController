@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FAKECONTROLLER_H
-#define FAKECONTROLLER_H
+#ifndef FAKECONTROLLERWIDGET_H
+#define FAKECONTROLLERWIDGET_H
 
 #include <QLabel>
 #include <QSpinBox>
@@ -26,25 +26,19 @@
 #include <QGroupBox>
 #include <QEvent>
 
-#include "dial.h"
+#include "Dial"
 
-#define MAX_WALK_SPEED 254
-#define MAX_ORIENTATION 359
-
-// This class allow the user to control some params like the walk speed and the orientation
-class FakeController : public QWidget
+// This widget allow the user to control the walk speed and the orientation
+// with two dials on the screen
+class FakeControllerWidget : public QWidget
 {
         Q_OBJECT
     public:
-        explicit FakeController(QWidget *parent = 0);
+        explicit FakeControllerWidget(QWidget *parent = nullptr);
 
         // Getters
         int orientationValue() const;
         int walkSpeedValue() const;
-
-    public slots:
-
-        void setConnectionAddress(const QString addr, const int channel);
 
     signals:
         void orientationChanged(int newOrientation);
@@ -75,8 +69,6 @@ class FakeController : public QWidget
         QGroupBox *_orientationBox;
         QGroupBox *_walkSpeedBox;
 
-        QLabel *_connectionLabel;
-
     protected:
         void keyPressEvent(QKeyEvent *event);
 
@@ -86,4 +78,4 @@ class FakeController : public QWidget
         void updateWalkSpeedLabel(int newValue);
 };
 
-#endif // FAKECONTROLLER_H
+#endif // FAKECONTROLLERWIDGET_H

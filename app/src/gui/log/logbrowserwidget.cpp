@@ -36,6 +36,7 @@ LogBrowserWidget::LogBrowserWidget(QWidget *parent): QWidget(parent)
 
     // Main layout
     QVBoxLayout *layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     _browser = new AutoScrollTextBrowser(this);
@@ -43,7 +44,6 @@ LogBrowserWidget::LogBrowserWidget(QWidget *parent): QWidget(parent)
     layout->addWidget(_browser);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
     layout->addLayout(buttonLayout);
 
     _checkBoxDate = new QCheckBox(tr("Show date in log"), this);

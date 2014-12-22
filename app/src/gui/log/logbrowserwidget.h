@@ -22,7 +22,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 
-#include "../autoscrolltextbrowser.h"
+#include "../../commonwidgets/autoscrolltextbrowser.h"
 
 class LogBrowserWidget : public QWidget
 {
@@ -31,7 +31,7 @@ class LogBrowserWidget : public QWidget
     Q_PROPERTY(bool showDate READ showDate WRITE setShowDate NOTIFY showDateChanged)
 
     public:
-        LogBrowserWidget(QWidget *parent = 0);
+        LogBrowserWidget(QWidget *parent = nullptr);
 
         bool showDate() const;
 

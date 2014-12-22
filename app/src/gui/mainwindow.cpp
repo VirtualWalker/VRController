@@ -18,8 +18,8 @@
 
 #include "mainwindow.h"
 #include "log/logbrowser.h"
-
 #include "about.h"
+#include "../interfaces/controllercommon.h"
 
 #include <QDebug>
 #include <QCoreApplication>
@@ -37,6 +37,8 @@
 const QString settingChannelStr = "channel";
 const QString settingUseCustomChannelStr = "useCustomChannel";
 const QString settingFrequencyStr = "frequency";
+
+const QString settingSelectedControllerStr = "controller";
 
 const QString settingWinGroupStr = "MainWindow";
 const QString settingWinSizeStr = "size";
@@ -63,16 +65,29 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
 
     // Set the central widget
     _centralWidget = new QWidget(this);
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    _centralWidget->setLayout(mainLayout);
+    _mainLayout = new QVBoxLayout();
+    _centralWidget->setLayout(_mainLayout);
     setCentralWidget(_centralWidget);
 
+    _controllerChoiceWidget = new ControllerChoiceWidget(this);
+    _mainLayout->addWidget(_controllerChoiceWidget);
+
     _listeningWidget = new ListeningWidget(this);
-    mainLayout->addWidget(_listeningWidget);
+    _mainLayout->addWidget(_listeningWidget);
 
     // Connect the start button in the listening widget
     connect(_listeningWidget, &ListeningWidget::startListening, this, [this]() {
+        // Get the selected controller
+        _controllerPlugin = _controllerChoiceWidget->selectedController();
+        if(_controllerPlugin != nullptr)
+        {
+            _controllerPlugin->widget()->hide();
+            _mainLayout->insertWidget(_mainLayout->count()-1, _controllerPlugin->widget(), 1);
+            connect(this, &MainWindow::showController, _controllerPlugin->widget(), &QWidget::show);
+        }
+
+        _controllerChoiceWidget->setEnabled(false);
+
         if(_listeningWidget->useCustomChannel())
             _btMgr = new BluetoothManager(_listeningWidget->channel(), _btMgrStateHandler, _btMgrErrorHandler);
         else
@@ -89,15 +104,15 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
             qDebug() << qPrintable(tr("RFCOMM channel has been auto-generated to %1.").arg(_btMgr->rfcommChannel()));
     });
 
-    _fakeController = new FakeController(this);
-    _fakeController->hide();
-    connect(this, &MainWindow::showFakeController, _fakeController, &FakeController::show);
-    connect(this, &MainWindow::setConnectionText, _fakeController, &FakeController::setConnectionAddress);
-    mainLayout->addWidget(_fakeController, 1);
+    _connectionLabel = new QLabel(this);
+    _connectionLabel->setAlignment(Qt::AlignCenter);
+    _connectionLabel->hide();
+    connect(this, &MainWindow::setConnectionText, this, &MainWindow::setConnectionAddress);
+    _mainLayout->addWidget(_connectionLabel);
 
     // Add the log browser if needed
     if(_logBrowser != nullptr)
-        mainLayout->addWidget(_logBrowser->widget());
+        _mainLayout->addWidget(_logBrowser->widget());
 
     // Set the status bar
     _statusBar = new QStatusBar(this);
@@ -148,9 +163,10 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
             qDebug() << qPrintable(tr("Connected to %1 on channel %2.").arg(_btMgr->clientAddress().c_str()).arg(_btMgr->clientChannel()));
             _listeningWidget->connected();
             _listeningWidget->hide();
-            qDebug() << qPrintable(tr("Showing the fake controller ..."));
+            _controllerChoiceWidget->hide();
+            qDebug() << qPrintable(tr("Show the selected controller ..."));
             emit setConnectionText(_btMgr->clientAddress().c_str(), _btMgr->clientChannel());
-            emit showFakeController();
+            emit showController();
 
             qDebug() << qPrintable(tr("Start sending data %1 times per second.").arg(_listeningWidget->frequency()));
             qDebug() << qPrintable(tr("Output Bluetooth data in the console every second ..."));
@@ -185,6 +201,12 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
     readSettings();
 }
 
+void MainWindow::setConnectionAddress(const QString addr, const int channel)
+{
+    _connectionLabel->show();
+    _connectionLabel->setText("<b>" + tr("Connected to device %1 on channel %2").arg(addr).arg(channel) + "</b>");
+}
+
 // Re-implemented protected method
 void MainWindow::timerEvent(QTimerEvent *event)
 {
@@ -196,19 +218,24 @@ void MainWindow::timerEvent(QTimerEvent *event)
             qCritical() << qPrintable(tr("The bluetooth manager is not created !"));
             return;
         }
+        if(_controllerPlugin == nullptr)
+        {
+            qCritical() << qPrintable(tr("The controller is not created !"));
+            return;
+        }
 
-        const int walkSpeed = _fakeController->walkSpeedValue();
-        const int orientation = _fakeController->orientationValue();
+        const int walkSpeed = _controllerPlugin->walkSpeed();
+        const int orientation = _controllerPlugin->orientation();
 
         // The message contains 3 numbers
-        // First: 0xFF --> specify that the message begins
+        // First:  0xFF --> specify that the message begins
         // Second: Walk speed, a number between 0 and 254
-        // Third: Orientation, a number between 0 and 254 (a ratio with the originally 0-360 range)
+        // Third:  Orientation, a number between 0 and 254 (a ratio with the originally 0-360 range)
         std::uint8_t msg[3];
 
         msg[0] = 0xFF;
         msg[1] = walkSpeed;
-        msg[2] = orientation / (360.0f/255.0f);
+        msg[2] = orientation * ORIENTATION_DECREASE_RATIO;
 
         // Show the debug message only one time per second
         if(_numberOfTimerExec == _listeningWidget->frequency())
@@ -243,6 +270,8 @@ void MainWindow::readSettings()
     _listeningWidget->setChannel(_settings->value(settingChannelStr, DEFAULT_RFCOMM_CHANNEL).toInt());
     _listeningWidget->setFrequency(_settings->value(settingFrequencyStr, DEFAULT_MSG_FREQUENCY).toInt());
 
+    _controllerChoiceWidget->selectController(_settings->value(settingSelectedControllerStr, "fakecontroller").toString());
+
     _settings->beginGroup(settingWinGroupStr);
     resize(_settings->value(settingWinSizeStr, QSize(600, 0)).toSize());
     move(_settings->value(settingWinPosStr, pos()).toPoint());
@@ -260,6 +289,8 @@ void MainWindow::writeSettings()
     _settings->setValue(settingUseCustomChannelStr, _listeningWidget->useCustomChannel());
     _settings->setValue(settingChannelStr, _listeningWidget->channel());
     _settings->setValue(settingFrequencyStr, _listeningWidget->frequency());
+
+    _settings->setValue(settingSelectedControllerStr, _controllerChoiceWidget->selectedControllerName());
 
     _settings->beginGroup(settingWinGroupStr);
     _settings->setValue(settingWinPosStr, pos());

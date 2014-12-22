@@ -203,7 +203,9 @@ class BluetoothManager
             sdp_list_free(l2capList, 0);
             sdp_list_free(rfcommList, 0);
             sdp_list_free(rootList, 0);
+            sdp_list_free(protoList, 0);
             sdp_list_free(accessProtocolList, 0);
+            sdp_record_free(record);
 
             // Return 0 on success and -1 on error
             return errorCode;

@@ -29,7 +29,7 @@ class ListeningWidget : public QWidget
 {
         Q_OBJECT
     public:
-        explicit ListeningWidget(QWidget *parent = 0);
+        explicit ListeningWidget(QWidget *parent = nullptr);
 
         int channel() const;
         int frequency() const;

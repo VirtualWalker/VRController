@@ -16,21 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ABOUT_H
-#define ABOUT_H
+#ifndef FAKECONTROLLER_H
+#define FAKECONTROLLER_H
 
-#include <QDialog>
+#include "ControllerInterface"
+#include "fakecontrollerwidget.h"
 
-// Simple class that show informations about this application
-class AboutDialog : public QDialog {
-
-    // This prevent the copy of the object
-    private:
+class FakeController: public ControllerInterface
+{
         Q_OBJECT
-        Q_DISABLE_COPY(AboutDialog)
+        Q_INTERFACES(ControllerInterface)
+        Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
 
     public:
-        AboutDialog(QWidget *parent);
+        explicit FakeController(QObject *parent = nullptr);
+        virtual ~FakeController();
+
+        QWidget *widget();
+
+        int orientation();
+        int walkSpeed();
+
+    private:
+
+        FakeControllerWidget *_widget;
 };
 
-#endif // ABOUT_H
+#endif // FAKECONTROLLER_H

@@ -28,8 +28,7 @@
 #include <QSettings>
 
 #include "listeningwidget.h"
-#include "fakecontroller.h"
-
+#include "controllerchoicewidget.h"
 #include "../core/bluetoothmanager.h"
 #include "log/logbrowser.h"
 
@@ -45,12 +44,13 @@ class MainWindow : public QMainWindow
     public slots:
 
         void about();
+        void setConnectionAddress(const QString addr, const int channel);
 
     signals:
         //
         // This signals allow the application to manipulate the widgets from an another thread
         // For example, from a bluetooth thread
-        void showFakeController();
+        void showController();
         void setConnectionText(QString text, int channel);
         void setStateText(QString text);
         void setErrorText(QString text);
@@ -72,10 +72,14 @@ class MainWindow : public QMainWindow
     private:
         QWidget *_centralWidget;
 
-        ListeningWidget *_listeningWidget;
-        FakeController *_fakeController;
+        QVBoxLayout *_mainLayout;
 
+        ControllerChoiceWidget *_controllerChoiceWidget;
+        ListeningWidget *_listeningWidget;
+        QLabel *_connectionLabel;
         LogBrowser *_logBrowser;
+
+        ControllerInterface *_controllerPlugin;
 
         QStatusBar *_statusBar;
         // Widgets used in the status bar
