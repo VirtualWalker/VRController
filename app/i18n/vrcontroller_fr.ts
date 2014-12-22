@@ -11,7 +11,7 @@
     <message>
         <location filename="../src/gui/about.cpp" line="77"/>
         <source>A controller for virtual reality movements with Bluetooth.</source>
-        <translation>Permet de controller les mouvements d&apos;un jeu de réalité virtuelle via Bluetooth.</translation>
+        <translation>Permet de contrôler les mouvements d&apos;un jeu de réalité virtuelle via Bluetooth.</translation>
     </message>
     <message>
         <location filename="../src/gui/about.cpp" line="83"/>
@@ -37,44 +37,44 @@
 <context>
     <name>ControllerChoiceWidget</name>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="40"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="41"/>
         <source>Choose your favorite controller:</source>
-        <translation>Sélectionnez votre controleur préféré:</translation>
+        <translation>Sélectionnez votre contrôleur préféré:</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="51"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="52"/>
         <source>Controllers dir: &quot;%1&quot;</source>
-        <translation>Dossier des controleurs: &quot;%1&quot;</translation>
+        <translation>Dossier des contrôleurs: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="63"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="64"/>
         <source>Find a controller file at &quot;%1&quot;</source>
-        <translation>Fichier de controleur trouvé à l&apos;emplacement &quot;%1&quot;</translation>
+        <translation>Fichier de contrôleur trouvé à l&apos;emplacement &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="75"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="79"/>
         <source>The controller plugin at &quot;%1&quot; doesn&apos;t specify a name or a description</source>
         <translation>Le plugin de contrôle à l&apos;emplacement &quot;%1&quot; ne spécifie pas de nom ou de description</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="90"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="111"/>
         <source>All controllers plugins are loaded !</source>
-        <translation>Tous les plugins ont été chargés !</translation>
+        <translation>Tous les contrôleurs ont été chargé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="94"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="115"/>
         <source>Controllers dir doesn&apos;t exist at &quot;%1&quot;</source>
-        <translation>Le dossier de controleurs n&apos;existe pas à l&apos;emplacement &quot;%1&quot;</translation>
+        <translation>Le dossier de contrôleurs n&apos;existe pas à l&apos;emplacement &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="109"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="130"/>
         <source>The specified controller &quot;%1&quot; doesn&apos;t exists !</source>
-        <translation>Le controleur spécifié &quot;%1&quot; n&apos;existe pas !</translation>
+        <translation>Le contrôleur spécifié &quot;%1&quot; n&apos;existe pas !</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="125"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="146"/>
         <source>Could not load controller plugin &quot;%1&quot; (%2).</source>
-        <translation>Impossible de charger le plugin de contôle &quot;%1&quot; (%2).</translation>
+        <translation>Impossible de charger le plugin de contrôle &quot;%1&quot; (%2).</translation>
     </message>
 </context>
 <context>
@@ -206,7 +206,7 @@ Impossible de les sauvegardez !</translation>
     <message>
         <location filename="../src/gui/mainwindow.cpp" line="167"/>
         <source>Show the selected controller ...</source>
-        <translation>Affichage du controleur spécifié ...</translation>
+        <translation>Affichage du contrôleur spécifié ...</translation>
     </message>
     <message>
         <location filename="../src/gui/mainwindow.cpp" line="171"/>
@@ -257,7 +257,7 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/main.cpp" line="110"/>
+        <location filename="../src/main.cpp" line="127"/>
         <source>--nologwidget argument detected ! Hide console output.</source>
         <translation>Détection de l&apos;argument --nologwidget ! La console ne sera pas affichée.</translation>
     </message>

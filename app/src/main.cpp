@@ -34,42 +34,58 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 {
     QString output;
 
-    if(type == QtDebugMsg)
-    {
-        output = QString("Debug: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-        // Only output on debug builds
 #ifdef QT_DEBUG
+    switch(type)
+    {
+        case QtDebugMsg:
+            output = QString("Debug: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+        case QtWarningMsg:
+            output = QString("Warning: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+        case QtCriticalMsg:
+            output = QString("Critical: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+        case QtFatalMsg:
+            output = QString("Fatal /!\\: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+        default:
+            output = QString("Unknown: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+            break;
+    }
+    // Output to standard error channel
+    fprintf(stderr, "%s\n", output.toLocal8Bit().constData());
+#else
+    switch(type)
+    {
+        case QtDebugMsg:
+            output = QString("Debug: %0").arg(msg);
+            break;
+        case QtWarningMsg:
+            output = QString("Warning: %0").arg(msg);
+            break;
+        case QtCriticalMsg:
+            output = QString("Critical: %0").arg(msg);
+            break;
+        case QtFatalMsg:
+            output = QString("Fatal /!\\: %0").arg(msg);
+            break;
+        default:
+            output = QString("Unknown: %0").arg(msg);
+            break;
+    }
+    // Don't output when on debug messages (only in the GUI, not in the console)
+    if(type != QtDebugMsg)
         fprintf(stderr, "%s\n", output.toLocal8Bit().constData());
 #endif
-    }
-    else
-    {
-        switch(type)
-        {
-            case QtWarningMsg:
-                output = QString("Warning: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-                break;
-            case QtCriticalMsg:
-                output = QString("Critical: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-                break;
-            case QtFatalMsg:
-                output = QString("Fatal /!\\: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-                break;
-            default:
-                output = QString("Unknown: %0 (%1:%2, %3)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
-                break;
-        }
-        // Output to standard error channel
-        fprintf(stderr, "%s\n", output.toLocal8Bit().constData());
-    }
-
-    // Add output to log widget
-    if(globalLogBrowser)
-        globalLogBrowser->outputMessage(output);
 
     // Quit if it's a fatal message
     if(type == QtFatalMsg)
         abort();
+
+    // Add output to log widget
+    if(globalLogBrowser)
+        globalLogBrowser->outputMessage(output);
 }
 
 void loadTranslations(const QString& path, const QString &locale, QApplication *app)

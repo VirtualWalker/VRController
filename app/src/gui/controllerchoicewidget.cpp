@@ -29,6 +29,7 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QButtonGroup>
+#include <QLocale>
 
 ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent)
 {
@@ -66,9 +67,12 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                     QPluginLoader *loader = new QPluginLoader(filePath);
                     QJsonObject jsonObj = loader->metaData().value(QStringLiteral("MetaData")).toObject();
 
+                    const QString nameStr = "name";
+                    const QString descStr = "description";
+
                     const QString internalName = jsonObj.value(QStringLiteral("internalName")).toString();
-                    const QString name = jsonObj.value(QStringLiteral("name")).toString();
-                    const QString description = jsonObj.value(QStringLiteral("description")).toString();
+                    QString name = jsonObj.value(nameStr).toString();
+                    QString description = jsonObj.value(descStr).toString();
 
                     if(internalName.isEmpty() || name.isEmpty() || description.isEmpty())
                     {
@@ -77,6 +81,23 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                         loader = nullptr;
                         continue;
                     }
+
+                    // Check for translations in the current language
+                    if(jsonObj.contains(QStringLiteral("translations")))
+                    {
+                        const QString locale = QLocale::system().name().section('_', 0, 0);
+                        QJsonObject trObj = jsonObj.value(QStringLiteral("translations")).toObject();
+                        if(trObj.contains(locale))
+                        {
+                            QJsonObject localeObj = trObj.value(locale).toObject();
+                            // Here there is a translation in the current language, check for "name" and "description"
+                            if(localeObj.contains(nameStr))
+                                name = localeObj.value(nameStr).toString();
+                            if(localeObj.contains(descStr))
+                                description = localeObj.value(descStr).toString();
+                        }
+                    }
+
 
                     _controllersMap.insert(internalName, loader);
 
