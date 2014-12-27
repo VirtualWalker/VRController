@@ -54,7 +54,7 @@ void Dial::paintEvent(QPaintEvent *event)
     painter.drawComplexControl(QStyle::CC_Dial, option);
 }
 
-void Dial::mousePressEvent(QMouseEvent *e)
+void Dial::mousePressEvent(QMouseEvent * e)
 {
     QDial::mousePressEvent(e);
     if(_inverted)
@@ -73,5 +73,33 @@ void Dial::mouseMoveEvent(QMouseEvent * e)
     QDial::mouseMoveEvent(e);
     if(_inverted)
         setSliderPosition(maximum()/2 + sliderPosition());
+}
+
+void Dial::keyPressEvent(QKeyEvent * e)
+{
+    switch (e->key())
+    {
+        case Qt::Key_Plus:
+            setValue(value() + singleStep());
+            break;
+        case Qt::Key_Minus:
+            setValue(value() - singleStep());
+            break;
+        case Qt::Key_PageUp:
+            setValue(value() + pageStep());
+            break;
+        case Qt::Key_PageDown:
+            setValue(value() - pageStep());
+            break;
+        case Qt::Key_Home:
+            setValue(minimum());
+            break;
+        case Qt::Key_End:
+            setValue(maximum());
+            break;
+        default:
+            break;
+    }
+    e->accept();
 }
 

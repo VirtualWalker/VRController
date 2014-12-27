@@ -41,9 +41,11 @@ class Dial : public QDial
         void inversionChanged(bool inverted);
 
     protected:
-        void mousePressEvent(QMouseEvent *e);
+        void mousePressEvent(QMouseEvent * e);
         void mouseReleaseEvent(QMouseEvent * e);
         void mouseMoveEvent(QMouseEvent * e);
+
+        void keyPressEvent(QKeyEvent * e);
 
     private:
         bool _inverted = false;
