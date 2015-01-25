@@ -1,6 +1,6 @@
 /*
  * This file is part of VRController.
- * Copyright (c) 2014 Fabien Caylus <toutjuste13@gmail.com>
+ * Copyright (c) 2015 Fabien Caylus <toutjuste13@gmail.com>
  *
  * This file is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ AboutDialog::AboutDialog(QWidget *parent): QDialog(parent)
     text->setOpenExternalLinks(true);
     text->setText(QStringLiteral(
                       "<h3>%1</h3>"
-                      "<p>Copyright (c) 2014 Fabien Caylus</p>"
+                      "<p>Copyright (c) 2015 Fabien Caylus</p>"
                       "<p><b>%3</b></p>"
                       "<p><tt><a href=\"%2\">%2</a></tt></p>"
                   ).arg(QLatin1String(APPLICATION_NAME))
