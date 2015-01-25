@@ -41,7 +41,9 @@ AboutDialog::AboutDialog(QWidget *parent): QDialog(parent)
     QTextEdit *licenseTab = new QTextEdit(tabs);
     licenseTab->setReadOnly(true);
     licenseTab->setAlignment(Qt::AlignCenter);
-    licenseTab->setPlainText(FileUtil::readFile(QStringLiteral(":/LICENSE")));
+    QString licenseText = FileUtil::readFile(QStringLiteral(":/LICENSE.html"));
+    licenseText.replace(QStringLiteral("style=\"text-align: center;\""), QStringLiteral("align=\"center\""));
+    licenseTab->setHtml(licenseText);
 
     // Create the thirdparty tab
     QTextBrowser *thirdLicenseTab = new QTextBrowser(tabs);

@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>LICENSE</file>
+        <file>LICENSE.html</file>
         <file>icon.png</file>
     </qresource>
 </RCC>
