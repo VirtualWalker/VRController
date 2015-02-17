@@ -18,7 +18,7 @@
 
 #include "mainwindow.h"
 #include "log/logbrowser.h"
-#include "about.h"
+#include "aboutdialog.h"
 #include "../interfaces/controllercommon.h"
 
 #include <QDebug>
@@ -82,6 +82,8 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
         _controllerPlugin = _controllerChoiceWidget->selectedController();
         if(_controllerPlugin != nullptr)
         {
+            _controllerPlugin->setDataFrequency(_listeningWidget->frequency());
+            _controllerPlugin->start();
             _controllerPlugin->widget()->hide();
             _mainLayout->insertWidget(_mainLayout->count()-1, _controllerPlugin->widget(), 1);
             connect(this, &MainWindow::showController, _controllerPlugin->widget(), &QWidget::show);
@@ -89,6 +91,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
 
         _controllerChoiceWidget->setEnabled(false);
 
+#ifndef NO_BLUETOOTH
         if(_listeningWidget->useCustomChannel())
             _btMgr = new BluetoothManager(_listeningWidget->channel(), _btMgrStateHandler, _btMgrErrorHandler);
         else
@@ -103,6 +106,13 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
         // Re-print the real channel if auto-generated
         if(oldChannel == 0)
             qDebug() << qPrintable(tr("RFCOMM channel has been auto-generated to %1.").arg(_btMgr->rfcommChannel()));
+#else
+        // When we don't need the bluetooth, start the timer directly
+        _listeningWidget->hide();
+        _controllerChoiceWidget->hide();
+        emit showController();
+        emit startDataTimer();
+#endif
     });
 
     _connectionLabel = new QLabel(this);
@@ -173,6 +183,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
         _btTimer = startTimer(1000/_listeningWidget->frequency(), Qt::PreciseTimer);
     });
 
+#ifndef NO_BLUETOOTH
     // Create the Bluetooth manager and the handlers
     _btMgrStateHandler = [this](BluetoothManager::State newState) {
         const QString str = BluetoothManager::stateString(newState).c_str();
@@ -219,6 +230,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
 
     // Call the state handler just one time at the start
     _btMgrStateHandler(BluetoothManager::State::NO_STATE);
+#endif
 
     // Here, we can read the settings and restore states
     readSettings();
@@ -236,11 +248,13 @@ void MainWindow::timerEvent(QTimerEvent *event)
     if(event->timerId() == _btTimer)
     {
         _numberOfTimerExec++;
+#ifndef NO_BLUETOOTH
         if(_btMgr == nullptr)
         {
             qCritical() << qPrintable(tr("The bluetooth manager is not created !"));
             return;
         }
+#endif
         if(_controllerPlugin == nullptr)
         {
             qCritical() << qPrintable(tr("The controller is not created !"));
@@ -249,6 +263,10 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
         const int walkSpeed = _controllerPlugin->walkSpeed();
         const int orientation = _controllerPlugin->orientation();
+
+        // Only send if an orientation and a walkSpeed is detected
+        if(orientation == -1 || walkSpeed == -1)
+            return;
 
         // The message contains 3 numbers
         // First:  0xFF --> specify that the message begins
@@ -268,8 +286,9 @@ void MainWindow::timerEvent(QTimerEvent *event)
                 qDebug() << qPrintable(tr("Send message: speed=%1 orientation=%2 (real orientation: %3)").arg((int)msg[1]).arg((int)msg[2]).arg(orientation));
             _numberOfTimerExec = 0;
         }
-
+#ifndef NO_BLUETOOTH
         _btMgr->sendMessage(&msg, 3);
+#endif
     }
 }
 
@@ -282,7 +301,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 // Public slots
 void MainWindow::about()
 {
-    AboutDialog *dialog = new AboutDialog(this);
+    AboutDialog *dialog = new AboutDialog(_controllerChoiceWidget->thirdPartiesLicensesFromPlugins(), this);
     dialog->exec();
 }
 
@@ -290,7 +309,9 @@ void MainWindow::about()
 void MainWindow::readSettings()
 {
     _listeningWidget->setCustomChannelUse(_settings->value(settingUseCustomChannelStr, false).toBool());
+#ifndef NO_BLUETOOTH
     _listeningWidget->setChannel(_settings->value(settingChannelStr, DEFAULT_RFCOMM_CHANNEL).toInt());
+#endif
     _listeningWidget->setFrequency(_settings->value(settingFrequencyStr, DEFAULT_MSG_FREQUENCY).toInt());
 
     _controllerChoiceWidget->selectController(_settings->value(settingSelectedControllerStr, "fakecontroller").toString());

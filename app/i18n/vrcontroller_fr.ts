@@ -4,75 +4,85 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../src/gui/about.cpp" line="33"/>
+        <location filename="../src/gui/aboutdialog.cpp" line="33"/>
         <source>About %1</source>
         <translation>A propos de %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/about.cpp" line="77"/>
+        <location filename="../src/gui/aboutdialog.cpp" line="77"/>
         <source>A controller for virtual reality movements with Bluetooth.</source>
         <translation>Permet de contrôler les mouvements d&apos;un jeu de réalité virtuelle via Bluetooth.</translation>
     </message>
     <message>
-        <location filename="../src/gui/about.cpp" line="83"/>
+        <location filename="../src/gui/aboutdialog.cpp" line="83"/>
         <source>&amp;About %1</source>
         <translation>A &amp;propos de %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/about.cpp" line="84"/>
+        <location filename="../src/gui/aboutdialog.cpp" line="84"/>
         <source>&amp;License</source>
         <translation>&amp;License</translation>
     </message>
     <message>
-        <location filename="../src/gui/about.cpp" line="85"/>
+        <location filename="../src/gui/aboutdialog.cpp" line="85"/>
         <source>3rd &amp;party licenses</source>
         <translation>Licenses &amp;tierces</translation>
     </message>
     <message>
-        <location filename="../src/gui/about.cpp" line="87"/>
+        <location filename="../src/gui/aboutdialog.cpp" line="87"/>
         <source>OK</source>
         <translation>Valider</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/aboutdialog.cpp" line="109"/>
+        <source>Used in the controller: %1</source>
+        <translation>Utilisé par le contrôlleur: %1</translation>
     </message>
 </context>
 <context>
     <name>ControllerChoiceWidget</name>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="41"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="42"/>
         <source>Choose your favorite controller:</source>
         <translation>Sélectionnez votre contrôleur préféré:</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="52"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="53"/>
         <source>Controllers dir: &quot;%1&quot;</source>
         <translation>Dossier des contrôleurs: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="64"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="65"/>
         <source>Find a controller file at &quot;%1&quot;</source>
-        <translation>Fichier de contrôleur trouvé à l&apos;emplacement &quot;%1&quot;</translation>
+        <translation>Plugin de contrôle trouvé à l&apos;emplacement &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="79"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="80"/>
         <source>The controller plugin at &quot;%1&quot; doesn&apos;t specify a name or a description</source>
         <translation>Le plugin de contrôle à l&apos;emplacement &quot;%1&quot; ne spécifie pas de nom ou de description</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="111"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="115"/>
+        <source>Find a third party license for controller &quot;%1&quot; but without a name or a correct text. Skip it !</source>
+        <translation>Une license tierce a été trouvée pour le contrôlleur &quot;%1&quot; mais aucun nom ou texte n&apos;a été spécifié. Ignoré !</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="138"/>
         <source>All controllers plugins are loaded !</source>
         <translation>Tous les contrôleurs ont été chargé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="115"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="142"/>
         <source>Controllers dir doesn&apos;t exist at &quot;%1&quot;</source>
         <translation>Le dossier de contrôleurs n&apos;existe pas à l&apos;emplacement &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="130"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="157"/>
         <source>The specified controller &quot;%1&quot; doesn&apos;t exists !</source>
         <translation>Le contrôleur spécifié &quot;%1&quot; n&apos;existe pas !</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="146"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="173"/>
         <source>Could not load controller plugin &quot;%1&quot; (%2).</source>
         <translation>Impossible de charger le plugin de contrôle &quot;%1&quot; (%2).</translation>
     </message>
@@ -163,115 +173,115 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="99"/>
+        <location filename="../src/gui/mainwindow.cpp" line="102"/>
         <source>UUID used for the SDP service: %1</source>
         <translation>UUID utilisé par le service SDP: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="100"/>
+        <location filename="../src/gui/mainwindow.cpp" line="103"/>
         <source>Start listening on channel %1.</source>
         <translation>Début de l&apos;écoute sur le canal %1.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="105"/>
+        <location filename="../src/gui/mainwindow.cpp" line="108"/>
         <source>RFCOMM channel has been auto-generated to %1.</source>
         <translation>Le canal RFCOMM a été auto-généré sur %1.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="139"/>
+        <location filename="../src/gui/mainwindow.cpp" line="149"/>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="142"/>
+        <location filename="../src/gui/mainwindow.cpp" line="152"/>
         <source>&amp;Exit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="146"/>
+        <location filename="../src/gui/mainwindow.cpp" line="156"/>
         <source>&amp;Reboot</source>
         <translation>&amp;Redémarrer</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="149"/>
+        <location filename="../src/gui/mainwindow.cpp" line="159"/>
         <source>Rebooting the application ...</source>
         <translation>Redémarage de l&apos;application ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="160"/>
-        <location filename="../src/gui/mainwindow.cpp" line="163"/>
+        <location filename="../src/gui/mainwindow.cpp" line="170"/>
+        <location filename="../src/gui/mainwindow.cpp" line="173"/>
         <source>&amp;About</source>
         <translation>A &amp;propos</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="167"/>
+        <location filename="../src/gui/mainwindow.cpp" line="177"/>
         <source>About &amp;Qt</source>
         <translation>A propos de &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="179"/>
+        <location filename="../src/gui/mainwindow.cpp" line="190"/>
         <source>State: %1</source>
         <translation>État: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="180"/>
+        <location filename="../src/gui/mainwindow.cpp" line="191"/>
         <source>State changed ! New state: %1</source>
         <translation>Changement d&apos;état ! Nouvel état: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="186"/>
+        <location filename="../src/gui/mainwindow.cpp" line="197"/>
         <source>Connected to %1 on channel %2.</source>
         <translation>Connecté à %1 sur le canal %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="190"/>
+        <location filename="../src/gui/mainwindow.cpp" line="201"/>
         <source>Show the selected controller ...</source>
         <translation>Affichage du contrôleur spécifié ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="194"/>
+        <location filename="../src/gui/mainwindow.cpp" line="205"/>
         <source>Start sending data %1 times per second.</source>
         <translation>Début de l&apos;envoi de données %1 fois par seconde.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="195"/>
+        <location filename="../src/gui/mainwindow.cpp" line="206"/>
         <source>Output Bluetooth data in the console every second ...</source>
         <translation>Affichage des données Bluetooth dans la console toutes les secondes ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="210"/>
+        <location filename="../src/gui/mainwindow.cpp" line="221"/>
         <source>Error: %1</source>
         <translation>Erreur: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="213"/>
+        <location filename="../src/gui/mainwindow.cpp" line="224"/>
         <source>Bluetooth error: %1 (error code: %2)</source>
         <translation>Erreur bluetooth: %1 (code: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="216"/>
+        <location filename="../src/gui/mainwindow.cpp" line="227"/>
         <source>Error detail: %1 (errno value: %2)</source>
         <translation>Détail de l&apos;erreur: %1 (valeur de errno: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="230"/>
+        <location filename="../src/gui/mainwindow.cpp" line="242"/>
         <source>Connected to device %1 on channel %2</source>
         <translation>Connecté au périphérique %1 sur le cannal %2</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="241"/>
+        <location filename="../src/gui/mainwindow.cpp" line="254"/>
         <source>The bluetooth manager is not created !</source>
         <translation>Le gestionnaire bluetooth n&apos;a pas été créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="246"/>
+        <location filename="../src/gui/mainwindow.cpp" line="260"/>
         <source>The controller is not created !</source>
-        <translation>Le controleur n&apos;est pas créé !</translation>
+        <translation>Le contrôleur n&apos;est pas créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="268"/>
+        <location filename="../src/gui/mainwindow.cpp" line="286"/>
         <source>Send message: speed=%1 orientation=%2 (real orientation: %3)</source>
-        <translation>Envoi d&apos;un message: vitesse=%1 orientation=%2 (vrai orientation: %3)</translation>
+        <translation>Envoi d&apos;un message: vitesse=%1 orientation=%2 (orientation réelle: %3)</translation>
     </message>
 </context>
 <context>

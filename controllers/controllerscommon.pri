@@ -38,6 +38,11 @@ QT -= gui
 # Output name
 TARGET = $${CONTROLLER_NAME}
 
+# Check if we are in a NO_GUI build
+CONFIG(NO_GUI) {
+    DEFINES += NO_GUI
+}
+
 BUILD_PATH = build
 BIN_PATH = ../../app/bin
 BUILD_STR = debug
@@ -67,6 +72,7 @@ DESTDIR = $${BIN_PATH}/$${BUILD_STR}/controllers
 CUSTOM_INCDEP_PATH = \
     $${_PRO_FILE_PWD_} \
     $${_PRO_FILE_PWD_}/src \
+    $$PWD/../app/src \
     $$PWD/../app/src/interfaces \
     $$PWD/../app/src/commonwidgets
 

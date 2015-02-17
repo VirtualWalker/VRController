@@ -29,7 +29,9 @@
 
 #include "listeningwidget.h"
 #include "controllerchoicewidget.h"
+#ifndef NO_BLUETOOTH
 #include "../core/bluetoothmanager.h"
+#endif
 #include "log/logbrowser.h"
 
 #define DEFAULT_MSG_FREQUENCY 10
@@ -87,13 +89,14 @@ class MainWindow : public QMainWindow
         QLabel *_sbError;
 
         QMenuBar *_menuBar;
-
+#ifndef NO_BLUETOOTH
         BluetoothManager *_btMgr;
-        int _btTimer = 0;
+
         // Functions to handle states and errors of the BT Manager
         std::function<void(BluetoothManager::State)> _btMgrStateHandler;
         std::function<void(BluetoothManager::Error)> _btMgrErrorHandler;
-
+#endif
+        int _btTimer = 0;
         // These variables is used to count the number of executions of the method timerEvent()
         int _numberOfTimerExec = 0;
 

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="OpenNIKinectConfig.xml">util/OpenNIKinectConfig.xml</file>
+    </qresource>
+</RCC>

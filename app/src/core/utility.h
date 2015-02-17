@@ -16,32 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FAKECONTROLLER_H
-#define FAKECONTROLLER_H
+#ifndef UTILITY_H
+#define UTILITY_H
 
-#include "ControllerInterface"
-#include "fakecontrollerwidget.h"
+//
+// This file contains some utility methods
+//
 
-class FakeController: public ControllerInterface
+#include <QString>
+#include <QTextStream>
+#include <QFile>
+
+namespace FileUtil
 {
-        Q_OBJECT
-        Q_INTERFACES(ControllerInterface)
-        Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
+    inline QString readFile(QFile &file)
+    {
+        if(!file.open(QFile::ReadOnly | QFile::Text))
+            return QString();
+        QTextStream in(&file);
+        return in.readAll();
+    }
 
-    public:
-        explicit FakeController(QObject *parent = nullptr);
-        virtual ~FakeController();
+    inline QString readFile(const QString &path)
+    {
+        QFile file(path);
+        return readFile(file);
+    }
+}
 
-        void start();
-
-        QWidget *widget();
-
-        int orientation();
-        int walkSpeed();
-
-    private:
-
-        FakeControllerWidget *_widget;
-};
-
-#endif // FAKECONTROLLER_H
+#endif // UTILITY_H

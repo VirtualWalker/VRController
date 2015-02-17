@@ -19,6 +19,8 @@
 #ifndef BLUETOOTHMANAGER_H
 #define BLUETOOTHMANAGER_H
 
+#ifndef NO_BLUETOOTH
+
 #include <vector>
 #include <string>
 #include <cstdio>
@@ -520,4 +522,5 @@ class BluetoothManager
         }
 };
 
+#endif // NO_BLUETOOTH
 #endif // BLUETOOTHMANAGER_H

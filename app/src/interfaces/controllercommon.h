@@ -33,6 +33,10 @@
 #define ORIENTATION_BACKWARD 180
 #define ORIENTATION_LEFT 270
 
+#define PI 3.14159265358979323846
+#define DEG2RAD (PI/180.0)
+#define RAD2DEG (180.0/PI)
+
 #define PLUGINS_EXT_WITHOUT_DOT QStringLiteral("so")
 #define PLUGINS_EXT QStringLiteral(".") + PLUGINS_EXT_WITHOUT_DOT
 #define PLUGINS_PREFIX QStringLiteral("lib")
@@ -41,6 +45,8 @@
 #else
     #define PLUGINS_SUFFIX ""
 #endif
+
+#define UNUSED_VAR(x) (void)x
 
 #endif // CONTROLLERCOMMON
 

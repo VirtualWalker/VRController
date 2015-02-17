@@ -26,10 +26,19 @@
 class ControllerInterface: public QObject
 {
         Q_OBJECT
+        // This property is usually set by the program.
+        // Used to know the frequency of data send with bluetooth
+        Q_PROPERTY(unsigned int dataFrequency READ dataFrequency WRITE setDataFrequency NOTIFY dataFrequencyChanged)
+
+    private:
+        unsigned int _dataFrenquency = 1;
 
     public:
 
         explicit ControllerInterface(QObject *parent = nullptr): QObject(parent) {}
+        // Used to start the controller
+        // You can do some initialisations in this function
+        virtual void start() = 0;
         virtual ~ControllerInterface() {}
 
         // Return the widget shown in the main window.
@@ -43,12 +52,26 @@ class ControllerInterface: public QObject
         // Must be a number between 0 and 254.
         virtual int walkSpeed() = 0;
 
+        unsigned int dataFrequency() const
+        {
+            return _dataFrenquency;
+        }
+
     signals:
 
         void orientationChanged(int newOrientation);
         void walkSpeedChanged(int newWalkSpeed);
-        // Emit when one of the above value are modified
+        // Emit when one of the above values are modified
         void somethingChanged();
+
+        void dataFrequencyChanged();
+
+    public slots:
+        void setDataFrequency(unsigned int frequency)
+        {
+            _dataFrenquency = frequency;
+            emit dataFrequencyChanged();
+        }
 
 };
 

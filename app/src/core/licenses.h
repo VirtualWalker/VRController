@@ -19,27 +19,31 @@
 #ifndef THIRDPARTIESLICENSES_H
 #define THIRDPARTIESLICENSES_H
 
+#include <QString>
+#include <QList>
+
 // This file contains licenses about 3rd parties program used in VRController
 // All copyright notices are only available for these 3rd parties program.
-
+// Each controller can add custom licenses if needed
 struct LicenseObject {
-    const char* name;
-    const char* url;
-    const char* license;
+    QString name;
+    QString url;
+    QString license;
+    bool fromAPlugin;
+    QString pluginName;
 
-    LicenseObject(): name(0), url(0), license(0) {}
-    LicenseObject(const char* name, const char* url, const char* license)
-        : name(name), url(url), license(license) {}
-
-    bool isEmpty() const
-    {
-        return name == 0 && url == 0 && license == 0;
-    }
+    LicenseObject(): fromAPlugin(false) {}
+    LicenseObject(QString name, QString url, QString license)
+        : name(name), url(url), license(license), fromAPlugin(false) {}
+    LicenseObject(QString name, QString url, QString license, QString pluginName)
+        : name(name), url(url), license(license), fromAPlugin(true), pluginName(pluginName) {}
 };
+
+typedef QList<LicenseObject> LicenseObjectList;
 
 namespace ThirdPartiesLicenses
 {
-    static const char *licenseQProgressIndicator =
+    static QString licenseQProgressIndicator =
             "Copyright (C) 2009 - 2010 Morgan Leborgne\n"
             "\n"
             "This program is free software: you can redistribute it and/or modify\n"
@@ -56,8 +60,8 @@ namespace ThirdPartiesLicenses
             "along with QProgressIndicator. If not, see &lt;http://www.gnu.org/licenses/&gt;\n";
 
 
-    static const LicenseObject licenses[] = {
-        LicenseObject("QProgressIndicator", "https://github.com/mojocorp/QProgressIndicator", licenseQProgressIndicator)
+    static const LicenseObjectList licenses = {
+        LicenseObject(QStringLiteral("QProgressIndicator"), QStringLiteral("https://github.com/mojocorp/QProgressIndicator"), licenseQProgressIndicator)
     };
 }
 

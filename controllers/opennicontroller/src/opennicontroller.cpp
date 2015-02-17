@@ -16,37 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fakecontroller.h"
+#include "opennicontroller.h"
 
-FakeController::FakeController(QObject *parent): ControllerInterface(parent)
+OpenNIController::OpenNIController(QObject *parent): ControllerInterface(parent)
 {
 }
 
-FakeController::~FakeController()
+OpenNIController::~OpenNIController()
 {
     _widget->deleteLater();
 }
 
-void FakeController::start()
+void OpenNIController::start()
 {
-    _widget = new FakeControllerWidget();
-    connect(_widget, &FakeControllerWidget::orientationChanged, this, &ControllerInterface::orientationChanged);
-    connect(_widget, &FakeControllerWidget::walkSpeedChanged, this, &ControllerInterface::walkSpeedChanged);
-    connect(_widget, &FakeControllerWidget::valueChanged, this, &ControllerInterface::somethingChanged);
+    _widget = new OpenNIControllerWidget(dataFrequency());
+    connect(_widget, &OpenNIControllerWidget::orientationChanged, this, &ControllerInterface::orientationChanged);
+    connect(_widget, &OpenNIControllerWidget::walkSpeedChanged, this, &ControllerInterface::walkSpeedChanged);
+    connect(_widget, &OpenNIControllerWidget::valueChanged, this, &ControllerInterface::somethingChanged);
 }
 
 // Getters
-int FakeController::orientation()
+int OpenNIController::orientation()
 {
     return _widget->orientationValue();
 }
 
-int FakeController::walkSpeed()
+int OpenNIController::walkSpeed()
 {
     return _widget->walkSpeedValue();
 }
 
-QWidget *FakeController::widget()
+QWidget *OpenNIController::widget()
 {
     return _widget;
 }

@@ -16,27 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef OPENCVUTIL_H
+#define OPENCVUTIL_H
 
-//
-// This file contains some utility methods
-//
+#include <opencv2/core/core.hpp>
+#include "openniutil.h"
 
-#include <QString>
-#include <QTextStream>
-#include <QFile>
-
-namespace FileUtil
+// Drawing functions
+namespace OpenCVUtil
 {
-    QString readFile(const QString &path)
-    {
-        QFile file(path);
-        if(!file.open(QFile::ReadOnly | QFile::Text))
-            return QString();
-        QTextStream in(&file);
-        return in.readAll();
-    }
+    cv::Point3f pointToCV(const XnVector3D pt);
+    cv::Point2i pointTo2DCV(const XnVector3D pt);
+    void drawJoint(cv::Mat image, const OpenNIUtil::Joint joint, const cv::Scalar color);
+    cv::Mat drawOpenNIData(OpenNIUtil::CameraInformations camInfo);
 }
 
-#endif // UTILITY_H
+#endif // OPENCVUTIL_H

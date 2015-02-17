@@ -18,13 +18,45 @@
 ##
 #############################################################################
 
-TEMPLATE = subdirs
-CONFIG += ordered
+##########################################
+# Project file for the OpenNI controller #
+##########################################
 
-SUBDIRS += \
-    fakecontroller
+CONTROLLER_NAME = opennicontroller
+include($$PWD/../controllerscommon.pri)
 
-!CONFIG(NO_OPENNICONTROLLER) {
-    SUBDIRS += opennicontroller
-}
+QT += gui widgets opengl
 
+# Add OpenCV libs
+LIBS += \
+    -lopencv_core \
+    -lopencv_imgproc
+
+INCLUDEPATH += /usr/include/
+
+# Add OpenNI libs
+LIBS += -lOpenNI
+INCLUDEPATH += /usr/include/ni
+DEFINES += linux
+QMAKE_CXXFLAGS += -Wno-unknown-pragmas
+
+SOURCES += \
+    src/opennicontrollerwidget.cpp \
+    src/opencvutil.cpp \
+    src/openniapplication.cpp \
+    src/opencvwidget.cpp
+
+HEADERS += \
+    src/opennicontrollerwidget.h \
+    src/opencvutil.h \
+    src/openniapplication.h \
+    src/opencvwidget.h \
+    src/openniutil.h \
+    ../../app/src/core/utility.h
+
+RESOURCES += \
+    $$PWD/resources.qrc
+
+# French translation
+TRANSLATIONS += \
+    $$PWD/i18n/$${CONTROLLER_NAME}_fr.ts

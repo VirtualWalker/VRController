@@ -16,21 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ABOUT_H
-#define ABOUT_H
+#ifndef OPENNICONTROLLER_H
+#define OPENNICONTROLLER_H
 
-#include <QDialog>
+#include "ControllerInterface"
 
-// Simple class that show informations about this application
-class AboutDialog : public QDialog {
+#include "opennicontrollerwidget.h"
 
-    // This prevent the copy of the object
-    private:
+/**
+ * This controller allow the use of the OpenNI SDK to send orientation and walk speed informations
+ * to the connected device.
+ */
+class OpenNIController: public ControllerInterface
+{
         Q_OBJECT
-        Q_DISABLE_COPY(AboutDialog)
+        Q_INTERFACES(ControllerInterface)
+        Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
 
     public:
-        AboutDialog(QWidget *parent = nullptr);
+        explicit OpenNIController(QObject *parent = nullptr);
+        virtual ~OpenNIController();
+
+        void start();
+
+        QWidget *widget();
+
+        int orientation();
+        int walkSpeed();
+
+    private:
+
+        OpenNIControllerWidget *_widget;
 };
 
-#endif // ABOUT_H
+#endif // OPENNICONTROLLER_H

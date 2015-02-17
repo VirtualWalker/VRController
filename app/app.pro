@@ -30,6 +30,16 @@ APPLICATION_NAME = VRController
 DEFINES += "APPLICATION_TARGET=\\\"$${APPLICATION_TARGET}\\\"" \
     "APPLICATION_NAME=\\\"$${APPLICATION_NAME}\\\""
 
+# Check if we are in a NO_GUI build
+CONFIG(NO_GUI) {
+    DEFINES += NO_GUI
+}
+
+# Check if we don't need the bluetooth
+CONFIG(NO_BLUETOOTH) {
+    DEFINES += NO_BLUETOOTH
+}
+
 # The executable name
 TARGET = $$quote($${APPLICATION_TARGET})
 
@@ -72,7 +82,7 @@ SOURCES += \
     src/gui/listeningwidget.cpp \
     src/gui/log/logbrowser.cpp \
     src/gui/log/logbrowserwidget.cpp \
-    src/gui/about.cpp \
+    src/gui/aboutdialog.cpp \
     src/commonwidgets/autoscrolltextbrowser.cpp \
     src/commonwidgets/dial.cpp \
     src/gui/controllerchoicewidget.cpp
@@ -83,9 +93,9 @@ HEADERS += \
     src/gui/listeningwidget.h \
     src/gui/log/logbrowser.h \
     src/gui/log/logbrowserwidget.h \
-    src/gui/about.h \
-    src/gui/utility.h \
-    src/gui/licenses.h \
+    src/gui/aboutdialog.h \
+    src/core/utility.h \
+    src/core/licenses.h \
     src/commonwidgets/autoscrolltextbrowser.h \
     src/commonwidgets/dial.h \
     src/interfaces/controllerinterface.h \

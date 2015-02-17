@@ -24,6 +24,7 @@
 #include <QFileInfo>
 #include <QString>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QVBoxLayout>
@@ -98,6 +99,27 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                         }
                     }
 
+                    // Check for 3rdLicenses
+                    if(jsonObj.contains(QStringLiteral("3rdLicenses")))
+                    {
+                        QJsonArray licensesArray = jsonObj.value(QStringLiteral("3rdLicenses")).toArray();
+                        for(int i=0, end=licensesArray.size(); i<end ; ++i)
+                        {
+                            QJsonObject licenseObj = licensesArray.at(i).toObject();
+                            const QString licenseName = licenseObj.value(nameStr).toString();
+                            const QString licenseUrl = licenseObj.value(QStringLiteral("url")).toString();
+                            const QString licenseText = licenseObj.value(QStringLiteral("text")).toString();
+
+                            if(licenseName.isEmpty() || licenseText.isEmpty())
+                            {
+                                qWarning() << qPrintable(tr("Find a third party license for controller \"%1\" but without a name or a correct text. Skip it !").arg(name));
+                                continue;
+                            }
+
+                            // Add the license to the list
+                            _thirdPartiesLicenses.append(LicenseObject(licenseName, licenseUrl, licenseText, name));
+                        }
+                    }
 
                     _controllersMap.insert(internalName, loader);
 
@@ -145,5 +167,10 @@ ControllerInterface *ControllerChoiceWidget::selectedController()
 
     qCritical() << qPrintable(tr("Could not load controller plugin \"%1\" (%2).").arg(selectedControllerName(), loader->errorString()));
     return nullptr;
+}
+
+QList<LicenseObject> ControllerChoiceWidget::thirdPartiesLicensesFromPlugins() const
+{
+    return _thirdPartiesLicenses;
 }
 

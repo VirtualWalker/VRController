@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "about.h"
-#include "utility.h"
-#include "licenses.h"
+#include "aboutdialog.h"
+#include "../core/utility.h"
+#include "../core/licenses.h"
 
 #include <QTabWidget>
 #include <QVBoxLayout>
@@ -28,7 +28,7 @@
 #include <QPushButton>
 #include <QPixmap>
 
-AboutDialog::AboutDialog(QWidget *parent): QDialog(parent)
+AboutDialog::AboutDialog(QList<LicenseObject> othersLicenses, QWidget *parent): QDialog(parent)
 {
     setWindowTitle(tr("About %1").arg(APPLICATION_NAME));
     setAttribute(Qt::WA_DeleteOnClose);
@@ -51,13 +51,11 @@ AboutDialog::AboutDialog(QWidget *parent): QDialog(parent)
     thirdLicenseTab->setOpenExternalLinks(true);
 
     // Create 3rd licenses
-    for(int i = 0; !ThirdPartiesLicenses::licenses[i].isEmpty(); ++i)
-    {
-        thirdLicenseTab->append(QStringLiteral("<h3>%1 (<a href=\"%2\">%2</a>)</h3><pre>%3</pre>")
-                .arg(QString::fromLatin1(ThirdPartiesLicenses::licenses[i].name))
-                .arg(QString::fromLatin1(ThirdPartiesLicenses::licenses[i].url))
-                .arg(QString::fromLatin1(ThirdPartiesLicenses::licenses[i].license)));
-    }
+    for(int i=0, end=ThirdPartiesLicenses::licenses.size(); i<end; ++i)
+        thirdLicenseTab->append(licenseToString(ThirdPartiesLicenses::licenses[i]));
+    // Add licenses from plugins
+    for(int i=0, end=othersLicenses.size(); i<end; ++i)
+        thirdLicenseTab->append(licenseToString(othersLicenses[i]));
     thirdLicenseTab->moveCursor(QTextCursor::Start);
 
     // Create the main tab
@@ -91,6 +89,24 @@ AboutDialog::AboutDialog(QWidget *parent): QDialog(parent)
 
     mainLayout->addWidget(tabs);
     mainLayout->addWidget(okButton);
+}
+
+// Private
+QString AboutDialog::licenseToString(LicenseObject license)
+{
+    if(!license.fromAPlugin)
+    {
+        return QStringLiteral("<h3>%1 (<a href=\"%2\">%2</a>)</h3><pre>%3</pre><br/><br/>")
+                .arg(license.name)
+                .arg(license.url)
+                .arg(license.license);
+    }
+    // Else, the license came from a plugin
+    return QStringLiteral("<h3>%1 (<a href=\"%2\">%2</a>)</h3><h4>%4</h4><pre>%3</pre><br/><br/>")
+            .arg(license.name)
+            .arg(license.url)
+            .arg(license.license)
+            .arg(tr("Used in the controller: %1").arg(license.pluginName));
 }
 
 

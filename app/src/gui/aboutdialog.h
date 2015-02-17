@@ -16,32 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FAKECONTROLLER_H
-#define FAKECONTROLLER_H
+#ifndef ABOUT_H
+#define ABOUT_H
 
-#include "ControllerInterface"
-#include "fakecontrollerwidget.h"
+#include <QDialog>
+#include <QList>
+#include "../core/licenses.h"
 
-class FakeController: public ControllerInterface
-{
+// Simple class that show informations about this application
+class AboutDialog : public QDialog {
+
+    // This prevent the copy of the object
+    private:
         Q_OBJECT
-        Q_INTERFACES(ControllerInterface)
-        Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
+        Q_DISABLE_COPY(AboutDialog)
 
     public:
-        explicit FakeController(QObject *parent = nullptr);
-        virtual ~FakeController();
-
-        void start();
-
-        QWidget *widget();
-
-        int orientation();
-        int walkSpeed();
+        AboutDialog(QList<LicenseObject> othersLicenses, QWidget *parent = nullptr);
 
     private:
-
-        FakeControllerWidget *_widget;
+        QString licenseToString(LicenseObject license);
 };
 
-#endif // FAKECONTROLLER_H
+#endif // ABOUT_H

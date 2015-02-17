@@ -1,0 +1,20 @@
+{
+    "internalName" : "opennicontroller",
+    "name" : "OpenNI Controller",
+    "description" : "The movements of the user are analysed with a Kinect sensor using OpenNI SDK",
+
+    "translations" : {
+        "fr" : {
+            "name" : "Contrôleur OpenNI",
+            "description" : "Les mouvements de l'utilisateur sont retranscrits à l'aide d'une caméra Kinect et du SDK d'OpenNI"
+        }
+    },
+
+    "3rdLicenses" : [
+        {
+            "name" : "OpenNI",
+            "url" : "https://github.com/OpenNI/OpenNI",
+            "text" : "Copyright (c) 2012 PrimeSense Ltd.\n\nThis product is licensed under the Apache License, Version 2.0 (the \"License\");\n\nYou should have received a copy of the Apache License along with OpenNI 1.X.\nIf not, see:\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT \nWARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the \nLicense for the specific language governing permissions and limitations under \nthe License.\n"
+        }
+    ]
+}

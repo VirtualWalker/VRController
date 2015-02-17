@@ -23,8 +23,10 @@
 #include <QMap>
 #include <QPluginLoader>
 #include <QButtonGroup>
+#include <QList>
 
 #include "../interfaces/controllerinterface.h"
+#include "../core/licenses.h"
 
 class ControllerChoiceWidget : public QWidget
 {
@@ -35,6 +37,8 @@ class ControllerChoiceWidget : public QWidget
         QString selectedControllerName();
         ControllerInterface *selectedController();
 
+        QList<LicenseObject> thirdPartiesLicensesFromPlugins() const;
+
     public slots:
         void selectController(const QString name);
 
@@ -43,6 +47,9 @@ class ControllerChoiceWidget : public QWidget
         QGroupBox *_groupBox;
         QButtonGroup *_buttonGroup;
         QMap<QString, QPluginLoader *> _controllersMap;
+
+        // This list is filled when parsing the JSON files
+        QList<LicenseObject> _thirdPartiesLicenses;
 };
 
 #endif // CONTROLLERCHOICEWIDGET_H
