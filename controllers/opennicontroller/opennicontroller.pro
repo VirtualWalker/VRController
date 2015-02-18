@@ -38,6 +38,8 @@ INCLUDEPATH += /usr/include/
 LIBS += -lOpenNI
 INCLUDEPATH += /usr/include/ni
 DEFINES += linux
+# Add defines for OpenNI on a 32 bits host
+linux-g++-32:DEFINES += i386
 QMAKE_CXXFLAGS += -Wno-unknown-pragmas
 
 SOURCES += \
