@@ -33,6 +33,7 @@ class ControllerChoiceWidget : public QWidget
         Q_OBJECT
     public:
         explicit ControllerChoiceWidget(QWidget *parent = 0);
+        ~ControllerChoiceWidget();
 
         QString selectedControllerName();
         ControllerInterface *selectedController();

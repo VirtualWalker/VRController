@@ -65,7 +65,7 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                     qDebug() << qPrintable(tr("Find a controller file at \"%1\"").arg(filePath));
 
                     // Creating the loader to acces the metadata.
-                    QPluginLoader *loader = new QPluginLoader(filePath);
+                    QPluginLoader *loader = new QPluginLoader(filePath, this);
                     QJsonObject jsonObj = loader->metaData().value(QStringLiteral("MetaData")).toObject();
 
                     const QString nameStr = "name";
@@ -136,6 +136,13 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
     {
         qCritical() << qPrintable(tr("Controllers dir doesn't exist at \"%1\"").arg(path.canonicalPath()));
     }
+}
+
+ControllerChoiceWidget::~ControllerChoiceWidget()
+{
+    // Unload all plugins
+    while(!_controllersMap.isEmpty())
+        _controllersMap.take(_controllersMap.firstKey())->unload();
 }
 
 void ControllerChoiceWidget::selectController(const QString name)

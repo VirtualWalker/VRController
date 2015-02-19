@@ -23,6 +23,7 @@
 OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, QWidget *parent): QWidget(parent)
 {
     _viewer = new OpenCVWidget(this);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(_viewer);
     setLayout(layout);

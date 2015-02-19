@@ -107,7 +107,7 @@ OTHER_FILES += \
     src/commonwidgets/Dial \
     src/commonwidgets/AutoScrollTextBrowser
 
-# Add progress indicator files
+# Add QProgressIndicator files
 include($$PWD/../thirdparty/qprogressindicator/qprogressindicator.pri)
 
 # French translation
