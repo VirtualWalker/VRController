@@ -3,12 +3,24 @@
     "name" : "OpenNI Controller",
     "description" : "The movements of the user are analysed with a Kinect sensor using OpenNI SDK",
 
-    "translations" : {
+    "i18n" : {
         "fr" : {
             "name" : "Contrôleur OpenNI",
             "description" : "Les mouvements de l'utilisateur sont retranscrits à l'aide d'une caméra Kinect et du SDK d'OpenNI"
         }
     },
+
+    "launchOptions" : [
+        {
+            "internalName" : "useAKinect",
+            "description" : "Are you using a Kinect sensor ?",
+            "i18n" : {
+                "fr" : {
+                    "description" : "Utilisez-vous une caméra Kinect ?"
+                }
+            }
+        }
+    ],
 
     "3rdLicenses" : [
         {

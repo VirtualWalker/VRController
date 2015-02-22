@@ -3,7 +3,7 @@
     "name" : "Fake Controller",
     "description" : "Allow the user to control the orientation and the walk speed with two dials.",
 
-    "translations" : {
+    "i18n" : {
         "fr" : {
             "name" : "Contrôleur factice",
             "description" : "Permet à l'utilisateur de contrôler l'orientation et la vitesse à l'aide de 2 potentiomètres."

@@ -2,6 +2,92 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>OpenNIApplication</name>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="102"/>
+        <source>The application will assume that a kinect sensor is used !</source>
+        <translation>L&apos;application assume qu&apos;une caméra Kinect est utilisée !</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="181"/>
+        <source>OpenNI already initialized !</source>
+        <translation>OpenNI est déjà initialisé !</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="185"/>
+        <source>Initializing OpenNI ...</source>
+        <translation>Initialisation d&apos;OpenNI ...</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="204"/>
+        <source>Open XML file</source>
+        <comment>on error</comment>
+        <translation>Ouverture du fichier XML</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="211"/>
+        <source>Find depth generator</source>
+        <comment>on error</comment>
+        <translation>Recherche du générateur de profondeur</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="219"/>
+        <source>Find user generator</source>
+        <comment>on error</comment>
+        <translation>Recherche du générateur d&apos;utilisateur</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="224"/>
+        <source>Register to user callbacks</source>
+        <comment>on error</comment>
+        <translation>Enregistrement du retour utilisateur</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="226"/>
+        <source>Register to calibration start</source>
+        <comment>on error</comment>
+        <translation>Enregistrement du début de calibration</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="228"/>
+        <source>Register to calibration complete</source>
+        <comment>on error</comment>
+        <translation>Enregistrement de réussite de calibration</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="230"/>
+        <source>Register to calibration in progress</source>
+        <comment>on error</comment>
+        <translation>Enregistrement de calibration en cours</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="235"/>
+        <source>Supplied user generator doesn&apos;t support skeleton capability.</source>
+        <translation>Le générateur d&apos;utilisateurs ne supporte pas la reconnaissance du squelette.</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="241"/>
+        <source>Pose calibration required but not supported by this program.</source>
+        <translation>Une posture de calibration est requise mais cette fonctionnalité n&apos;est pas supportée.</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="256"/>
+        <source>The application is not initilized, can&apos;t start !</source>
+        <translation>L&apos;application n&apos;a pas été initialisée. Impossible de la démarer !</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="260"/>
+        <source>Starting OpenNI main loop ...</source>
+        <translation>Lancement de la boucle principale d&apos;OpenNI ...</translation>
+    </message>
+    <message>
+        <location filename="../src/openniapplication.cpp" line="263"/>
+        <source>Start Generating</source>
+        <comment>on error</comment>
+        <translation>Début de la génération</translation>
+    </message>
+</context>
+<context>
     <name>QObject</name>
     <message>
         <location filename="../src/openniapplication.cpp" line="32"/>
@@ -12,7 +98,7 @@
     <message>
         <location filename="../src/openniapplication.cpp" line="40"/>
         <source>Cannot get the OpenNI application.</source>
-        <translation>Impossible de récupérer l&apos;application OpenNI.</translation>
+        <translation>Impossible d&apos;obtenir l&apos;application OpenNI.</translation>
     </message>
     <message>
         <location filename="../src/openniapplication.cpp" line="51"/>
@@ -50,87 +136,9 @@
         <translation>Un arrêt manuel a été fait, fin de la calibration !</translation>
     </message>
     <message>
-        <location filename="../src/openniapplication.cpp" line="106"/>
+        <location filename="../src/openniapplication.cpp" line="113"/>
         <source>Stopping the OpenNI frame loop ...</source>
         <translation>Arrêt de la boucle de récupération d&apos;images d&apos;OpenNI ...</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="174"/>
-        <source>OpenNI already initialized !</source>
-        <translation>OpenNI est déjà initialisé !</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="178"/>
-        <source>Initializing OpenNI ...</source>
-        <translation>Initialisation d&apos;OpenNI ...</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="197"/>
-        <source>Open XML file</source>
-        <comment>on error</comment>
-        <translation>Ouverture du fichier XML</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="204"/>
-        <source>Find depth generator</source>
-        <comment>on error</comment>
-        <translation>Recherche du générateur de profondeur</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="212"/>
-        <source>Find user generator</source>
-        <comment>on error</comment>
-        <translation>Recherche du générateur d&apos;utilisateur</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="217"/>
-        <source>Register to user callbacks</source>
-        <comment>on error</comment>
-        <translation>Enregistrement du retour utilisateur</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="219"/>
-        <source>Register to calibration start</source>
-        <comment>on error</comment>
-        <translation>Enregistrement du début de calibration</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="221"/>
-        <source>Register to calibration complete</source>
-        <comment>on error</comment>
-        <translation>Enregistrement de réussite de calibration</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="223"/>
-        <source>Register to calibration in progress</source>
-        <comment>on error</comment>
-        <translation>Enregistrement de calibration en cours</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="228"/>
-        <source>Supplied user generator doesn&apos;t support skeleton capability.</source>
-        <translation>Le générateur d&apos;utilisateurs ne supporte pas la reconnaissance du squelette.</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="234"/>
-        <source>Pose calibration required but not supported by this program.</source>
-        <translation>Une posture de calibration est requise mais cette fonctionnalité n&apos;est pas supportée.</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="249"/>
-        <source>The application is not initilized, can&apos;t start !</source>
-        <translation>L&apos;application n&apos;a pas été initialisée. Impossible de la démarer !</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="253"/>
-        <source>Starting OpenNI main loop ...</source>
-        <translation>Lancement de la boucle principale d&apos;OpenNI ...</translation>
-    </message>
-    <message>
-        <location filename="../src/openniapplication.cpp" line="256"/>
-        <source>Start Generating</source>
-        <comment>on error</comment>
-        <translation>Début de la génération</translation>
     </message>
 </context>
 </TS>

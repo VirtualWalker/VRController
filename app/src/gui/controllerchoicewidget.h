@@ -21,12 +21,15 @@
 
 #include <QGroupBox>
 #include <QMap>
-#include <QPluginLoader>
 #include <QButtonGroup>
 #include <QList>
+#include <QJsonObject>
 
 #include "../interfaces/controllerinterface.h"
 #include "../core/licenses.h"
+
+#define BUTTON_YES_ID 111
+#define BUTTON_NO_ID 222
 
 class ControllerChoiceWidget : public QWidget
 {
@@ -38,19 +41,33 @@ class ControllerChoiceWidget : public QWidget
         QString selectedControllerName();
         ControllerInterface *selectedController();
 
+        ControllerOptionsList optionsForSelectedController();
+
+        QMap<QString, ControllerWrapper> allControllersWrapper();
+
         QList<LicenseObject> thirdPartiesLicensesFromPlugins() const;
 
     public slots:
-        void selectController(const QString name);
+        void selectController(const QString& name);
+        void setOptionForController(const QString& controllerName, const QString& optionName, const bool value);
 
     private:
 
         QGroupBox *_groupBox;
         QButtonGroup *_buttonGroup;
-        QMap<QString, QPluginLoader *> _controllersMap;
+
+        // Store all controllers by internal names
+        QMap<QString /*internalName*/, ControllerWrapper /*wrapper*/> _controllersMap;
+
+        // Store all options button group by the internal name and the option name
+        QMap<QString /*internalName*/, QMap<QString /*optionName*/, QButtonGroup* /*buttonGroup*/> /*optionsList*/> _optionsGroupMap;
 
         // This list is filled when parsing the JSON files
         QList<LicenseObject> _thirdPartiesLicenses;
+
+        // Get the translation object for the current language if exists in the JSON file
+        // Return true if exists
+        bool translationObject(const QJsonObject& baseObject, QJsonObject *i18nObject);
 };
 
 #endif // CONTROLLERCHOICEWIDGET_H

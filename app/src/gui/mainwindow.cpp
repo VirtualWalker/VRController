@@ -35,20 +35,6 @@
 #include <cerrno>
 #include <string>
 
-const QString settingChannelStr = "channel";
-const QString settingUseCustomChannelStr = "useCustomChannel";
-const QString settingFrequencyStr = "frequency";
-
-const QString settingSelectedControllerStr = "controller";
-
-const QString settingWinGroupStr = "MainWindow";
-const QString settingWinSizeStr = "size";
-const QString settingWinPosStr = "pos";
-const QString settingWinStateStr = "state";
-
-const QString settingLogGroupStr = "Log";
-const QString settingLogShowDateStr = "showDate";
-
 MainWindow::MainWindow(LogBrowser *logBrowser)
 {
     setWindowTitle(APPLICATION_NAME);
@@ -83,6 +69,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
         if(_controllerPlugin != nullptr)
         {
             _controllerPlugin->setDataFrequency(_listeningWidget->frequency());
+            _controllerPlugin->setLaunchOptions(_controllerChoiceWidget->optionsForSelectedController());
             _controllerPlugin->start();
             _controllerPlugin->widget()->hide();
             _mainLayout->insertWidget(_mainLayout->count()-1, _controllerPlugin->widget(), 1);
@@ -305,6 +292,22 @@ void MainWindow::about()
     dialog->exec();
 }
 
+const QString settingChannelStr = "channel";
+const QString settingUseCustomChannelStr = "useCustomChannel";
+const QString settingFrequencyStr = "frequency";
+
+const QString settingSelectedControllerStr = "controller";
+
+const QString settingWinGroupStr = "MainWindow";
+const QString settingWinSizeStr = "size";
+const QString settingWinPosStr = "pos";
+const QString settingWinStateStr = "state";
+
+const QString settingLogGroupStr = "Log";
+const QString settingLogShowDateStr = "showDate";
+
+const QString settingControllerOptsGroup = "ControllersOptions";
+
 // Protected methods to save and restore the settings
 void MainWindow::readSettings()
 {
@@ -326,6 +329,20 @@ void MainWindow::readSettings()
     if(_logBrowser != nullptr)
         _logBrowser->widget()->setShowDate(_settings->value(settingLogShowDateStr, true).toBool());
     _settings->endGroup();
+
+    // Apply options to the controllers
+    _settings->beginGroup(settingControllerOptsGroup);
+    QStringList controllers = _settings->childGroups();
+    for(QString controllerName : controllers)
+    {
+        _settings->beginGroup(controllerName);
+        QStringList opts = _settings->childKeys();
+        for(QString option : opts)
+            _controllerChoiceWidget->setOptionForController(controllerName, option, _settings->value(option, false).toBool());
+        _settings->endGroup();
+    }
+    _settings->endGroup();
+
 }
 
 void MainWindow::writeSettings()
@@ -345,6 +362,20 @@ void MainWindow::writeSettings()
     _settings->beginGroup(settingLogGroupStr);
     if(_logBrowser != nullptr)
         _settings->setValue(settingLogShowDateStr, _logBrowser->widget()->showDate());
+    _settings->endGroup();
+
+    // Write options for all controllers
+    _settings->beginGroup(settingControllerOptsGroup);
+    QMap<QString, ControllerWrapper> controllerOptions = _controllerChoiceWidget->allControllersWrapper();
+    for(auto it = controllerOptions.begin(), end = controllerOptions.end(); it != end; ++it)
+    {
+        ControllerOptionsList opts = it.value().options;
+        _settings->beginGroup(it.key());
+        for(auto optIt = opts.begin(), optEnd = opts.end(); optIt != optEnd; ++optIt)
+            _settings->setValue(optIt.key(), optIt.value().second);
+
+        _settings->endGroup();
+    }
     _settings->endGroup();
 }
 

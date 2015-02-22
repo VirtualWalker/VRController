@@ -29,7 +29,12 @@ OpenNIController::~OpenNIController()
 
 void OpenNIController::start()
 {
-    _widget = new OpenNIControllerWidget(dataFrequency());
+    // Check if we are using a kinect sensor
+    bool useAKinect = false;
+    if(launchOptions().contains("useAKinect"))
+        useAKinect = launchOptions()["useAKinect"].second;
+
+    _widget = new OpenNIControllerWidget(dataFrequency(), useAKinect);
     connect(_widget, &OpenNIControllerWidget::orientationChanged, this, &ControllerInterface::orientationChanged);
     connect(_widget, &OpenNIControllerWidget::walkSpeedChanged, this, &ControllerInterface::walkSpeedChanged);
     connect(_widget, &OpenNIControllerWidget::valueChanged, this, &ControllerInterface::somethingChanged);

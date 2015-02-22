@@ -95,6 +95,13 @@ void XN_CALLBACK_TYPE calibrationInProgressCallback(xn::SkeletonCapability& /*ca
     app->setCalibrationStatus(userID, calibrationStatus);
 }
 
+OpenNIApplication::OpenNIApplication(bool useAKinect, QObject *parent) : QObject(parent)
+{
+    _useAKinect = useAKinect;
+    if(_useAKinect)
+        qDebug() << qPrintable(tr("The application will assume that a kinect sensor is used !"));
+}
+
 OpenNIApplication::~OpenNIApplication()
 {
     cleanup();
@@ -171,11 +178,11 @@ XnStatus OpenNIApplication::init()
 {
     if(_init)
     {
-        qDebug() << qPrintable(QObject::tr("OpenNI already initialized !"));
+        qDebug() << qPrintable(tr("OpenNI already initialized !"));
         return 1;
     }
 
-    qDebug() << qPrintable(QObject::tr("Initializing OpenNI ..."));
+    qDebug() << qPrintable(tr("Initializing OpenNI ..."));
 
     XnStatus status = XN_STATUS_OK;
 
@@ -194,14 +201,14 @@ XnStatus OpenNIApplication::init()
         qDebug() << strError;
         return status;
     }
-    else CHECK_ERROR(status, QObject::tr("Open XML file", "on error"));
+    else CHECK_ERROR(status, tr("Open XML file", "on error"));
 
     delete tempFile;
     tempFile = nullptr;
 
     // Load the depth generator
     status = _context.FindExistingNode(XN_NODE_TYPE_DEPTH, _depthGenerator);
-    CHECK_ERROR(status, QObject::tr("Find depth generator", "on error"));
+    CHECK_ERROR(status, tr("Find depth generator", "on error"));
 
     // Load the user generator
     status = _context.FindExistingNode(XN_NODE_TYPE_USER, _userGenerator);
@@ -209,29 +216,29 @@ XnStatus OpenNIApplication::init()
     if(status != XN_STATUS_OK)
     {
         status = _userGenerator.Create(_context);
-        CHECK_ERROR(status, QObject::tr("Find user generator", "on error"));
+        CHECK_ERROR(status, tr("Find user generator", "on error"));
     }
 
     // Register callbacks
     status = _userGenerator.RegisterUserCallbacks(&newUserCallback, &lostUserCallback, this, _userCBHandler);
-    CHECK_ERROR(status, QObject::tr("Register to user callbacks", "on error"));
+    CHECK_ERROR(status, tr("Register to user callbacks", "on error"));
     status = _userGenerator.GetSkeletonCap().RegisterToCalibrationStart(&calibrationStartCallback, this, _calibrationStartCBHandler);
-    CHECK_ERROR(status, QObject::tr("Register to calibration start", "on error"));
+    CHECK_ERROR(status, tr("Register to calibration start", "on error"));
     status = _userGenerator.GetSkeletonCap().RegisterToCalibrationComplete(&calibrationEndCallback, this, _calibrationEndCBHandler);
-    CHECK_ERROR(status, QObject::tr("Register to calibration complete", "on error"));
+    CHECK_ERROR(status, tr("Register to calibration complete", "on error"));
     status = _userGenerator.GetSkeletonCap().RegisterToCalibrationInProgress(&calibrationInProgressCallback, this, _calibrationInProgressCBHandler);
-    CHECK_ERROR(status, QObject::tr("Register to calibration in progress", "on error"));
+    CHECK_ERROR(status, tr("Register to calibration in progress", "on error"));
 
     // Check if the user generator support skeleton
     if(!_userGenerator.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
     {
-        qDebug() << qPrintable(QObject::tr("Supplied user generator doesn't support skeleton capability."));
+        qDebug() << qPrintable(tr("Supplied user generator doesn't support skeleton capability."));
         return 2;
     }
     // Check if the user generator need a pose for skeleton detection
     if(_userGenerator.GetSkeletonCap().NeedPoseForCalibration())
     {
-        qDebug() << qPrintable(QObject::tr("Pose calibration required but not supported by this program."));
+        qDebug() << qPrintable(tr("Pose calibration required but not supported by this program."));
         return 3;
     }
 
@@ -246,14 +253,14 @@ XnStatus OpenNIApplication::start()
 {
     if(!_init)
     {
-        qDebug() << qPrintable(QObject::tr("The application is not initilized, can't start !"));
+        qDebug() << qPrintable(tr("The application is not initilized, can't start !"));
         return 5;
     }
 
-    qDebug() << qPrintable(QObject::tr("Starting OpenNI main loop ..."));
+    qDebug() << qPrintable(tr("Starting OpenNI main loop ..."));
 
     const XnStatus status = _context.StartGeneratingAll();
-    CHECK_ERROR(status, QObject::tr("Start Generating", "on error"));
+    CHECK_ERROR(status, tr("Start Generating", "on error"));
 
     // Start the frame loop
     bool firstLoop = true;
@@ -279,7 +286,7 @@ XnStatus OpenNIApplication::start()
         XnUInt16 usersCount = 5;
         XnUserID usersArray[usersCount];
         _userGenerator.GetUsers(usersArray, usersCount);
-        std::vector<OpenNIUtil::User> users(usersCount);
+        //std::vector<OpenNIUtil::User> users(usersCount);
 
         // Get the first tracked user
         XnUserID firstTrackingID = 0;

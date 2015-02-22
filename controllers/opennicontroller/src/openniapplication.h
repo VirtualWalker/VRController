@@ -23,6 +23,7 @@
 #include <ni/XnCodecIDs.h>
 #include <ni/XnCppWrapper.h>
 #include <ni/XnPropNames.h>
+#include <ni/XnUSB.h>
 #include <map>
 #include <mutex>
 
@@ -39,7 +40,7 @@ class OpenNIApplication: public QObject
     public:
         // Nothing is created in the constructor.
         // Please call init() to start the process
-        OpenNIApplication(QObject *parent = nullptr): QObject(parent) {}
+        OpenNIApplication(bool useAKinect = false, QObject *parent = nullptr);
         ~OpenNIApplication();
 
         // Check if the app is initialized
@@ -90,6 +91,9 @@ class OpenNIApplication: public QObject
 
         bool _stopped = false;
         std::mutex _stoppedMutex;
+
+        // Tell if we are using a kinect sensor or not
+        bool _useAKinect;
 
         xn::Context _context;
         xn::ScriptNode _xmlScriptNode;

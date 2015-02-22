@@ -32,6 +32,7 @@ class OpenNIWorker : public QObject
         Q_OBJECT
     private:
         OpenNIApplication *_app = nullptr;
+        bool _useAKinect;
 
     signals:
         void orientationChanged(int newOrientation);
@@ -41,7 +42,7 @@ class OpenNIWorker : public QObject
     public slots:
         void launch()
         {
-            _app = new OpenNIApplication();
+            _app = new OpenNIApplication(_useAKinect);
 
             connect(_app, &OpenNIApplication::orientationChanged, this, &OpenNIWorker::orientationChanged);
             connect(_app, &OpenNIApplication::walkSpeedChanged, this, &OpenNIWorker::walkSpeedChanged);
@@ -52,7 +53,10 @@ class OpenNIWorker : public QObject
         }
 
     public:
-        OpenNIWorker(QObject *parent = nullptr): QObject(parent) {}
+        OpenNIWorker(bool useAKinect = false, QObject *parent = nullptr): QObject(parent)
+        {
+            _useAKinect = useAKinect;
+        }
         ~OpenNIWorker()
         {
             // Wait for the frame loop stop
@@ -79,7 +83,7 @@ class OpenNIControllerWidget: public QWidget
 {
         Q_OBJECT
     public:
-        explicit OpenNIControllerWidget(unsigned int frequency, QWidget *parent = nullptr);
+        explicit OpenNIControllerWidget(unsigned int frequency, bool useAKinect = false, QWidget *parent = nullptr);
         ~OpenNIControllerWidget();
 
         int orientationValue() const;

@@ -20,7 +20,7 @@
 #include <QTimerEvent>
 #include <QVBoxLayout>
 
-OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, QWidget *parent): QWidget(parent)
+OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useAKinect, QWidget *parent): QWidget(parent)
 {
     _viewer = new OpenCVWidget(this);
 
@@ -28,7 +28,7 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, QWidget *
     layout->addWidget(_viewer);
     setLayout(layout);
 
-    _openniWorker = new OpenNIWorker;
+    _openniWorker = new OpenNIWorker(useAKinect);
     _openniWorker->moveToThread(&_openniThread);
     connect(&_openniThread, &QThread::finished, _openniWorker, &QObject::deleteLater);
     connect(&_openniThread, &QThread::started, _openniWorker, &OpenNIWorker::launch);

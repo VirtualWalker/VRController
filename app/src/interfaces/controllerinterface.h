@@ -21,6 +21,23 @@
 
 #include <QWidget>
 #include <QObject>
+#include <QString>
+#include <QMap>
+#include <QPair>
+#include <QPluginLoader>
+
+// Typedef for the Controller options
+// Options are identified by their internalName (the key)
+// The value is a pair of two elements: the description (translated in the current locale)
+// and the "real" value, so true or false
+typedef QMap<QString, QPair<QString, bool>> ControllerOptionsList;
+
+// Simple wrapper that contains an options list and the QPluginLoader
+struct ControllerWrapper
+{
+    ControllerOptionsList options;
+    QPluginLoader *loader;
+};
 
 // Implements a basic interface used by all controllers.
 class ControllerInterface: public QObject
@@ -32,6 +49,7 @@ class ControllerInterface: public QObject
 
     private:
         unsigned int _dataFrenquency = 1;
+        ControllerOptionsList _launchOptions;
 
     public:
 
@@ -57,6 +75,16 @@ class ControllerInterface: public QObject
             return _dataFrenquency;
         }
 
+        ControllerOptionsList launchOptions() const
+        {
+            return _launchOptions;
+        }
+
+        bool hasLaunchOptions() const
+        {
+            return !_launchOptions.isEmpty();
+        }
+
     signals:
 
         void orientationChanged(int newOrientation);
@@ -71,6 +99,11 @@ class ControllerInterface: public QObject
         {
             _dataFrenquency = frequency;
             emit dataFrequencyChanged();
+        }
+
+        void setLaunchOptions(ControllerOptionsList options)
+        {
+            _launchOptions = options;
         }
 
 };
