@@ -103,7 +103,7 @@
         <translation>Le contrôleur \&quot;%1\&quot; n&apos;a pas d&apos;options nommée \&quot;%2\&quot;.</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="283"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="285"/>
         <source>Could not load controller plugin &quot;%1&quot; (%2).</source>
         <translation>Impossible de charger le plugin de contrôle &quot;%1&quot; (%2).</translation>
     </message>
