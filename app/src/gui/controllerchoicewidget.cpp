@@ -262,7 +262,9 @@ void ControllerChoiceWidget::setOptionForController(const QString &controllerNam
         return;
     }
     // Check the "yes" or "no" button depending of the value parameter.
-    _optionsGroupMap[controllerName][optionName]->button(value ? BUTTON_YES_ID : BUTTON_NO_ID)->setChecked(true);
+    // Only click if the button is not already checked
+    if(!_optionsGroupMap[controllerName][optionName]->button(value ? BUTTON_YES_ID : BUTTON_NO_ID)->isChecked())
+        _optionsGroupMap[controllerName][optionName]->button(value ? BUTTON_YES_ID : BUTTON_NO_ID)->click();
 }
 
 // Getters

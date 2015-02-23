@@ -57,7 +57,8 @@ HEADERS += \
     src/openniapplication.h \
     src/opencvwidget.h \
     src/openniutil.h \
-    ../../app/src/core/utility.h
+    ../../app/src/core/utility.h \
+    src/usbcontroller.h
 
 RESOURCES += \
     $$PWD/resources.qrc

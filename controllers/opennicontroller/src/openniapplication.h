@@ -21,9 +21,7 @@
 
 #include <ni/XnOpenNI.h>
 #include <ni/XnCodecIDs.h>
-#include <ni/XnCppWrapper.h>
 #include <ni/XnPropNames.h>
-#include <ni/XnUSB.h>
 #include <map>
 #include <mutex>
 
@@ -31,6 +29,7 @@
 #include <QObject>
 
 #include "openniutil.h"
+#include "usbcontroller.h"
 
 // This class is a bridge between the program and the OpenNI API.
 // When started, you can retrieve the last informations using lastCamInfo()
@@ -94,6 +93,7 @@ class OpenNIApplication: public QObject
 
         // Tell if we are using a kinect sensor or not
         bool _useAKinect;
+        KinectUSBController *_kinectUSB;
 
         xn::Context _context;
         xn::ScriptNode _xmlScriptNode;

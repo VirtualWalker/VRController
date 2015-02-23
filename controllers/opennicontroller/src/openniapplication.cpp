@@ -105,6 +105,7 @@ OpenNIApplication::OpenNIApplication(bool useAKinect, QObject *parent) : QObject
 OpenNIApplication::~OpenNIApplication()
 {
     cleanup();
+    _kinectUSB->deleteLater();
 }
 
 // Private
@@ -180,6 +181,20 @@ XnStatus OpenNIApplication::init()
     {
         qDebug() << qPrintable(tr("OpenNI already initialized !"));
         return 1;
+    }
+
+    // Initialize the motor
+    if(_useAKinect)
+    {
+        // Init the motor controller
+        _kinectUSB = new KinectUSBController(this);
+        _kinectUSB->init();
+        // Move the kinect to the angle 0 at startup
+        if(_kinectUSB->initialized())
+        {
+            _kinectUSB->moveToAngle(0);
+            _kinectUSB->setLight(USBController::LightType::LED_BLINK_GREEN);
+        }
     }
 
     qDebug() << qPrintable(tr("Initializing OpenNI ..."));
@@ -286,8 +301,6 @@ XnStatus OpenNIApplication::start()
         XnUInt16 usersCount = 5;
         XnUserID usersArray[usersCount];
         _userGenerator.GetUsers(usersArray, usersCount);
-        //std::vector<OpenNIUtil::User> users(usersCount);
-
         // Get the first tracked user
         XnUserID firstTrackingID = 0;
         for(XnUserID id : usersArray)
