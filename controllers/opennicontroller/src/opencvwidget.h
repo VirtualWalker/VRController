@@ -45,6 +45,8 @@ class OpenCVWidget: public QGLWidget
         void updateScene();
         void renderImage();
 
+        void updateScale(int width, int height);
+
     private:
         // Indicates when OpenGL view is to be redrawn
         bool _sceneChanged;

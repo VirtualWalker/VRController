@@ -39,7 +39,6 @@ void OpenCVWidget::initializeGL()
 
 void OpenCVWidget::resizeGL(int width, int height)
 {
-    makeCurrent();
     qglClearColor(_bgColor.darker());
     glViewport(0, 0, (GLint)width, (GLint)height);
 
@@ -52,6 +51,15 @@ void OpenCVWidget::resizeGL(int width, int height)
     glMatrixMode(GL_MODELVIEW);
 
     // Scale image if needed
+    updateScale(width, height);
+
+    _sceneChanged = true;
+
+    updateScene();
+}
+
+void OpenCVWidget::updateScale(int width, int height)
+{
     _outHeight = width / _imgRatio;
     _outWidth = width;
 
@@ -63,10 +71,6 @@ void OpenCVWidget::resizeGL(int width, int height)
 
     _posX = (width - _outWidth) / 2;
     _posY = (height - _outHeight) / 2;
-
-    _sceneChanged = true;
-
-    updateScene();
 }
 
 void OpenCVWidget::updateScene()
@@ -77,8 +81,6 @@ void OpenCVWidget::updateScene()
 
 void OpenCVWidget::paintGL()
 {
-    makeCurrent();
-
     if(!_sceneChanged)
         return;
 
@@ -121,6 +123,7 @@ bool OpenCVWidget::showImage(cv::Mat image)
     image.copyTo(_origImage);
 
     _imgRatio = (float)image.cols/(float)image.rows;
+    updateScale(width(), height());
 
     if(_origImage.channels() == 3)
         _renderQtImg = QImage((const unsigned char*)(_origImage.data),
