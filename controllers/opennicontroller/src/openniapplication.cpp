@@ -24,6 +24,7 @@
 #include <QFile>
 #include <QString>
 #include <QDir>
+#include <chrono>
 
 // These defines are used to avoid to much code repetition
 #define CHECK_ERROR(retVal, what)                                                                                                               \
@@ -163,7 +164,10 @@ int OpenNIApplication::lastOrientation()
 
 int OpenNIApplication::lastWalkSpeed()
 {
-    return 0;
+    _lastCamInfoMutex.lock();
+    const int walkSpeed = _lastCamInfo.user.walkSpeed;
+    _lastCamInfoMutex.unlock();
+    return walkSpeed;
 }
 
 // Setter
@@ -312,12 +316,20 @@ XnStatus OpenNIApplication::start()
             }
         }
 
+        // Get the previous user data
+        _lastCamInfoMutex.lock();
+        const OpenNIUtil::User previousUser = _lastCamInfo.user;
+        _lastCamInfoMutex.unlock();
+
         // Set the user
         OpenNIUtil::User user;
         if(firstTrackingID != 0)
         {
             user.id = firstTrackingID;
             user.isTracking = true;
+
+            user.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+
             user.leftLeg.hip = createJoint(XN_SKEL_LEFT_HIP, user.id);
             user.leftLeg.knee = createJoint(XN_SKEL_LEFT_KNEE, user.id);
             user.leftLeg.foot = createJoint(XN_SKEL_LEFT_FOOT, user.id);
@@ -325,8 +337,15 @@ XnStatus OpenNIApplication::start()
             user.rightLeg.knee = createJoint(XN_SKEL_RIGHT_KNEE, user.id);
             user.rightLeg.foot = createJoint(XN_SKEL_RIGHT_FOOT, user.id);
 
+            user.previousLeftLeg = previousUser.leftLeg;
+            user.previousRightLeg = previousUser.rightLeg;
+
             // To compute the rotation of the player, we use the hip joints
             user.rotation = static_cast<int>(OpenNIUtil::rotationFrom2Joints(user.rightLeg.hip, user.leftLeg.hip));
+
+            // Only compute the walk speed if we are not in the first frame
+            if(!firstLoop)
+                user.walkSpeed = OpenNIUtil::walkSpeedForUser(user, previousUser.timestamp);
         }
         // If no user user is tracked, get the first in the list
         else if(usersCount >= 1)
@@ -342,17 +361,16 @@ XnStatus OpenNIApplication::start()
 
         _lastCamInfoMutex.lock();
         // Get previous values before
-        const int previousOrientation = _lastCamInfo.user.rotation;
         _lastCamInfo = OpenNIUtil::CameraInformations();
         _lastCamInfo.depthData = depthData;
         _lastCamInfo.user = user;
 
         // Emit some signals
         emit camInfoChanged();
-        if(previousOrientation != _lastCamInfo.user.rotation)
-            emit orientationChanged(lastOrientation());
-        // TODO: emit a signal when the walk speed change
-        //emit walkSpeedChanged();
+        if(previousUser.rotation != _lastCamInfo.user.rotation)
+            emit orientationChanged(_lastCamInfo.user.rotation);
+        if(previousUser.walkSpeed != _lastCamInfo.user.walkSpeed)
+            emit walkSpeedChanged(_lastCamInfo.user.walkSpeed);
 
         _lastCamInfoMutex.unlock();
 

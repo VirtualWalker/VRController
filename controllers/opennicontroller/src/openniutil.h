@@ -48,10 +48,20 @@ namespace OpenNIUtil
         XnUserID id;
         bool isTracking;
 
+        // The timestamp when this object was generated
+        // Represent the time in milliseconds since the epoch time
+        int64_t timestamp;
+
+        // Current legs informations
         Leg leftLeg;
         Leg rightLeg;
 
+        // Legs informations at the previous frame
+        Leg previousLeftLeg;
+        Leg previousRightLeg;
+
         int rotation = -1;
+        int walkSpeed = -1;
     };
 
     struct CameraInformations
@@ -113,6 +123,48 @@ namespace OpenNIUtil
         }
 
         return -1.0f;
+    }
+
+    inline int walkSpeedForUser(const User& user, const int64_t& previousTimestamp)
+    {
+        // Compute the x and z diff for the right and left foot
+        float rdx = 0;
+        float rdz = 0;
+        float ldx = 0;
+        float ldz = 0;
+
+        // Tell if we are not able to compute the speed
+        bool cantCompute = true;
+
+        if(isJointAcceptable(user.rightLeg.foot) && isJointAcceptable(user.previousRightLeg.foot))
+        {
+            rdx = user.previousRightLeg.foot.info.position.X - user.rightLeg.foot.info.position.X;
+            rdz = user.previousRightLeg.foot.info.position.Z - user.rightLeg.foot.info.position.Z;
+            cantCompute = false;
+        }
+        if(isJointAcceptable(user.leftLeg.foot) && isJointAcceptable(user.previousLeftLeg.foot))
+        {
+            ldx = user.previousLeftLeg.foot.info.position.X - user.leftLeg.foot.info.position.X;
+            ldz = user.previousLeftLeg.foot.info.position.Z - user.leftLeg.foot.info.position.Z;
+            cantCompute = false;
+        }
+
+        if(cantCompute)
+            return -1;
+
+        const float rightDiff = std::sqrt(std::pow(rdx, 2.0) + std::pow(rdz, 2.0));
+        const float leftDiff = std::sqrt(std::pow(ldx, 2.0) + std::pow(ldz, 2.0));
+
+        // Compute the average of diff (in mm)
+        const float diff = (rightDiff + leftDiff) / 2.0;
+
+        // Compute diff of timestamp
+        const int64_t diffTime = user.timestamp - previousTimestamp;
+
+        // Now compute the speed in cm/s
+        const double realSpeed = (diff * 0.1) / ((double)diffTime * 0.001);
+
+        return static_cast<int>(realSpeed * 1.5);
     }
 }
 

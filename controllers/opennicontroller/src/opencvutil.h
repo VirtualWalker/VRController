@@ -19,6 +19,7 @@
 #ifndef OPENCVUTIL_H
 #define OPENCVUTIL_H
 
+#include <string>
 #include <opencv2/core/core.hpp>
 #include "openniutil.h"
 
@@ -27,10 +28,17 @@ namespace OpenCVUtil
 {
     cv::Point3f pointToCV(const XnVector3D pt);
     cv::Point2i pointTo2DCV(const XnVector3D pt, const int res = 1);
+
     // Draw a joint
     void drawJoint(cv::Mat& image, const OpenNIUtil::Joint joint, const cv::Scalar color, const int res = 1);
     // Draw a lamb between two joints
     void drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const OpenNIUtil::Joint joint2, const cv::Scalar color, const int res = 1);
+
+    // Draw a text centered relative to the specified point
+    void drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,
+                          const int &fontFace, const double &fontScale, const cv::Scalar& color,
+                          const int &thickness);
+
     // Draw all informations and return the image
     cv::Mat drawOpenNIData(OpenNIUtil::CameraInformations camInfo);
 }

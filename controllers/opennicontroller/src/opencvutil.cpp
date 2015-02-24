@@ -47,6 +47,16 @@ void OpenCVUtil::drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const 
         cv::line(image, OpenCVUtil::pointTo2DCV(joint1.projectivePosition, res), OpenCVUtil::pointTo2DCV(joint2.projectivePosition, res), color, 2*res);
 }
 
+void OpenCVUtil::drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,
+                      const int& fontFace, const double& fontScale, const cv::Scalar& color,
+                      const int& thickness)
+{
+    const cv::Size textRect = cv::getTextSize(text, fontFace, fontScale, thickness, nullptr);
+    // Compute the text origin (to have the text at the center)
+    const cv::Point origin(centerPoint.x - (textRect.width/2), centerPoint.y + (textRect.height/2));
+    cv::putText(image, text, origin, fontFace, fontScale, color, thickness);
+}
+
 #define LEFT_PART_WIDTH (640*2)
 #define RIGHT_PART_WIDTH (400*2)
 #define IMG_WIDTH (LEFT_PART_WIDTH + RIGHT_PART_WIDTH)
@@ -140,7 +150,7 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     //
     // Draw circle for the rotation
 
-    // Check if we have the rotation, else rotate the dial
+    // Check if we have the rotation
     if(camInfo.user.rotation != -1)
         guiDialOrientation = camInfo.user.rotation;
     else
@@ -166,31 +176,35 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     std::string textRotation = "???";
     if(camInfo.user.rotation != -1)
         textRotation = std::to_string(camInfo.user.rotation);
-
-    const cv::Size textRect = cv::getTextSize(textRotation, FONT_FACE, ROT_FONTSCALE, ROT_THICKNESS, nullptr);
-    // Compute the top left corner of the text
-    const cv::Point origin(circleCenter.x - (textRect.width/2), circleCenter.y + (textRect.height/2));
-    // Add the degree symbol
-    //textRotation += 248;
-    cv::putText(outputMat, textRotation, origin, FONT_FACE, ROT_FONTSCALE, COLOR_1, ROT_THICKNESS);
+    drawTextCentered(outputMat, textRotation, circleCenter, FONT_FACE, ROT_FONTSCALE, COLOR_1, ROT_THICKNESS);
 
     //
     // Draw the walk speed
 
     cv::line(outputMat, cv::Point(WALK_LINE_START, WALK_LINE_HEIGHT), cv::Point(WALK_LINE_END, WALK_LINE_HEIGHT), COLOR_1, WALK_LINE_THICKNESS);
-    cv::line(outputMat, cv::Point(LEFT_PART_WIDTH + 30, WALK_LINE_HEIGHT), cv::Point(LEFT_PART_WIDTH + 70, WALK_LINE_HEIGHT), COLOR_1, WALK_LINE_THICKNESS);
-    cv::line(outputMat, cv::Point(IMG_WIDTH - 30, WALK_LINE_HEIGHT), cv::Point(IMG_WIDTH - 70, WALK_LINE_HEIGHT), COLOR_1, WALK_LINE_THICKNESS);
+    cv::line(outputMat, cv::Point(LEFT_PART_WIDTH + 30, WALK_LINE_HEIGHT), cv::Point(LEFT_PART_WIDTH + 70, WALK_LINE_HEIGHT), COLOR_3, WALK_LINE_THICKNESS);
+    cv::line(outputMat, cv::Point(IMG_WIDTH - 30, WALK_LINE_HEIGHT), cv::Point(IMG_WIDTH - 70, WALK_LINE_HEIGHT), COLOR_3, WALK_LINE_THICKNESS);
 
     // Draw vertical line and walk speed value
-    guiWalkSpeed += guiWalkSpeedIncrease;
-    if(guiWalkSpeed > MAX_WALK_SPEED || guiWalkSpeed < MIN_WALK_SPEED)
+    if(camInfo.user.walkSpeed != -1)
+        guiWalkSpeed = camInfo.user.walkSpeed;
+    else
     {
-        guiWalkSpeedIncrease *= -1;
         guiWalkSpeed += guiWalkSpeedIncrease;
+        if(guiWalkSpeed > MAX_WALK_SPEED || guiWalkSpeed < MIN_WALK_SPEED)
+        {
+            guiWalkSpeedIncrease *= -1;
+            guiWalkSpeed += guiWalkSpeedIncrease;
+        }
     }
 
     const int currentWalkSpeedX = WALK_LINE_START + (guiWalkSpeed * WALK_LINE_RATIO);
     cv::line(outputMat, cv::Point(currentWalkSpeedX, WALK_LINE_HEIGHT - 30), cv::Point(currentWalkSpeedX, WALK_LINE_HEIGHT - 60), COLOR_2, 10);
+
+    std::string textWalkSpeed = "??";
+    if(camInfo.user.walkSpeed != -1)
+        textWalkSpeed = std::to_string(camInfo.user.walkSpeed);
+    drawTextCentered(outputMat, textWalkSpeed, cv::Point(currentWalkSpeedX, WALK_LINE_HEIGHT - 100), FONT_FACE, 2, COLOR_2, 2);
 
     return outputMat;
 }

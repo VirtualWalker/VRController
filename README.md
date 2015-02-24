@@ -5,7 +5,7 @@ This program is used to send data by Bluetooth to a VR android application as [R
 
 This application supports multiple plugins to control the orientation and the walk speed in differents ways:
 * a controller with two dials to set the params
-* an OpenNI plugin to analyse the images from a depth sensor (usually a Kinect). At this stage, this plugin only supports the rotation, not the walk speed.
+* an OpenNI plugin to analyse the images from a depth sensor (usually a Kinect)
 
 Above plugins can be found in the controllers/ folder.
 
