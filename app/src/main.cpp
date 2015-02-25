@@ -69,7 +69,7 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
             output = QString("Warning: %0").arg(msg);
             break;
         case QtCriticalMsg:
-            output = QString("Critical: %0").arg(msg);, bool autoStart, const QString& controllerName, int btPort
+            output = QString("Critical: %0").arg(msg);
             break;
         case QtFatalMsg:
             output = QString("Fatal /!\\: %0").arg(msg);
@@ -132,28 +132,18 @@ int main(int argc, char *argv[])
     // Load translations in the "translations" dir
     loadTranslations(QCoreApplication::applicationDirPath() + QStringLiteral("/translations"), locale, &app);
 
-    // Check log param
-    /*for(int i=1; i < argc; ++i)
-    {
-        if(strcmp(argv[i], "--nologwidget") == 0)
-        {
-            qDebug() << qPrintable(QObject::tr("--nologwidget argument detected ! Hide console output."));
-            useLogWidget = false;
-        }
-    }*/
-
     // Check the parameters
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::tr("Simple application that allow the control of an Android VR app with the Bluetooth and a 3D depth sensor."));
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addOptions({
-        {{"a", "auto-start"}, QCoreApplication::translate("options", "Auto start the bluetooth listening (don't wait for the user click).")},
-        {{"c", "controller"}, QCoreApplication::translate("options", "The controller <controller-name> will be used."), QCoreApplication::translate("options", "controller-name")},
-        {{"p", "port"}, QCoreApplication::translate("options", "The Bluetooth engine will listen on the specified <port-number>. The <port-number> must be in range 1-30. Set to 0 if you want to select the first available."), QCoreApplication::translate("options", "port-number")},
-        {{"f", "frequency"}, QCoreApplication::translate("options", "Frequency for emitting data to the bluetooth device (number of data per second)"), QCoreApplication::translate("options", "number-per-second")},
-        {"nologwidget", QCoreApplication::translate("options", "Don't show the log console in the bottom of the window.")}
-    });
+
+    parser.addOption(QCommandLineOption({"a", "auto-start"}, QCoreApplication::translate("options", "Auto start the bluetooth listening (don't wait for the user click).")));
+    parser.addOption(QCommandLineOption({"c", "controller"}, QCoreApplication::translate("options", "The controller <controller-name> will be used."), QCoreApplication::translate("options", "controller-name")));
+    parser.addOption(QCommandLineOption({"p", "port"}, QCoreApplication::translate("options", "The Bluetooth engine will listen on the specified <port-number>. The <port-number> must be in range 1-30. Set to 0 if you want to select the first available."), QCoreApplication::translate("options", "port-number")));
+    parser.addOption(QCommandLineOption({"f", "frequency"}, QCoreApplication::translate("options", "Frequency for emitting data to the bluetooth device (number of data per second)"), QCoreApplication::translate("options", "number-per-second")));
+    parser.addOption(QCommandLineOption("nologwidget", QCoreApplication::translate("options", "Don't show the log console in the bottom of the window.")));
+
     parser.process(app);
 
     const bool useLogWidget = !parser.isSet("nologwidget");

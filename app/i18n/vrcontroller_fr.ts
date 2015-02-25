@@ -313,7 +313,7 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>QCoreApplication</name>
     <message>
-        <location filename="../src/main.cpp" line="147"/>
+        <location filename="../src/main.cpp" line="137"/>
         <source>Simple application that allow the control of an Android VR app with the Bluetooth and a 3D depth sensor.</source>
         <translation>Application permettant le contrôle d&apos;un jeu de réalité augmentée sur Android via Bluetooth (et à l&apos;aide d&apos;un capteur de profondeur 3D comme la Kinect).</translation>
     </message>
@@ -321,42 +321,42 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>options</name>
     <message>
-        <location filename="../src/main.cpp" line="151"/>
+        <location filename="../src/main.cpp" line="141"/>
         <source>Auto start the bluetooth listening (don&apos;t wait for the user click).</source>
         <translation>Lancer automatiquement l&apos;écoute Bluetooth.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="152"/>
+        <location filename="../src/main.cpp" line="142"/>
         <source>The controller &lt;controller-name&gt; will be used.</source>
         <translation>Le contrôlleur &lt;controlleur-voulu&gt; sera utilisé.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="152"/>
+        <location filename="../src/main.cpp" line="142"/>
         <source>controller-name</source>
         <translation>controlleur-voulu</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="153"/>
+        <location filename="../src/main.cpp" line="143"/>
         <source>The Bluetooth engine will listen on the specified &lt;port-number&gt;. The &lt;port-number&gt; must be in range 1-30. Set to 0 if you want to select the first available.</source>
         <translation>Le gestionnaire Bluetooth écoutera sur le port &lt;port-voulu&gt;. Le &lt;port-voulu&gt; doit être compris entre 1 et 30. Mettez-le à 0 pour choisir le premier disponible.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="153"/>
+        <location filename="../src/main.cpp" line="143"/>
         <source>port-number</source>
         <translation>port-voulu</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="154"/>
+        <location filename="../src/main.cpp" line="144"/>
         <source>Frequency for emitting data to the bluetooth device (number of data per second)</source>
         <translation>Spécifie la fréquence d&apos;envoi des données Bluetooth (nombre d&apos;envoi par seconde)</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="154"/>
+        <location filename="../src/main.cpp" line="144"/>
         <source>number-per-second</source>
         <translation>nombre-par-seconde</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="155"/>
+        <location filename="../src/main.cpp" line="145"/>
         <source>Don&apos;t show the log console in the bottom of the window.</source>
         <translation>Ne pas afficher la console d&apos;informations au bas de la fenêtre.</translation>
     </message>
