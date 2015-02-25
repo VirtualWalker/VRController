@@ -35,7 +35,7 @@
 #include <cerrno>
 #include <string>
 
-MainWindow::MainWindow(LogBrowser *logBrowser)
+MainWindow::MainWindow(LogBrowser *logBrowser, bool autoStart, const QString& controllerName, int btPort, int btFreq)
 {
     setWindowTitle(APPLICATION_NAME);
     setWindowIcon(QIcon(":/icon.png"));
@@ -221,6 +221,36 @@ MainWindow::MainWindow(LogBrowser *logBrowser)
 
     // Here, we can read the settings and restore states
     readSettings();
+
+    //
+    // Here, we manage the command line arguments
+    //
+
+    // Check if we need the auto-start
+    if(autoStart)
+    {
+        qDebug() << qPrintable(tr("Auto starting the application."));
+        _listeningWidget->clickOnStartListening();
+    }
+
+    // Set the specified port in the listening widget
+    if(btPort != -1)
+    {
+        if(btPort == 0)
+            _listeningWidget->setCustomChannelUse(false);
+        else
+        {
+            _listeningWidget->setCustomChannelUse(true);
+            _listeningWidget->setChannel(btPort);
+        }
+    }
+
+    if(btFreq != -1)
+        _listeningWidget->setFrequency(btFreq);
+
+    // Set the current controller
+    if(!controllerName.isEmpty())
+        _controllerChoiceWidget->selectController(controllerName);
 }
 
 void MainWindow::setConnectionAddress(const QString addr, const int channel)

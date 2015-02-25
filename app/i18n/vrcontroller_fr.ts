@@ -285,32 +285,80 @@ Impossible de les sauvegardez !</translation>
         <translation>Détail de l&apos;erreur: %1 (valeur de errno: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="229"/>
+        <location filename="../src/gui/mainwindow.cpp" line="232"/>
+        <source>Auto starting the application.</source>
+        <translation>Lancement automatique de l&apos;application.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/mainwindow.cpp" line="259"/>
         <source>Connected to device %1 on channel %2</source>
         <translation>Connecté au périphérique %1 sur le cannal %2</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="241"/>
+        <location filename="../src/gui/mainwindow.cpp" line="271"/>
         <source>The bluetooth manager is not created !</source>
         <translation>Le gestionnaire bluetooth n&apos;a pas été créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="247"/>
+        <location filename="../src/gui/mainwindow.cpp" line="277"/>
         <source>The controller is not created !</source>
         <translation>Le contrôleur n&apos;est pas créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="273"/>
+        <location filename="../src/gui/mainwindow.cpp" line="303"/>
         <source>Send message: speed=%1 orientation=%2 (real orientation: %3)</source>
         <translation>Envoi d&apos;un message: vitesse=%1 orientation=%2 (orientation réelle: %3)</translation>
     </message>
 </context>
 <context>
-    <name>QObject</name>
+    <name>QCoreApplication</name>
     <message>
-        <location filename="../src/main.cpp" line="127"/>
-        <source>--nologwidget argument detected ! Hide console output.</source>
-        <translation>Détection de l&apos;argument --nologwidget ! La console ne sera pas affichée.</translation>
+        <location filename="../src/main.cpp" line="147"/>
+        <source>Simple application that allow the control of an Android VR app with the Bluetooth and a 3D depth sensor.</source>
+        <translation>Application permettant le contrôle d&apos;un jeu de réalité augmentée sur Android via Bluetooth (et à l&apos;aide d&apos;un capteur de profondeur 3D comme la Kinect).</translation>
+    </message>
+</context>
+<context>
+    <name>options</name>
+    <message>
+        <location filename="../src/main.cpp" line="151"/>
+        <source>Auto start the bluetooth listening (don&apos;t wait for the user click).</source>
+        <translation>Lancer automatiquement l&apos;écoute Bluetooth.</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="152"/>
+        <source>The controller &lt;controller-name&gt; will be used.</source>
+        <translation>Le contrôlleur &lt;controlleur-voulu&gt; sera utilisé.</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="152"/>
+        <source>controller-name</source>
+        <translation>controlleur-voulu</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="153"/>
+        <source>The Bluetooth engine will listen on the specified &lt;port-number&gt;. The &lt;port-number&gt; must be in range 1-30. Set to 0 if you want to select the first available.</source>
+        <translation>Le gestionnaire Bluetooth écoutera sur le port &lt;port-voulu&gt;. Le &lt;port-voulu&gt; doit être compris entre 1 et 30. Mettez-le à 0 pour choisir le premier disponible.</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="153"/>
+        <source>port-number</source>
+        <translation>port-voulu</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="154"/>
+        <source>Frequency for emitting data to the bluetooth device (number of data per second)</source>
+        <translation>Spécifie la fréquence d&apos;envoi des données Bluetooth (nombre d&apos;envoi par seconde)</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="154"/>
+        <source>number-per-second</source>
+        <translation>nombre-par-seconde</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="155"/>
+        <source>Don&apos;t show the log console in the bottom of the window.</source>
+        <translation>Ne pas afficher la console d&apos;informations au bas de la fenêtre.</translation>
     </message>
 </context>
 </TS>

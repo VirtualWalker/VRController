@@ -36,6 +36,9 @@ class ListeningWidget : public QWidget
 
         bool useCustomChannel() const;
 
+        // Simple function that click on the start button
+        void clickOnStartListening();
+
     signals:
         void startListening();
 

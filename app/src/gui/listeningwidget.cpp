@@ -91,6 +91,11 @@ bool ListeningWidget::useCustomChannel() const
     return _channelGroup->isChecked();
 }
 
+void ListeningWidget::clickOnStartListening()
+{
+    _buttonStartListening->click();
+}
+
 // Public slot
 void ListeningWidget::connected()
 {

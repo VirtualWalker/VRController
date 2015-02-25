@@ -41,7 +41,7 @@ class MainWindow : public QMainWindow
         Q_OBJECT
 
     public:
-        explicit MainWindow(LogBrowser* logBrowser);
+        MainWindow(LogBrowser* logBrowser, bool autoStart, const QString& controllerName, int btPort, int btFreq);
 
     public slots:
 
