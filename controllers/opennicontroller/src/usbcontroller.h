@@ -34,6 +34,8 @@
 // Generic class used to send data in the USB port.
 class USBController: public QObject
 {
+        Q_OBJECT
+
     private:
         XN_USB_DEV_HANDLE _dev;
         bool _init = false;

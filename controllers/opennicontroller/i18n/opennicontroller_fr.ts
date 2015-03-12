@@ -144,37 +144,37 @@
 <context>
     <name>USBController</name>
     <message>
-        <location filename="../src/usbcontroller.h" line="55"/>
+        <location filename="../src/usbcontroller.h" line="57"/>
         <source>The USB controller is already initialized !</source>
         <translation>Le controlleur USB est déjà initialisé !</translation>
     </message>
     <message>
-        <location filename="../src/usbcontroller.h" line="63"/>
+        <location filename="../src/usbcontroller.h" line="65"/>
         <source>Cannot initialize the USB controller. Error code: %1</source>
         <translation>Impossible d&apos;initialiser le controlleur USB. Code d&apos;erreur: %1</translation>
     </message>
     <message>
-        <location filename="../src/usbcontroller.h" line="70"/>
+        <location filename="../src/usbcontroller.h" line="72"/>
         <source>Cannot open the usb device (VID: %1, PID: %2). Error code: %3</source>
         <translation>Impossible d&apos;ouvrir le périphérique USB (VID: %1, PID: %2). Code d&apos;erreur: %3</translation>
     </message>
     <message>
-        <location filename="../src/usbcontroller.h" line="74"/>
+        <location filename="../src/usbcontroller.h" line="76"/>
         <source>USB device initialized (VID: %1, PID: %2) !</source>
         <translation>Le périphérique USB est initialisé (VID: %1, PID: %2) !</translation>
     </message>
     <message>
-        <location filename="../src/usbcontroller.h" line="84"/>
+        <location filename="../src/usbcontroller.h" line="86"/>
         <source>The USB controller is not initialized !</source>
         <translation>Le controlleur USB n&apos;a pas encore été initialisé !</translation>
     </message>
     <message>
-        <location filename="../src/usbcontroller.h" line="92"/>
+        <location filename="../src/usbcontroller.h" line="94"/>
         <source>Error when sending data to the USB device.</source>
         <translation>Erreur lors de l&apos;envoi de données au périphérique USB.</translation>
     </message>
     <message>
-        <location filename="../src/usbcontroller.h" line="131"/>
+        <location filename="../src/usbcontroller.h" line="133"/>
         <source>You must specify an angle between -30° and 30°.</source>
         <translation>Vous devez spécifier un angle entre -30° et 30°.</translation>
     </message>

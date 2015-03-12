@@ -27,19 +27,19 @@
 #include <chrono>
 
 // These defines are used to avoid to much code repetition
-#define CHECK_ERROR(retVal, what)                                                                                                               \
-    if(retVal != XN_STATUS_OK)                                                                                                                  \
-    {                                                                                                                                           \
-        qDebug() << qPrintable(QObject::tr("%1 failed: %2", "%1 is what failed and %2 is the error from OpenNI SDK.").arg(what).arg(retVal));   \
-        return retVal;                                                                                                                          \
+#define CHECK_ERROR(retVal, what)                                                                                                                  \
+    if(retVal != XN_STATUS_OK)                                                                                                                     \
+    {                                                                                                                                              \
+        qCritical() << qPrintable(QObject::tr("%1 failed: %2", "%1 is what failed and %2 is the error from OpenNI SDK.").arg(what).arg(retVal));   \
+        return retVal;                                                                                                                             \
     }
 
-#define GET_OPENNI_APP(cookie, app)                                                 \
-    app = static_cast<OpenNIApplication*>(cookie);                                  \
-    if(app == nullptr)                                                              \
-    {                                                                               \
-        qDebug() << qPrintable(QObject::tr("Cannot get the OpenNI application."));  \
-        return;                                                                     \
+#define GET_OPENNI_APP(cookie, app)                                                    \
+    app = static_cast<OpenNIApplication*>(cookie);                                     \
+    if(app == nullptr)                                                                 \
+    {                                                                                  \
+        qCritical() << qPrintable(QObject::tr("Cannot get the OpenNI application."));  \
+        return;                                                                        \
     }
 
 //
@@ -80,9 +80,9 @@ void XN_CALLBACK_TYPE calibrationEndCallback(xn::SkeletonCapability& /*capabilit
     else
     {
         // Calibration failed
-        qDebug() << qPrintable(QObject::tr("Calibration failed for user: %1", "%1: user ID").arg(userID));
+        qWarning() << qPrintable(QObject::tr("Calibration failed for user: %1", "%1: user ID").arg(userID));
         if(calibrationStatus == XN_CALIBRATION_STATUS_MANUAL_ABORT)
-            qDebug() << qPrintable(QObject::tr("Manual abort occured, stop attempting to calibrate !"));
+            qWarning() << qPrintable(QObject::tr("Manual abort occured, stop attempting to calibrate !"));
         else // Restart the calibration process
             app->startCalibration(userID);
     }
@@ -183,7 +183,7 @@ XnStatus OpenNIApplication::init()
 {
     if(_init)
     {
-        qDebug() << qPrintable(tr("OpenNI already initialized !"));
+        qCritical() << qPrintable(tr("OpenNI already initialized !"));
         return 1;
     }
 
@@ -251,13 +251,13 @@ XnStatus OpenNIApplication::init()
     // Check if the user generator support skeleton
     if(!_userGenerator.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
     {
-        qDebug() << qPrintable(tr("Supplied user generator doesn't support skeleton capability."));
+        qCritical() << qPrintable(tr("Supplied user generator doesn't support skeleton capability."));
         return 2;
     }
     // Check if the user generator need a pose for skeleton detection
     if(_userGenerator.GetSkeletonCap().NeedPoseForCalibration())
     {
-        qDebug() << qPrintable(tr("Pose calibration required but not supported by this program."));
+        qCritical() << qPrintable(tr("Pose calibration required but not supported by this program."));
         return 3;
     }
 
@@ -272,7 +272,7 @@ XnStatus OpenNIApplication::start()
 {
     if(!_init)
     {
-        qDebug() << qPrintable(tr("The application is not initilized, can't start !"));
+        qCritical() << qPrintable(tr("The application is not initilized, can't start !"));
         return 5;
     }
 
