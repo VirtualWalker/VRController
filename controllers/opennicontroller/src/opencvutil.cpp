@@ -124,22 +124,22 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     }
 
     // Draw the limbs
-    drawLimb(outputMat, camInfo.user.leftLeg.hip, camInfo.user.leftLeg.knee, CV_RGB(0, 255, 0));
-    drawLimb(outputMat, camInfo.user.leftLeg.knee, camInfo.user.leftLeg.foot, CV_RGB(0, 255, 0));
+    drawLimb(outputMat, camInfo.user.leftLeg.hip, camInfo.user.leftLeg.knee, CV_RGB(0, 255, 0), 2);
+    drawLimb(outputMat, camInfo.user.leftLeg.knee, camInfo.user.leftLeg.foot, CV_RGB(0, 255, 0), 2);
 
-    drawLimb(outputMat, camInfo.user.rightLeg.hip, camInfo.user.rightLeg.knee, CV_RGB(0, 255, 0));
-    drawLimb(outputMat, camInfo.user.rightLeg.knee, camInfo.user.rightLeg.foot, CV_RGB(0, 255, 0));
+    drawLimb(outputMat, camInfo.user.rightLeg.hip, camInfo.user.rightLeg.knee, CV_RGB(0, 255, 0), 2);
+    drawLimb(outputMat, camInfo.user.rightLeg.knee, camInfo.user.rightLeg.foot, CV_RGB(0, 255, 0), 2);
 
-    drawLimb(outputMat, camInfo.user.leftLeg.hip, camInfo.user.rightLeg.hip, CV_RGB(0, 255, 0));
+    drawLimb(outputMat, camInfo.user.leftLeg.hip, camInfo.user.rightLeg.hip, CV_RGB(0, 255, 0), 2);
 
     // Now draw the joints of the user
-    drawJoint(outputMat, camInfo.user.leftLeg.hip, CV_RGB(128, 0, 0));
-    drawJoint(outputMat, camInfo.user.leftLeg.knee, CV_RGB(255, 69, 0));
-    drawJoint(outputMat, camInfo.user.leftLeg.foot, CV_RGB(218, 165, 32));
+    drawJoint(outputMat, camInfo.user.leftLeg.hip, CV_RGB(128, 0, 0), 2);
+    drawJoint(outputMat, camInfo.user.leftLeg.knee, CV_RGB(255, 69, 0), 2);
+    drawJoint(outputMat, camInfo.user.leftLeg.foot, CV_RGB(218, 165, 32), 2);
 
-    drawJoint(outputMat, camInfo.user.rightLeg.hip, CV_RGB(0, 0, 255));
-    drawJoint(outputMat, camInfo.user.rightLeg.knee, CV_RGB(30, 144, 255));
-    drawJoint(outputMat, camInfo.user.rightLeg.foot, CV_RGB(127, 255, 212));
+    drawJoint(outputMat, camInfo.user.rightLeg.hip, CV_RGB(0, 0, 255), 2);
+    drawJoint(outputMat, camInfo.user.rightLeg.knee, CV_RGB(30, 144, 255), 2);
+    drawJoint(outputMat, camInfo.user.rightLeg.foot, CV_RGB(127, 255, 212), 2);
 
     //
     // Right part
@@ -150,9 +150,14 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     //
     // Draw circle for the rotation
 
+    std::string textRotation = "???";
+
     // Check if we have the rotation
     if(camInfo.user.rotation != -1)
+    {
         guiDialOrientation = camInfo.user.rotation;
+        textRotation = std::to_string(camInfo.user.rotation);
+    }
     else
     {
         guiDialOrientation += 5;
@@ -173,9 +178,6 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     cv::ellipse(outputMat, circleCenter, cv::Size(65*2,65*2), 0, dialStart - 3, dialEnd + 3, backColor, -1);
 
     // Print rotation in the center of the circle
-    std::string textRotation = "???";
-    if(camInfo.user.rotation != -1)
-        textRotation = std::to_string(camInfo.user.rotation);
     drawTextCentered(outputMat, textRotation, circleCenter, FONT_FACE, ROT_FONTSCALE, COLOR_1, ROT_THICKNESS);
 
     //
@@ -185,9 +187,14 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     cv::line(outputMat, cv::Point(LEFT_PART_WIDTH + 30, WALK_LINE_HEIGHT), cv::Point(LEFT_PART_WIDTH + 70, WALK_LINE_HEIGHT), COLOR_3, WALK_LINE_THICKNESS);
     cv::line(outputMat, cv::Point(IMG_WIDTH - 30, WALK_LINE_HEIGHT), cv::Point(IMG_WIDTH - 70, WALK_LINE_HEIGHT), COLOR_3, WALK_LINE_THICKNESS);
 
+    std::string textWalkSpeed = "??";
+
     // Draw vertical line and walk speed value
     if(camInfo.user.walkSpeed != -1)
+    {
         guiWalkSpeed = camInfo.user.walkSpeed;
+        textWalkSpeed = std::to_string(camInfo.user.walkSpeed);
+    }
     else
     {
         guiWalkSpeed += guiWalkSpeedIncrease;
@@ -201,9 +208,6 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     const int currentWalkSpeedX = WALK_LINE_START + (guiWalkSpeed * WALK_LINE_RATIO);
     cv::line(outputMat, cv::Point(currentWalkSpeedX, WALK_LINE_HEIGHT - 30), cv::Point(currentWalkSpeedX, WALK_LINE_HEIGHT - 60), COLOR_2, 10);
 
-    std::string textWalkSpeed = "??";
-    if(camInfo.user.walkSpeed != -1)
-        textWalkSpeed = std::to_string(camInfo.user.walkSpeed);
     drawTextCentered(outputMat, textWalkSpeed, cv::Point(currentWalkSpeedX, WALK_LINE_HEIGHT - 100), FONT_FACE, 2, COLOR_2, 2);
 
     return outputMat;

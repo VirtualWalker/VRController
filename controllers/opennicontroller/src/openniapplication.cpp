@@ -341,7 +341,7 @@ XnStatus OpenNIApplication::start()
             user.previousRightLeg = previousUser.rightLeg;
 
             // To compute the rotation of the player, we use the hip joints
-            user.rotation = static_cast<int>(OpenNIUtil::rotationFrom2Joints(user.rightLeg.hip, user.leftLeg.hip));
+            user.rotation = static_cast<int>(OpenNIUtil::rotationFrom2Joints(user.rightLeg.hip, user.leftLeg.hip, previousUser.rotation));
 
             // Only compute the walk speed if we are not in the first frame
             if(!firstLoop)
@@ -404,7 +404,7 @@ OpenNIUtil::Joint OpenNIApplication::createJoint(const XnSkeletonJoint jointType
 XnStatus OpenNIApplication::startCalibration(const XnUserID userID)
 {
     _startedMutex.lock();
-    if(!_started)
+    if(_started)
     {
         _startedMutex.unlock();
         return _userGenerator.GetSkeletonCap().RequestCalibration(userID, TRUE);
@@ -416,7 +416,7 @@ XnStatus OpenNIApplication::startCalibration(const XnUserID userID)
 XnStatus OpenNIApplication::startTracking(const XnUserID userID)
 {
     _startedMutex.lock();
-    if(!_started)
+    if(_started)
     {
         _startedMutex.unlock();
         return _userGenerator.GetSkeletonCap().StartTracking(userID);
@@ -428,7 +428,7 @@ XnStatus OpenNIApplication::startTracking(const XnUserID userID)
 void OpenNIApplication::setCalibrationStatus(const XnUserID userID, XnCalibrationStatus calibStatus)
 {
     _startedMutex.lock();
-    if(!_started)
+    if(_started)
     {
         _startedMutex.unlock();
         _calibrationStatus[userID] = calibStatus;

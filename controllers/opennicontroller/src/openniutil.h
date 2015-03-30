@@ -76,50 +76,88 @@ namespace OpenNIUtil
         return joint.isActive && joint.info.fConfidence >= 0.6;
     }
 
-    inline float rotationFrom2Joints(const Joint rightJoint, const Joint leftJoint)
+    // The previous rotation parameter is used to avoid big differences between two rotation
+    inline float rotationFrom2Joints(const Joint rightJoint, const Joint leftJoint, float previousRotation)
     {
         if(isJointAcceptable(rightJoint) && isJointAcceptable(leftJoint))
         {
             const float angle = std::atan(std::abs(rightJoint.info.position.Z - leftJoint.info.position.Z)
                                           / std::abs(rightJoint.info.position.X - leftJoint.info.position.X)) * RAD2DEG;
 
+            float rotation = -1.0f;
+
             // 0
             if(rightJoint.info.position.Z == leftJoint.info.position.Z
                && rightJoint.info.position.X > leftJoint.info.position.X)
-                return 0.0f;
+                rotation = 0.0f;
             // 90
             else if(rightJoint.info.position.X == leftJoint.info.position.X
                     && rightJoint.info.position.Z > leftJoint.info.position.Z)
-                return 90.0f;
+                rotation = 90.0f;
             // 180
             else if(rightJoint.info.position.Z == leftJoint.info.position.Z
                     && rightJoint.info.position.X < leftJoint.info.position.X)
-                return 180.0f;
+                rotation = 180.0f;
             // 270
             else if(rightJoint.info.position.X == leftJoint.info.position.X
                     && rightJoint.info.position.Z < leftJoint.info.position.Z)
-                return 90.0f;
+                rotation = 90.0f;
 
             // 0 - 180
-            if(rightJoint.info.position.Z < leftJoint.info.position.Z)
+            else if(rightJoint.info.position.Z < leftJoint.info.position.Z)
             {
                 // 0 - 90
                 if(rightJoint.info.position.X > leftJoint.info.position.X)
-                    return angle;
+                    rotation = angle;
                 // 90 - 180
                 else
-                    return 180.0f - angle;
+                    rotation = 180.0f - angle;
             }
             // 180 - 360
             else
             {
                 // 180 - 270
                 if(rightJoint.info.position.X < leftJoint.info.position.X)
-                    return 180.0f + angle;
+                    rotation = 180.0f + angle;
                 // 270 - 360
                 else
-                    return 360.0f - angle;
+                    rotation =  360.0f - angle;
             }
+
+            //
+            // Smooth the rotation
+            //
+
+            if(previousRotation != -1.0f)
+            {
+                // If the difference of rotation is higher than 180 degree, we consider
+                // that we are move from the 360 deg to the 0 deg side
+                // In this case, add 360 degrees to the lower value
+                if(std::abs(rotation - previousRotation) > 180.0f)
+                {
+                    if(rotation < previousRotation)
+                        rotation += 360.0f;
+                    else
+                        previousRotation += 360.0f;
+                }
+
+                const float diffRotation = rotation - previousRotation;
+                if(std::abs(diffRotation) > 10.0f)
+                {
+                    // If new rotation is higher
+                    if(diffRotation > 0.0f)
+                    {
+                        rotation = previousRotation + 10.0f;
+                    }
+                    // If new rotation is lower
+                    else
+                    {
+                        rotation = previousRotation - 10.0f;
+                    }
+                }
+            }
+
+            return rotation;
         }
 
         return -1.0f;
@@ -164,7 +202,7 @@ namespace OpenNIUtil
         // Now compute the speed in cm/s
         const double realSpeed = (diff * 0.1) / ((double)diffTime * 0.001);
 
-        return static_cast<int>(realSpeed * 1.5);
+        return static_cast<int>(realSpeed/* * 1.5*/);
     }
 }
 
