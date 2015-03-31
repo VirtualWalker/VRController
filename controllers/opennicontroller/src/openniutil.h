@@ -163,7 +163,7 @@ namespace OpenNIUtil
         return -1.0f;
     }
 
-    inline int walkSpeedForUser(const User& user, const int64_t& previousTimestamp)
+    inline int walkSpeedForUser(const User& user, const int64_t& previousTimestamp, const int& previousSpeed)
     {
         // Compute the x and z diff for the right and left foot
         float rdx = 0;
@@ -178,13 +178,13 @@ namespace OpenNIUtil
         {
             rdx = user.previousRightLeg.foot.info.position.X - user.rightLeg.foot.info.position.X;
             rdz = user.previousRightLeg.foot.info.position.Z - user.rightLeg.foot.info.position.Z;
-            cantCompute = false;
-        }
-        if(isJointAcceptable(user.leftLeg.foot) && isJointAcceptable(user.previousLeftLeg.foot))
-        {
-            ldx = user.previousLeftLeg.foot.info.position.X - user.leftLeg.foot.info.position.X;
-            ldz = user.previousLeftLeg.foot.info.position.Z - user.leftLeg.foot.info.position.Z;
-            cantCompute = false;
+
+            if(isJointAcceptable(user.leftLeg.foot) && isJointAcceptable(user.previousLeftLeg.foot))
+            {
+                ldx = user.previousLeftLeg.foot.info.position.X - user.leftLeg.foot.info.position.X;
+                ldz = user.previousLeftLeg.foot.info.position.Z - user.leftLeg.foot.info.position.Z;
+                cantCompute = false;
+            }
         }
 
         if(cantCompute)
@@ -200,9 +200,21 @@ namespace OpenNIUtil
         const int64_t diffTime = user.timestamp - previousTimestamp;
 
         // Now compute the speed in cm/s
-        const double realSpeed = (diff * 0.1) / ((double)diffTime * 0.001);
+        int speed = static_cast<int>((diff * 0.1) / ((double)(diffTime) * 0.001));
 
-        return static_cast<int>(realSpeed/* * 1.5*/);
+        // Smooth the value depending on the last one
+        if(previousSpeed != -1)
+        {
+            if(std::abs(speed - previousSpeed) > 10)
+            {
+                if(speed < previousSpeed)
+                    speed = previousSpeed - 10;
+                else
+                    speed = previousSpeed + 10;
+            }
+        }
+
+        return speed;
     }
 }
 

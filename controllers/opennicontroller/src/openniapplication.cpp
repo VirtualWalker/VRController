@@ -362,7 +362,7 @@ XnStatus OpenNIApplication::start()
 
             // Only compute the walk speed if we are not in the first frame
             if(!firstLoop)
-                user.walkSpeed = OpenNIUtil::walkSpeedForUser(user, previousUser.timestamp);
+                user.walkSpeed = OpenNIUtil::walkSpeedForUser(user, previousUser.timestamp, previousUser.walkSpeed);
         }
         // If no user user is tracked, get the first in the list
         else if(usersCount >= 1)
