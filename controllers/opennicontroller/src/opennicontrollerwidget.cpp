@@ -70,6 +70,7 @@ int OpenNIControllerWidget::walkSpeedValue() const
     return -1;
 }
 
+// Re-implemented protected methods
 void OpenNIControllerWidget::timerEvent(QTimerEvent *event)
 {
     if(event->timerId() == _timerID)
@@ -82,4 +83,25 @@ void OpenNIControllerWidget::timerEvent(QTimerEvent *event)
             _viewer->showImage(image);
         }
     }
+}
+
+void OpenNIControllerWidget::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key())
+    {
+        // Control the orientation of the motors
+        case Qt::Key_Left:
+        case Qt::Key_Right:
+            _openniWorker->app()->moveToAngle(0);
+            break;
+        case Qt::Key_Up:
+            _openniWorker->app()->increaseAngle();
+            break;
+        case Qt::Key_Down:
+            _openniWorker->app()->decreaseAngle();
+            break;
+        default:
+            break;
+    }
+    event->accept();
 }

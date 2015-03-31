@@ -40,6 +40,8 @@ class USBController: public QObject
         XN_USB_DEV_HANDLE _dev;
         bool _init = false;
 
+        int _lastAngle = 0;
+
     public:
         // The controller do nothing, use init() to start the controller.
         USBController(QObject *parent = nullptr) : QObject(parent) {}
@@ -134,9 +136,21 @@ class USBController: public QObject
                 return 1;
             }
 
+            _lastAngle = angle;
+
             // 0x31 is the request for the motor
             // The angle must be multiply by 2 before sending
             return send(0x31, (XnUInt16)(angle*2));
+        }
+
+        XnStatus increaseAngle()
+        {
+            return moveToAngle(_lastAngle + 2);
+        }
+
+        XnStatus decreaseAngle()
+        {
+            return moveToAngle(_lastAngle - 2);
         }
 };
 

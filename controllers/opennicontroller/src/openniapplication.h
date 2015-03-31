@@ -72,8 +72,15 @@ class OpenNIApplication: public QObject
         // Getters
         OpenNIUtil::CameraInformations lastCamInfo();
         int lastOrientation();
-        // TODO: implement, for now always return 0
         int lastWalkSpeed();
+
+        bool useAKinect() const;
+
+        // These functions are only available if you are using a Kinect sensor
+        XnStatus moveToAngle(const int angle);
+        XnStatus increaseAngle();
+        XnStatus decreaseAngle();
+        XnStatus setLight(const USBController::LightType type);
 
     signals:
 

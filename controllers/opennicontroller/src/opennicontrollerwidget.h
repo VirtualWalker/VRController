@@ -25,6 +25,7 @@
 #include "opencvutil.h"
 
 #include <QThread>
+#include <QKeyEvent>
 
 // Used to run the OpenNIApplication in a different thread
 class OpenNIWorker : public QObject
@@ -96,6 +97,7 @@ class OpenNIControllerWidget: public QWidget
 
     protected:
         void timerEvent(QTimerEvent *event);
+        void keyPressEvent(QKeyEvent *event);
 
     private:
 

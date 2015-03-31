@@ -56,9 +56,13 @@ void XN_CALLBACK_TYPE newUserCallback(xn::UserGenerator& /*generator*/, XnUserID
     app->startCalibration(userID);
 }
 
-void XN_CALLBACK_TYPE lostUserCallback(xn::UserGenerator& /*generator*/, XnUserID userID, void* /*cookie*/)
+void XN_CALLBACK_TYPE lostUserCallback(xn::UserGenerator& /*generator*/, XnUserID userID, void* cookie)
 {
     qDebug() << qPrintable(QObject::tr("Lost user: %1", "%1: user ID").arg(userID));
+    OpenNIApplication *app;
+    GET_OPENNI_APP(cookie, app);
+    if(app->useAKinect())
+        app->setLight(USBController::LightType::LED_BLINK_YELLOW);
 }
 
 void XN_CALLBACK_TYPE calibrationStartCallback(xn::SkeletonCapability& /*capability*/, XnUserID userID, void* /*cookie*/)
@@ -106,7 +110,11 @@ OpenNIApplication::OpenNIApplication(bool useAKinect, QObject *parent) : QObject
 OpenNIApplication::~OpenNIApplication()
 {
     cleanup();
-    _kinectUSB->deleteLater();
+    if(_useAKinect)
+    {
+        _kinectUSB->setLight(USBController::LightType::LED_OFF);
+        _kinectUSB->deleteLater();
+    }
 }
 
 // Private
@@ -144,6 +152,11 @@ bool OpenNIApplication::stopped()
     const bool stopped = _stopped;
     _stoppedMutex.unlock();
     return stopped;
+}
+
+bool OpenNIApplication::useAKinect() const
+{
+    return _useAKinect;
 }
 
 OpenNIUtil::CameraInformations OpenNIApplication::lastCamInfo()
@@ -197,7 +210,7 @@ XnStatus OpenNIApplication::init()
         if(_kinectUSB->initialized())
         {
             _kinectUSB->moveToAngle(0);
-            _kinectUSB->setLight(USBController::LightType::LED_BLINK_GREEN);
+            _kinectUSB->setLight(USBController::LightType::LED_BLINK_RED_YELLOW);
         }
     }
 
@@ -263,6 +276,10 @@ XnStatus OpenNIApplication::init()
 
     // Set the skeleton profile (only get the lower part of the body)
     _userGenerator.GetSkeletonCap().SetSkeletonProfile(XN_SKEL_PROFILE_ALL);
+
+
+    if(_useAKinect)
+        _kinectUSB->setLight(USBController::LightType::LED_BLINK_YELLOW);
 
     _init = true;
     return status;
@@ -401,6 +418,42 @@ OpenNIUtil::Joint OpenNIApplication::createJoint(const XnSkeletonJoint jointType
     return joint;
 }
 
+XnStatus OpenNIApplication::moveToAngle(const int angle)
+{
+    if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
+        return _kinectUSB->moveToAngle(angle);
+
+    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
+    return 1;
+}
+
+XnStatus OpenNIApplication::increaseAngle()
+{
+    if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
+        return _kinectUSB->increaseAngle();
+
+    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
+    return 1;
+}
+
+XnStatus OpenNIApplication::decreaseAngle()
+{
+    if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
+        return _kinectUSB->decreaseAngle();
+
+    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
+    return 1;
+}
+
+XnStatus OpenNIApplication::setLight(const USBController::LightType type)
+{
+    if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
+        return _kinectUSB->setLight(type);
+
+    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
+    return 1;
+}
+
 XnStatus OpenNIApplication::startCalibration(const XnUserID userID)
 {
     _startedMutex.lock();
@@ -419,6 +472,10 @@ XnStatus OpenNIApplication::startTracking(const XnUserID userID)
     if(_started)
     {
         _startedMutex.unlock();
+
+        if(_useAKinect)
+            _kinectUSB->setLight(USBController::LightType::LED_BLINK_GREEN);
+
         return _userGenerator.GetSkeletonCap().StartTracking(userID);
     }
     _startedMutex.unlock();
