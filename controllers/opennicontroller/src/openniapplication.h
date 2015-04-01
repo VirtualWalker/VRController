@@ -76,11 +76,13 @@ class OpenNIApplication: public QObject
 
         bool useAKinect() const;
 
+    public slots:
         // These functions are only available if you are using a Kinect sensor
-        XnStatus moveToAngle(const int angle);
-        XnStatus increaseAngle();
-        XnStatus decreaseAngle();
-        XnStatus setLight(const USBController::LightType type);
+        void moveToAngle(const int angle);
+        void increaseAngle();
+        void decreaseAngle();
+        void resetAngle();
+        void setLight(const USBController::LightType type);
 
     signals:
 

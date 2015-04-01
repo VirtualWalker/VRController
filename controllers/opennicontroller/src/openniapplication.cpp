@@ -418,40 +418,41 @@ OpenNIUtil::Joint OpenNIApplication::createJoint(const XnSkeletonJoint jointType
     return joint;
 }
 
-XnStatus OpenNIApplication::moveToAngle(const int angle)
+void OpenNIApplication::moveToAngle(const int angle)
 {
     if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
-        return _kinectUSB->moveToAngle(angle);
-
-    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
-    return 1;
+        _kinectUSB->moveToAngle(angle);
+    else
+        qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
 }
 
-XnStatus OpenNIApplication::increaseAngle()
+void OpenNIApplication::increaseAngle()
 {
     if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
-        return _kinectUSB->increaseAngle();
-
-    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
-    return 1;
+        _kinectUSB->increaseAngle();
+    else
+        qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
 }
 
-XnStatus OpenNIApplication::decreaseAngle()
+void OpenNIApplication::decreaseAngle()
 {
     if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
-        return _kinectUSB->decreaseAngle();
-
-    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
-    return 1;
+        _kinectUSB->decreaseAngle();
+    else
+        qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
 }
 
-XnStatus OpenNIApplication::setLight(const USBController::LightType type)
+void OpenNIApplication::resetAngle()
+{
+    moveToAngle(0);
+}
+
+void OpenNIApplication::setLight(const USBController::LightType type)
 {
     if(_useAKinect && _kinectUSB != nullptr && _kinectUSB->initialized())
-        return _kinectUSB->setLight(type);
-
-    qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
-    return 1;
+        _kinectUSB->setLight(type);
+    else
+        qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
 }
 
 XnStatus OpenNIApplication::startCalibration(const XnUserID userID)

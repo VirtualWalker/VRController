@@ -20,63 +20,11 @@
 #define OPENNICONTROLLERWIDGET_H
 
 #include "ControllerInterface"
-#include "openniapplication.h"
+#include "openniworker.h"
 #include "opencvwidget.h"
 #include "opencvutil.h"
 
 #include <QThread>
-#include <QKeyEvent>
-
-// Used to run the OpenNIApplication in a different thread
-class OpenNIWorker : public QObject
-{
-        Q_OBJECT
-    private:
-        OpenNIApplication *_app = nullptr;
-        bool _useAKinect;
-
-    signals:
-        void orientationChanged(int newOrientation);
-        void walkSpeedChanged(int newWalkSpeed);
-        void valueChanged();
-
-    public slots:
-        void launch()
-        {
-            _app = new OpenNIApplication(_useAKinect);
-
-            connect(_app, &OpenNIApplication::orientationChanged, this, &OpenNIWorker::orientationChanged);
-            connect(_app, &OpenNIApplication::walkSpeedChanged, this, &OpenNIWorker::walkSpeedChanged);
-            connect(_app, &OpenNIApplication::camInfoChanged, this, &OpenNIWorker::valueChanged);
-
-            _app->init();
-            _app->start();
-        }
-
-    public:
-        OpenNIWorker(bool useAKinect = false, QObject *parent = nullptr): QObject(parent)
-        {
-            _useAKinect = useAKinect;
-        }
-        ~OpenNIWorker()
-        {
-            // Wait for the frame loop stop
-            while(!_app->stopped())
-            {}
-            delete _app;
-            _app = nullptr;
-        }
-
-        void requestStop()
-        {
-            _app->requestStop();
-        }
-
-        OpenNIApplication* app()
-        {
-            return _app;
-        }
-};
 
 // Simple widget containing the image viewer
 // This viewer also launch the OpenNI thread
@@ -97,11 +45,11 @@ class OpenNIControllerWidget: public QWidget
 
     protected:
         void timerEvent(QTimerEvent *event);
-        void keyPressEvent(QKeyEvent *event);
 
     private:
 
         OpenCVWidget *_viewer;
+        // The worker class is used to launch the OpenNI loop in a different thread
         OpenNIWorker *_openniWorker;
         QThread _openniThread;
 

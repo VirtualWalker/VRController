@@ -19,10 +19,13 @@
 #include "opennicontrollerwidget.h"
 #include <QTimerEvent>
 #include <QVBoxLayout>
+#include <QShortcut>
 
 OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useAKinect, QWidget *parent): QWidget(parent)
 {
     _viewer = new OpenCVWidget(this);
+
+    setFocusPolicy(Qt::StrongFocus);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(_viewer);
@@ -37,6 +40,18 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
     connect(_openniWorker, &OpenNIWorker::orientationChanged, this, &OpenNIControllerWidget::orientationChanged);
     connect(_openniWorker, &OpenNIWorker::walkSpeedChanged, this, &OpenNIControllerWidget::walkSpeedChanged);
     connect(_openniWorker, &OpenNIWorker::valueChanged, this, &OpenNIControllerWidget::valueChanged);
+
+    QShortcut *increaseShortcut = new QShortcut(Qt::Key_Up, this);
+    connect(increaseShortcut, &QShortcut::activated, _openniWorker, &OpenNIWorker::needIncreaseMotorAngle);
+
+    QShortcut *decreaseShortcut = new QShortcut(Qt::Key_Down, this);
+    connect(decreaseShortcut, &QShortcut::activated, _openniWorker, &OpenNIWorker::needDecreaseMotorAngle);
+
+    QShortcut *resetShortcut = new QShortcut(Qt::Key_Left, this);
+    connect(resetShortcut, &QShortcut::activated, _openniWorker, &OpenNIWorker::needResetMotorAngle);
+
+    QShortcut *resetShortcut2 = new QShortcut(Qt::Key_Right, this);
+    connect(resetShortcut2, &QShortcut::activated, _openniWorker, &OpenNIWorker::needResetMotorAngle);
 
     // Start a timer
     _timerID = startTimer(1000/frequency, Qt::PreciseTimer);
@@ -70,7 +85,7 @@ int OpenNIControllerWidget::walkSpeedValue() const
     return -1;
 }
 
-// Re-implemented protected methods
+// Re-implemented protected method
 void OpenNIControllerWidget::timerEvent(QTimerEvent *event)
 {
     if(event->timerId() == _timerID)
@@ -83,25 +98,4 @@ void OpenNIControllerWidget::timerEvent(QTimerEvent *event)
             _viewer->showImage(image);
         }
     }
-}
-
-void OpenNIControllerWidget::keyPressEvent(QKeyEvent *event)
-{
-    switch(event->key())
-    {
-        // Control the orientation of the motors
-        case Qt::Key_Left:
-        case Qt::Key_Right:
-            _openniWorker->app()->moveToAngle(0);
-            break;
-        case Qt::Key_Up:
-            _openniWorker->app()->increaseAngle();
-            break;
-        case Qt::Key_Down:
-            _openniWorker->app()->decreaseAngle();
-            break;
-        default:
-            break;
-    }
-    event->accept();
 }
