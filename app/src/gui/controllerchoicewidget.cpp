@@ -17,6 +17,7 @@
  */
 
 #include "controllerchoicewidget.h"
+#include "../commonwidgets/hintdialog.h"
 #include "../interfaces/controllercommon.h"
 
 #include <QDir>
@@ -30,6 +31,10 @@
 #include <QFormLayout>
 #include <QLocale>
 #include <QRadioButton>
+#include <QPushButton>
+#include <QList>
+#include <QByteArray>
+#include <QImage>
 
 // Some strings used in the JSON parser
 // Declaration here should be faster
@@ -39,6 +44,8 @@ const QString internalNameStr = "internalName";
 const QString thirdLicenceStr = "3rdLicenses";
 const QString i18nStr = "i18n";
 const QString launchOptionsStr = "launchOptions";
+const QString hintStr = "hint";
+const QString textStr = "text";
 
 ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent)
 {
@@ -146,8 +153,40 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                                     optDesc = optLocaleObj.value(descStr).toString(optDesc);
                             }
 
+                            // Check for hint object
+                            Hint hint;
+                            hint.activated = false;
+                            if(optionObject.contains(hintStr))
+                            {
+                                hint.activated = true;
+
+                                QJsonObject hintObject = optionObject.value(hintStr).toObject();
+                                qDebug() << qPrintable(tr("The launch option named \"%1\" has a hint !").arg(optName));
+
+                                hint.text = hintObject.value(textStr).toString();
+                                const QByteArray imageBase64 = hintObject.value(qPrintable("image")).toString().toLocal8Bit();
+
+                                if(hint.text.isEmpty() || imageBase64.isEmpty())
+                                {
+                                    qWarning() << qPrintable(tr("The hint does't specify a correct text or image."));
+                                    continue;
+                                }
+
+                                QImage tempImage;
+                                tempImage.loadFromData(QByteArray::fromBase64(imageBase64), "PNG");
+                                hint.image = QPixmap::fromImage(tempImage);
+
+                                // Check for translations
+                                QJsonObject hintLocaleObj;
+                                if(translationObject(hintObject, &hintLocaleObj))
+                                {
+                                    if(hintLocaleObj.contains(textStr))
+                                        hint.text = hintLocaleObj.value(textStr).toString(hint.text);
+                                }
+                            }
+
                             // Now add the option to the list
-                            optionsList.insert(optName, QPair<QString, bool>(optDesc, false));
+                            optionsList.insert(optName, QList<QVariant>({QVariant(optDesc), QVariant(false), QVariant::fromValue(hint)}));
                         }
                     }
 
@@ -178,6 +217,18 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                         // Align both buttons to the left side
                         optionsLayout->addStretch(1);
 
+                        // Add the Hint button if exist
+                        Hint hintValue = it.value()[2].value<Hint>();
+                        if(hintValue.activated)
+                        {
+                            QPushButton *hintButton = new QPushButton(tr("Hint"), this);
+                            connect(hintButton, &QPushButton::clicked, this, [this, hintValue](){
+                                HintDialog *hintDialog = new HintDialog(hintValue.text, hintValue.image, this);
+                                hintDialog->exec();
+                            });
+                            optionsLayout->addWidget(hintButton);
+                        }
+
                         QFormLayout *formLayout = new QFormLayout();
 
                         // Add a margin to indent the content
@@ -185,7 +236,7 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                         formLayoutMargin.setLeft(30);
                         formLayout->setContentsMargins(formLayoutMargin);
 
-                        formLayout->addRow(it.value().first, optionsLayout);
+                        formLayout->addRow(it.value()[0].toString(), optionsLayout);
 
                         // Create a main widget
                         // Used to hide all the content
@@ -203,7 +254,7 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
 
                         // When a button is clicked in the group, update the value in the controller
                         connect(optButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [internalName, this](int id) {
-                            _controllersMap[internalName].options[sender()->property("optName").toString()].second = (id == BUTTON_YES_ID);
+                            _controllersMap[internalName].options[sender()->property("optName").toString()].value(1) = QVariant((id == BUTTON_YES_ID));
                         });
 
                         // Add the button group to the current options map

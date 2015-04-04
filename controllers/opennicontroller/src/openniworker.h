@@ -35,11 +35,6 @@ class OpenNIWorker : public QObject
         void walkSpeedChanged(int newWalkSpeed);
         void valueChanged();
 
-        void needNewMotorAngle(int angle);
-        void needIncreaseMotorAngle();
-        void needDecreaseMotorAngle();
-        void needResetMotorAngle();
-
     public slots:
         void launch()
         {
@@ -49,13 +44,26 @@ class OpenNIWorker : public QObject
             connect(_app, &OpenNIApplication::walkSpeedChanged, this, &OpenNIWorker::walkSpeedChanged);
             connect(_app, &OpenNIApplication::camInfoChanged, this, &OpenNIWorker::valueChanged);
 
-            connect(this, &OpenNIWorker::needNewMotorAngle, _app, &OpenNIApplication::moveToAngle);
-            connect(this, &OpenNIWorker::needDecreaseMotorAngle, _app, &OpenNIApplication::decreaseAngle);
-            connect(this, &OpenNIWorker::needIncreaseMotorAngle, _app, &OpenNIApplication::increaseAngle);
-            connect(this, &OpenNIWorker::needResetMotorAngle, _app, &OpenNIApplication::resetAngle);
-
             _app->init();
             _app->start();
+        }
+
+        void needIncreaseMotorAngle()
+        {
+            if(_app != nullptr && _app->initialized())
+                _app->increaseAngle();
+        }
+
+        void needDecreaseMotorAngle()
+        {
+            if(_app != nullptr && _app->initialized())
+                _app->decreaseAngle();
+        }
+
+        void needResetMotorAngle()
+        {
+            if(_app != nullptr && _app->initialized())
+                _app->resetAngle();
         }
 
     public:

@@ -45,6 +45,7 @@ class OpenNIControllerWidget: public QWidget
 
     protected:
         void timerEvent(QTimerEvent *event);
+        void keyPressEvent(QKeyEvent *event);
 
     private:
 

@@ -219,7 +219,7 @@ XnStatus OpenNIApplication::init()
     XnStatus status = XN_STATUS_OK;
 
     // Copy the config file from resources to disk
-    QTemporaryFile *tempFile = QTemporaryFile::createNativeFile(QStringLiteral(":/OpenNIKinectConfig.xml"));
+    QTemporaryFile *tempFile = QTemporaryFile::createNativeFile(QStringLiteral(":/opennicontroller/OpenNIKinectConfig.xml"));
 
     // Read the XML file
     xn::EnumerationErrors errors;
@@ -358,11 +358,11 @@ XnStatus OpenNIApplication::start()
             user.previousRightLeg = previousUser.rightLeg;
 
             // To compute the rotation of the player, we use the hip joints
-            user.rotation = static_cast<int>(OpenNIUtil::rotationFrom2Joints(user.rightLeg.hip, user.leftLeg.hip, previousUser.rotation));
+            user.rotation = static_cast<int>(OpenNIUtil::rotationFrom2Joints(user.rightLeg.hip, user.leftLeg.hip, previousUser.rotation, &user.rotationConfidence));
 
             // Only compute the walk speed if we are not in the first frame
             if(!firstLoop)
-                user.walkSpeed = OpenNIUtil::walkSpeedForUser(user, previousUser.timestamp, previousUser.walkSpeed);
+                user.walkSpeed = OpenNIUtil::walkSpeedForUser(user, previousUser.timestamp, previousUser.walkSpeed, &user.walkSpeedConfidence);
         }
         // If no user user is tracked, get the first in the list
         else if(usersCount >= 1)

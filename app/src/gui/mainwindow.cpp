@@ -402,7 +402,7 @@ void MainWindow::writeSettings()
         ControllerOptionsList opts = it.value().options;
         _settings->beginGroup(it.key());
         for(auto optIt = opts.begin(), optEnd = opts.end(); optIt != optEnd; ++optIt)
-            _settings->setValue(optIt.key(), optIt.value().second);
+            _settings->setValue(optIt.key(), optIt.value()[1].toBool());
 
         _settings->endGroup();
     }

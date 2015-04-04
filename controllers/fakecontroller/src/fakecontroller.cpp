@@ -24,7 +24,8 @@ FakeController::FakeController(QObject *parent): ControllerInterface(parent)
 
 FakeController::~FakeController()
 {
-    _widget->deleteLater();
+    if(_widget != nullptr)
+        _widget->deleteLater();
 }
 
 void FakeController::start()

@@ -24,7 +24,8 @@ OpenNIController::OpenNIController(QObject *parent): ControllerInterface(parent)
 
 OpenNIController::~OpenNIController()
 {
-    _widget->deleteLater();
+    if(_widget != nullptr)
+        _widget->deleteLater();
 }
 
 void OpenNIController::start()
@@ -32,7 +33,7 @@ void OpenNIController::start()
     // Check if we are using a kinect sensor
     bool useAKinect = false;
     if(launchOptions().contains("useAKinect"))
-        useAKinect = launchOptions()["useAKinect"].second;
+        useAKinect = launchOptions()["useAKinect"][1].toBool();
 
     _widget = new OpenNIControllerWidget(dataFrequency(), useAKinect);
     connect(_widget, &OpenNIControllerWidget::orientationChanged, this, &ControllerInterface::orientationChanged);

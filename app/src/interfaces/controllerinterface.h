@@ -23,14 +23,26 @@
 #include <QObject>
 #include <QString>
 #include <QMap>
-#include <QPair>
 #include <QPluginLoader>
+#include <QVariant>
+#include <QPixmap>
+
+struct Hint
+{
+    QString text;
+    QPixmap image;
+    bool activated = false;
+};
+
+Q_DECLARE_METATYPE(Hint)
 
 // Typedef for the Controller options
 // Options are identified by their internalName (the key)
-// The value is a pair of two elements: the description (translated in the current locale)
-// and the "real" value, so true or false
-typedef QMap<QString, QPair<QString, bool>> ControllerOptionsList;
+// The value contains 3 elements:
+//  - the description (translated in the current locale)
+//  - the "real" value, so true or false
+//  - the hint object
+typedef QMap<QString, QList<QVariant>> ControllerOptionsList;
 
 // Simple wrapper that contains an options list and the QPluginLoader
 struct ControllerWrapper

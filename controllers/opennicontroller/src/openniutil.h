@@ -61,7 +61,15 @@ namespace OpenNIUtil
         Leg previousRightLeg;
 
         int rotation = -1;
+        // Represent the confidence we have in the current rotation
+        // Computed by multiply the confidence of the two hip joints
+        // In normal conditions, should be in range 2.56 - 4
+        XnConfidence rotationConfidence = -1.0f;
+
         int walkSpeed = -1;
+        // Represent the confidence we have in the current walk speed
+        // In normal conditions, should be in range 6.5536 - 16
+        XnConfidence walkSpeedConfidence = -1.0f;
     };
 
     struct CameraInformations
@@ -77,7 +85,7 @@ namespace OpenNIUtil
     }
 
     // The previous rotation parameter is used to avoid big differences between two rotation
-    inline float rotationFrom2Joints(const Joint rightJoint, const Joint leftJoint, float previousRotation)
+    inline float rotationFrom2Joints(const Joint rightJoint, const Joint leftJoint, float previousRotation, XnConfidence *resultConfidence)
     {
         if(isJointAcceptable(rightJoint) && isJointAcceptable(leftJoint))
         {
@@ -157,13 +165,15 @@ namespace OpenNIUtil
                 }
             }
 
+            *resultConfidence = (leftJoint.info.fConfidence + 1.0f) * (rightJoint.info.fConfidence + 1.0f);
             return rotation;
         }
 
+        *resultConfidence = -1.0f;
         return -1.0f;
     }
 
-    inline int walkSpeedForUser(const User& user, const int64_t& previousTimestamp, const int& previousSpeed)
+    inline int walkSpeedForUser(const User& user, const int64_t& previousTimestamp, const int& previousSpeed, XnConfidence *resultConfidence)
     {
         // Compute the x and z diff for the right and left foot
         float rdx = 0;
@@ -189,6 +199,11 @@ namespace OpenNIUtil
 
         if(cantCompute)
             return -1;
+
+        *resultConfidence = (user.rightLeg.foot.info.fConfidence + 1.0f)
+                * (user.previousRightLeg.foot.info.fConfidence + 1.0f)
+                * (user.leftLeg.foot.info.fConfidence + 1.0f)
+                * (user.previousLeftLeg.foot.info.fConfidence + 1.0f);
 
         const float rightDiff = std::sqrt(std::pow(rdx, 2.0) + std::pow(rdz, 2.0));
         const float leftDiff = std::sqrt(std::pow(ldx, 2.0) + std::pow(ldz, 2.0));

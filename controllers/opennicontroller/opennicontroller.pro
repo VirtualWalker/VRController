@@ -62,7 +62,7 @@ HEADERS += \
     src/openniworker.h
 
 RESOURCES += \
-    $$PWD/resources.qrc
+    $$PWD/$${CONTROLLER_NAME}.qrc
 
 # French translation
 TRANSLATIONS += \

@@ -49,6 +49,7 @@ AboutDialog::AboutDialog(QList<LicenseObject> othersLicenses, QWidget *parent): 
     QTextBrowser *thirdLicenseTab = new QTextBrowser(tabs);
     thirdLicenseTab->setReadOnly(true);
     thirdLicenseTab->setOpenExternalLinks(true);
+    thirdLicenseTab->setLineWrapMode(QTextBrowser::WidgetWidth);
 
     // Create 3rd licenses
     for(int i=0, end=ThirdPartiesLicenses::licenses.size(); i<end; ++i)

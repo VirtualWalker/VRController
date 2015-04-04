@@ -85,7 +85,8 @@ SOURCES += \
     src/gui/aboutdialog.cpp \
     src/commonwidgets/autoscrolltextbrowser.cpp \
     src/commonwidgets/dial.cpp \
-    src/gui/controllerchoicewidget.cpp
+    src/gui/controllerchoicewidget.cpp \
+    src/commonwidgets/hintdialog.cpp
 
 HEADERS += \
     src/core/bluetoothmanager.h \
@@ -100,7 +101,8 @@ HEADERS += \
     src/commonwidgets/dial.h \
     src/interfaces/controllerinterface.h \
     src/interfaces/controllercommon.h \
-    src/gui/controllerchoicewidget.h
+    src/gui/controllerchoicewidget.h \
+    src/commonwidgets/hintdialog.h
 
 OTHER_FILES += \
     src/interfaces/ControllerInterface \
