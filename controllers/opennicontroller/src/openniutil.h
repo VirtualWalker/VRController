@@ -163,6 +163,9 @@ namespace OpenNIUtil
                         rotation = previousRotation - 10.0f;
                     }
                 }
+
+                if(rotation >= 360.0f)
+                    rotation -= 360.0f;
             }
 
             *resultConfidence = (leftJoint.info.fConfidence + 1.0f) * (rightJoint.info.fConfidence + 1.0f);
@@ -220,12 +223,12 @@ namespace OpenNIUtil
         // Smooth the value depending on the last one
         if(previousSpeed != -1)
         {
-            if(std::abs(speed - previousSpeed) > 10)
+            if(std::abs(speed - previousSpeed) > 15)
             {
                 if(speed < previousSpeed)
-                    speed = previousSpeed - 10;
+                    speed = previousSpeed - 15;
                 else
-                    speed = previousSpeed + 10;
+                    speed = previousSpeed + 15;
             }
         }
 

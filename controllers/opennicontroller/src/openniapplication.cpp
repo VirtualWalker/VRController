@@ -189,6 +189,10 @@ void OpenNIApplication::requestStop()
     _stopRequestedMutex.lock();
     _stopRequested = true;
     _stopRequestedMutex.unlock();
+
+    // Directly call cleanup() method if the application is not yet started
+    if(!started())
+        cleanup();
 }
 
 // Init the app

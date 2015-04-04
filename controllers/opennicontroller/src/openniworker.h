@@ -44,8 +44,10 @@ class OpenNIWorker : public QObject
             connect(_app, &OpenNIApplication::walkSpeedChanged, this, &OpenNIWorker::walkSpeedChanged);
             connect(_app, &OpenNIApplication::camInfoChanged, this, &OpenNIWorker::valueChanged);
 
-            _app->init();
-            _app->start();
+            if(_app->init() != XN_STATUS_OK)
+                requestStop();
+            if(_app->start() != XN_STATUS_OK)
+                requestStop();
         }
 
         void needIncreaseMotorAngle()
