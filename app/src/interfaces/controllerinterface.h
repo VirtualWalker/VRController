@@ -57,7 +57,7 @@ class ControllerInterface: public QObject
         Q_OBJECT
         // This property is usually set by the program.
         // Used to know the frequency of data send with bluetooth
-        Q_PROPERTY(unsigned int dataFrequency READ dataFrequency WRITE setDataFrequency NOTIFY dataFrequencyChanged)
+        Q_PROPERTY(unsigned int dataFrequency READ dataFrequency WRITE setDataFrequency)
 
     private:
         unsigned int _dataFrenquency = 1;
@@ -97,20 +97,10 @@ class ControllerInterface: public QObject
             return !_launchOptions.isEmpty();
         }
 
-    signals:
-
-        void orientationChanged(int newOrientation);
-        void walkSpeedChanged(int newWalkSpeed);
-        // Emit when one of the above values are modified
-        void somethingChanged();
-
-        void dataFrequencyChanged();
-
     public slots:
         void setDataFrequency(unsigned int frequency)
         {
             _dataFrenquency = frequency;
-            emit dataFrequencyChanged();
         }
 
         void setLaunchOptions(ControllerOptionsList options)

@@ -47,7 +47,11 @@ MainWindow::MainWindow(LogBrowser *logBrowser, bool autoStart, const QString& co
     if(_logBrowser != nullptr)
     {
         _logBrowser->setParent(this);
-        _logBrowser->widget()->setParent(this);
+        _logDock = new QDockWidget(tr("Console log"), this);
+        _logDock->setWidget(_logBrowser->widget());
+        _logDock->setAllowedAreas(Qt::BottomDockWidgetArea);
+        _logDock->setFeatures(QDockWidget::DockWidgetClosable);
+        addDockWidget(Qt::BottomDockWidgetArea, _logDock);
     }
 
     // Set the central widget
@@ -108,10 +112,6 @@ MainWindow::MainWindow(LogBrowser *logBrowser, bool autoStart, const QString& co
     connect(this, &MainWindow::setConnectionText, this, &MainWindow::setConnectionAddress);
     _mainLayout->addWidget(_connectionLabel);
 
-    // Add the log browser if needed
-    if(_logBrowser != nullptr)
-        _mainLayout->addWidget(_logBrowser->widget());
-
     // Set the status bar
     _statusBar = new QStatusBar(this);
     connect(this, &MainWindow::addStatusBarWidget, _statusBar, &QStatusBar::addWidget);
@@ -153,6 +153,13 @@ MainWindow::MainWindow(LogBrowser *logBrowser, bool autoStart, const QString& co
         });
         timer->start(1000);
     });
+
+    if(_logBrowser != nullptr)
+    {
+        QMenu *logMenu = new QMenu(tr("&Log"), _menuBar);
+        _menuBar->addMenu(logMenu);
+        logMenu->addAction(_logDock->toggleViewAction());
+    }
 
     QMenu *aboutMenu = new QMenu(tr("&About"), _menuBar);
     _menuBar->addMenu(aboutMenu);
@@ -335,6 +342,7 @@ const QString settingWinStateStr = "state";
 
 const QString settingLogGroupStr = "Log";
 const QString settingLogShowDateStr = "showDate";
+const QString settingLogVisibleStr = "visible";
 
 const QString settingControllerOptsGroup = "ControllersOptions";
 
@@ -357,7 +365,10 @@ void MainWindow::readSettings()
 
     _settings->beginGroup(settingLogGroupStr);
     if(_logBrowser != nullptr)
+    {
         _logBrowser->widget()->setShowDate(_settings->value(settingLogShowDateStr, true).toBool());
+        _logDock->toggleViewAction()->setChecked(_settings->value(settingLogVisibleStr, true).toBool());
+    }
     _settings->endGroup();
 
     // Apply options to the controllers
@@ -391,7 +402,10 @@ void MainWindow::writeSettings()
 
     _settings->beginGroup(settingLogGroupStr);
     if(_logBrowser != nullptr)
+    {
         _settings->setValue(settingLogShowDateStr, _logBrowser->widget()->showDate());
+        _settings->setValue(settingLogVisibleStr, _logDock->toggleViewAction()->isChecked());
+    }
     _settings->endGroup();
 
     // Write options for all controllers

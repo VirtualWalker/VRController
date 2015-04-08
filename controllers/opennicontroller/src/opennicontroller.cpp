@@ -35,10 +35,11 @@ void OpenNIController::start()
     if(launchOptions().contains("useAKinect"))
         useAKinect = launchOptions()["useAKinect"][1].toBool();
 
-    _widget = new OpenNIControllerWidget(dataFrequency(), useAKinect);
-    connect(_widget, &OpenNIControllerWidget::orientationChanged, this, &ControllerInterface::orientationChanged);
-    connect(_widget, &OpenNIControllerWidget::walkSpeedChanged, this, &ControllerInterface::walkSpeedChanged);
-    connect(_widget, &OpenNIControllerWidget::valueChanged, this, &ControllerInterface::somethingChanged);
+    bool useTwoSensors = false;
+    if(launchOptions().contains("useTwoSensors"))
+        useTwoSensors = launchOptions()["useTwoSensors"][1].toBool();
+
+    _widget = new OpenNIControllerWidget(dataFrequency(), useAKinect, useTwoSensors);
 }
 
 // Getters

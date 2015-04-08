@@ -29,49 +29,13 @@ class OpenNIWorker : public QObject
     private:
         OpenNIApplication *_app = nullptr;
         bool _useAKinect;
-
-    signals:
-        void orientationChanged(int newOrientation);
-        void walkSpeedChanged(int newWalkSpeed);
-        void valueChanged();
-
-    public slots:
-        void launch()
-        {
-            _app = new OpenNIApplication(_useAKinect);
-
-            connect(_app, &OpenNIApplication::orientationChanged, this, &OpenNIWorker::orientationChanged);
-            connect(_app, &OpenNIApplication::walkSpeedChanged, this, &OpenNIWorker::walkSpeedChanged);
-            connect(_app, &OpenNIApplication::camInfoChanged, this, &OpenNIWorker::valueChanged);
-
-            if(_app->init() != XN_STATUS_OK)
-                requestStop();
-            if(_app->start() != XN_STATUS_OK)
-                requestStop();
-        }
-
-        void needIncreaseMotorAngle()
-        {
-            if(_app != nullptr && _app->initialized())
-                _app->increaseAngle();
-        }
-
-        void needDecreaseMotorAngle()
-        {
-            if(_app != nullptr && _app->initialized())
-                _app->decreaseAngle();
-        }
-
-        void needResetMotorAngle()
-        {
-            if(_app != nullptr && _app->initialized())
-                _app->resetAngle();
-        }
+        bool _useTwoSensors;
 
     public:
-        OpenNIWorker(bool useAKinect = false, QObject *parent = nullptr): QObject(parent)
+        OpenNIWorker(bool useAKinect = false, bool useTwoSensors = false, QObject *parent = nullptr): QObject(parent)
         {
             _useAKinect = useAKinect;
+            _useTwoSensors = useTwoSensors;
         }
 
         ~OpenNIWorker()
@@ -83,14 +47,59 @@ class OpenNIWorker : public QObject
             _app = nullptr;
         }
 
-        void requestStop()
+        int orientationValue()
         {
-            _app->requestStop();
+            if(_app != nullptr && _app->started())
+                return _app->lastOrientation();
+            return -1;
+        }
+
+        int walkSpeedValue()
+        {
+            if(_app != nullptr && _app->started())
+                return _app->lastWalkSpeed();
+            return -1;
+        }
+
+        OpenNIUtil::CameraInformations camInfo()
+        {
+            if(_app != nullptr && _app->started())
+                return _app->lastCamInfo();
+            return OpenNIUtil::createInvalidCamInfo();
         }
 
         OpenNIApplication* app()
         {
             return _app;
+        }
+
+    public slots:
+        void launch()
+        {
+            _app = new OpenNIApplication(_useAKinect, _useTwoSensors);
+
+            if(_app->init() != XN_STATUS_OK)
+                requestStop();
+            if(_app->start() != XN_STATUS_OK)
+                requestStop();
+        }
+
+        void setMotorAngle(const int kinectID, const int angle)
+        {
+            if(_app != nullptr && _app->initialized())
+                _app->moveToAngle(kinectID, angle);
+        }
+
+        void requestStop()
+        {
+            if(_app != nullptr)
+                _app->requestStop();
+        }
+
+        void setAngleBetweenSensors(bool clockwise)
+        {
+            if(_app != nullptr)
+                _app->setAngleBetweenSensors(clockwise);
         }
 };
 

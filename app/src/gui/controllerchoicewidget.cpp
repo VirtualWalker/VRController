@@ -254,7 +254,7 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
 
                         // When a button is clicked in the group, update the value in the controller
                         connect(optButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [internalName, this](int id) {
-                            _controllersMap[internalName].options[sender()->property("optName").toString()].value(1) = QVariant((id == BUTTON_YES_ID));
+                            _controllersMap[internalName].options[sender()->property("optName").toString()][1] = QVariant::fromValue(id == BUTTON_YES_ID);
                         });
 
                         // Add the button group to the current options map

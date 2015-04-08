@@ -21,15 +21,32 @@
 
 #include <ni/XnOpenNI.h>
 #include <ni/XnCodecIDs.h>
-#include <ni/XnPropNames.h>
 #include <map>
 #include <mutex>
 
-#include <QDebug>
 #include <QObject>
+#include <QList>
 
 #include "openniutil.h"
 #include "usbcontroller.h"
+
+// Represent a Depth-Sensor
+struct Sensor
+{
+    xn::ProductionNode device;
+    xn::NodeInfo nodeInfo = xn::NodeInfo(nullptr);
+
+    USBDevicePath cameraPath;
+    USBDevicePath motorPath;
+
+    // Only used if we use a Kinect
+    USBController *kinectUSB;
+
+    xn::DepthGenerator depthGenerator;
+    xn::UserGenerator userGenerator;
+
+    OpenNIUtil::CameraInformations camInfo;
+};
 
 // This class is a bridge between the program and the OpenNI API.
 // When started, you can retrieve the last informations using lastCamInfo()
@@ -39,11 +56,11 @@ class OpenNIApplication: public QObject
     public:
         // Nothing is created in the constructor.
         // Please call init() to start the process
-        OpenNIApplication(bool useAKinect = false, QObject *parent = nullptr);
+        OpenNIApplication(bool useAKinect = false, bool useTwoSensors = false, QObject *parent = nullptr);
         ~OpenNIApplication();
 
         // Check if the app is initialized
-        bool initialized();
+        bool initialized() const;
 
         // Check if the app is started
         bool started();
@@ -65,9 +82,8 @@ class OpenNIApplication: public QObject
         XnStatus start();
 
         // Don't call these functions directly, they are usually called from the Callbacks methods
-        XnStatus startCalibration(const XnUserID userID);
-        XnStatus startTracking(const XnUserID userID);
-        void setCalibrationStatus(const XnUserID userID, XnCalibrationStatus calibStatus);
+        XnStatus startCalibration(const XnUserID userID, const int sensorID);
+        XnStatus startTracking(const XnUserID userID, const int sensorID);
 
         // Getters
         OpenNIUtil::CameraInformations lastCamInfo();
@@ -75,20 +91,14 @@ class OpenNIApplication: public QObject
         int lastWalkSpeed();
 
         bool useAKinect() const;
+        int sensorsCount() const;
 
     public slots:
         // These functions are only available if you are using a Kinect sensor
-        void moveToAngle(const int angle);
-        void increaseAngle();
-        void decreaseAngle();
-        void resetAngle();
-        void setLight(const USBController::LightType type);
+        void moveToAngle(const int kinectID, const int angle);
+        void setLight(const int kinectID, const USBController::LightType type);
 
-    signals:
-
-        void camInfoChanged();
-        void orientationChanged(int newOrientation);
-        void walkSpeedChanged(int newWalkSpeed);
+        void setAngleBetweenSensors(bool clockwise);
 
     private:
 
@@ -102,10 +112,18 @@ class OpenNIApplication: public QObject
 
         // Tell if we are using a kinect sensor or not
         bool _useAKinect;
-        KinectUSBController *_kinectUSB;
+
+        // Sensors count (1 or 2)
+        int _sensorsCount;
+        QList<Sensor> _sensorsList;
+
+        // Tell if the angle between two kinects is clockwise or counterclockwise
+        // 1 --> clockwise
+        // -1 --> counterclockwise
+        int _clockwise = 1;
+        std::mutex _clockwiseMutex;
 
         xn::Context _context;
-        xn::ScriptNode _xmlScriptNode;
 
         // Generators
         xn::DepthGenerator _depthGenerator;
@@ -115,10 +133,6 @@ class OpenNIApplication: public QObject
         XnCallbackHandle _userCBHandler;
         XnCallbackHandle _calibrationStartCBHandler;
         XnCallbackHandle _calibrationEndCBHandler;
-        XnCallbackHandle _calibrationInProgressCBHandler;
-
-        // Array of all calibrations status
-        std::map<XnUserID, XnCalibrationStatus> _calibrationStatus;
 
         bool _stopRequested = false;
         std::mutex _stopRequestedMutex;
@@ -126,7 +140,7 @@ class OpenNIApplication: public QObject
         OpenNIUtil::CameraInformations _lastCamInfo;
         std::mutex _lastCamInfoMutex;
 
-        OpenNIUtil::Joint createJoint(const XnSkeletonJoint jointType, const XnUserID userID);
+        OpenNIUtil::Joint createJoint(const XnSkeletonJoint jointType, const XnUserID userID, const int sensorID);
 
         // Cleanup all OpenNI objects
         void cleanup();

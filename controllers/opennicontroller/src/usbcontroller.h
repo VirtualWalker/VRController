@@ -30,6 +30,32 @@
 #include <ni/XnCppWrapper.h>
 #include <QObject>
 #include <QDebug>
+#include <QString>
+
+#define KINECT_VENDOR_ID 0x045e
+#define KINECT_MOTOR_PRODUCT_ID 0x02b0
+#define KINECT_CAMERA_PRODUCT_ID 0x02ae
+
+// Represent all infos needed to connect to a device
+struct USBDevicePath
+{
+    int vendor;
+    int product;
+    int bus;
+    int device;
+
+    // Return a string representation in the format:
+    // "idVendor/idProduct@BusID/DeviceID"
+    QString toString(bool useHexa = true) const
+    {
+        const int base = useHexa ? 16 : 10;
+        const int leadingZero = useHexa ? 4 : 0;
+        return QString("%1/%2@%3/%4").arg(vendor, leadingZero, base, QChar('0'))
+                .arg(product, leadingZero, base, QChar('0'))
+                .arg(bus, 0, 10)
+                .arg(device, 0, 10);
+    }
+};
 
 // Generic class used to send data in the USB port.
 class USBController: public QObject
@@ -51,8 +77,7 @@ class USBController: public QObject
             xnUSBCloseDevice(_dev);
         }
 
-        // You must specify the vendor and the product ID of your usb device
-        XnStatus init(const XnUInt16& vendorID, const XnUInt16& productID)
+        XnStatus init(const USBDevicePath devicePath)
         {
             if(_init)
             {
@@ -61,21 +86,16 @@ class USBController: public QObject
             }
 
             XnStatus errorCode = XN_STATUS_OK;
-            errorCode = xnUSBInit();
+            const QString devicePathStr = devicePath.toString();
+
+            errorCode = xnUSBOpenDeviceByPath(devicePathStr.toStdString().c_str(), &_dev);
             if(errorCode != XN_STATUS_OK)
             {
-                qWarning() << qPrintable(tr("Cannot initialize the USB controller. Error code: %1").arg(errorCode));
+                qWarning() << qPrintable(tr("Cannot open the usb device (%1). Error code: %3").arg(devicePathStr).arg(xnGetStatusString(errorCode)));
                 return errorCode;
             }
 
-            errorCode = xnUSBOpenDevice(vendorID, productID, nullptr, nullptr, &_dev);
-            if(errorCode != XN_STATUS_OK)
-            {
-                qWarning() << qPrintable(tr("Cannot open the usb device (VID: %1, PID: %2). Error code: %3").arg(vendorID, productID, errorCode));
-                return errorCode;
-            }
-
-            qDebug() << qPrintable(tr("USB device initialized (VID: %1, PID: %2) !").arg(vendorID, productID));
+            qDebug() << qPrintable(tr("USB device initialized (%1) !").arg(devicePathStr));
             _init = true;
             return errorCode;
         }
@@ -151,20 +171,6 @@ class USBController: public QObject
         XnStatus decreaseAngle()
         {
             return moveToAngle(_lastAngle - 2);
-        }
-};
-
-#define KINECT_VENDOR_ID 0x45e
-#define KINECT_PRODUCT_ID 0x02b0
-
-// Just set the correct vendor and product ID
-class KinectUSBController: public USBController
-{
-    public:
-        KinectUSBController(QObject *parent = nullptr): USBController(parent) {}
-        XnStatus init()
-        {
-            return USBController::init(KINECT_VENDOR_ID, KINECT_PRODUCT_ID);
         }
 };
 

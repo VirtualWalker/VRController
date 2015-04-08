@@ -31,9 +31,6 @@ FakeController::~FakeController()
 void FakeController::start()
 {
     _widget = new FakeControllerWidget();
-    connect(_widget, &FakeControllerWidget::orientationChanged, this, &ControllerInterface::orientationChanged);
-    connect(_widget, &FakeControllerWidget::walkSpeedChanged, this, &ControllerInterface::walkSpeedChanged);
-    connect(_widget, &FakeControllerWidget::valueChanged, this, &ControllerInterface::somethingChanged);
 }
 
 // Getters

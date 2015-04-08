@@ -19,12 +19,14 @@
 #ifndef OPENNICONTROLLERWIDGET_H
 #define OPENNICONTROLLERWIDGET_H
 
-#include "ControllerInterface"
-#include "openniworker.h"
 #include "opencvwidget.h"
 #include "opencvutil.h"
+#include "openniworker.h"
 
+#include <QSpinBox>
 #include <QThread>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 // Simple widget containing the image viewer
 // This viewer also launch the OpenNI thread
@@ -32,29 +34,34 @@ class OpenNIControllerWidget: public QWidget
 {
         Q_OBJECT
     public:
-        explicit OpenNIControllerWidget(unsigned int frequency, bool useAKinect = false, QWidget *parent = nullptr);
+        explicit OpenNIControllerWidget(unsigned int frequency, bool useAKinect = false, bool useTwoSensors = false, QWidget *parent = nullptr);
         ~OpenNIControllerWidget();
 
         int orientationValue() const;
         int walkSpeedValue() const;
 
-    signals:
-        void orientationChanged(int newOrientation);
-        void walkSpeedChanged(int newWalkSpeed);
-        void valueChanged();
-
     protected:
         void timerEvent(QTimerEvent *event);
-        void keyPressEvent(QKeyEvent *event);
 
     private:
 
         OpenCVWidget *_viewer;
-        // The worker class is used to launch the OpenNI loop in a different thread
+
+        // The worker handle all openni operations inside a separate thread
         OpenNIWorker *_openniWorker;
         QThread _openniThread;
 
+        QSpinBox *_spinBox1;
+        QSpinBox *_spinBox2;
+
+        // This elements are only used if we use two sensors
+        QButtonGroup *_angleButtonGroup;
+        QRadioButton *_clockwiseButton;
+        QRadioButton *_counterclockwiseButton;
+
         int _timerID = 0;
+
+        bool _useTwoSensors;
 };
 
 #endif // OPENNICONTROLLERWIDGET_H

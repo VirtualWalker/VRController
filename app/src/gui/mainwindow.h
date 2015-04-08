@@ -26,6 +26,7 @@
 #include <QStatusBar>
 #include <QMenuBar>
 #include <QSettings>
+#include <QDockWidget>
 
 #include "listeningwidget.h"
 #include "controllerchoicewidget.h"
@@ -79,7 +80,9 @@ class MainWindow : public QMainWindow
         ControllerChoiceWidget *_controllerChoiceWidget;
         ListeningWidget *_listeningWidget;
         QLabel *_connectionLabel;
+
         LogBrowser *_logBrowser;
+        QDockWidget *_logDock;
 
         ControllerInterface *_controllerPlugin;
 

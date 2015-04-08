@@ -113,9 +113,6 @@ void FakeControllerWidget::updateOrientationLabel(int newValue)
 
     _orientationDial->setValue(newValue);
     _orientationValue->setValue(newValue);
-
-    emit orientationChanged(newValue);
-    emit valueChanged();
 }
 
 void FakeControllerWidget::updateWalkSpeedLabel(int newValue)
@@ -124,9 +121,6 @@ void FakeControllerWidget::updateWalkSpeedLabel(int newValue)
 
     _walkSpeedDial->setValue(newValue);
     _walkSpeedValue->setValue(newValue);
-
-    emit walkSpeedChanged(newValue);
-    emit valueChanged();
 }
 
 // Re-implemented protected methods

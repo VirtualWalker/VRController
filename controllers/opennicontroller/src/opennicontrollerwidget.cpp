@@ -17,29 +17,82 @@
  */
 
 #include "opennicontrollerwidget.h"
-#include <QTimerEvent>
-#include <QKeyEvent>
-#include <QVBoxLayout>
 
-OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useAKinect, QWidget *parent): QWidget(parent)
+#include <QTimerEvent>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+
+#define CLOCKWISE_BUTTON_ID 12
+#define COUNTERCLOCKWISE_BUTTON_ID 20
+
+OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useAKinect, bool useTwoSensors, QWidget *parent): QWidget(parent)
 {
+    _useTwoSensors = useTwoSensors;
     _viewer = new OpenCVWidget(this);
 
     setFocusPolicy(Qt::StrongFocus);
-    grabKeyboard();
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(_viewer);
-    setLayout(layout);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(_viewer, 1);
+    setLayout(mainLayout);
 
-    _openniWorker = new OpenNIWorker(useAKinect);
+    QLabel *label = new QLabel(QString("<b>%1</b>").arg(tr("Motor orientation :")), this);
+    label->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(label);
+
+    QHBoxLayout *bottomLayout = new QHBoxLayout();
+    mainLayout->addLayout(bottomLayout);
+
+    _spinBox1 = new QSpinBox(this);
+    _spinBox1->setRange(-30, 30);
+    _spinBox1->setSuffix("°");
+    _spinBox1->setValue(0);
+    connect(_spinBox1, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this](int angle){
+        _openniWorker->setMotorAngle(0, angle);
+    });
+
+    QFormLayout *layoutSensor1 = new QFormLayout();
+    bottomLayout->addLayout(layoutSensor1);
+    layoutSensor1->addRow(tr("Sensor %1 :").arg(1), _spinBox1);
+
+    if(_useTwoSensors)
+    {
+        _spinBox2 = new QSpinBox(this);
+        _spinBox2->setRange(-30, 30);
+        _spinBox2->setSuffix("°");
+        _spinBox2->setValue(0);
+        connect(_spinBox2, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this](int angle){
+            _openniWorker->setMotorAngle(1, angle);
+        });
+
+        QFormLayout *layoutSensor2 = new QFormLayout();
+        bottomLayout->addLayout(layoutSensor2);
+        layoutSensor2->addRow(tr("Sensor %1 :").arg(2), _spinBox2);
+
+        _clockwiseButton = new QRadioButton(tr("Clockwise"), this);
+        _counterclockwiseButton = new QRadioButton(tr("Counter-clockwise"), this);
+
+        _angleButtonGroup = new QButtonGroup(this);
+        _angleButtonGroup->addButton(_clockwiseButton, CLOCKWISE_BUTTON_ID);
+        _angleButtonGroup->addButton(_counterclockwiseButton, COUNTERCLOCKWISE_BUTTON_ID);
+        connect(_angleButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [this](int id){
+            _openniWorker->setAngleBetweenSensors(id == CLOCKWISE_BUTTON_ID);
+        });
+
+        QHBoxLayout *clockwiseLayout = new QHBoxLayout();
+        clockwiseLayout->addWidget(_clockwiseButton);
+        clockwiseLayout->addWidget(_counterclockwiseButton);
+
+        QFormLayout *clockwiseFormLayout = new QFormLayout();
+        clockwiseFormLayout->addRow(tr("Is the angle between sensor 2 and 1 clockwise or counterclockwises ?"), clockwiseLayout);
+        mainLayout->addLayout(clockwiseFormLayout);
+    }
+
+    _openniWorker = new OpenNIWorker(useAKinect, _useTwoSensors);
 
     connect(&_openniThread, &QThread::finished, _openniWorker, &QObject::deleteLater);
     connect(&_openniThread, &QThread::started, _openniWorker, &OpenNIWorker::launch);
-
-    connect(_openniWorker, &OpenNIWorker::orientationChanged, this, &OpenNIControllerWidget::orientationChanged);
-    connect(_openniWorker, &OpenNIWorker::walkSpeedChanged, this, &OpenNIControllerWidget::walkSpeedChanged);
-    connect(_openniWorker, &OpenNIWorker::valueChanged, this, &OpenNIControllerWidget::valueChanged);
 
     _openniWorker->moveToThread(&_openniThread);
     _openniThread.start();
@@ -58,22 +111,12 @@ OpenNIControllerWidget::~OpenNIControllerWidget()
 // Getters
 int OpenNIControllerWidget::orientationValue() const
 {
-    OpenNIApplication *app = _openniWorker->app();
-    if(app != nullptr && app->started())
-    {
-        return app->lastOrientation();
-    }
-    return -1;
+    return _openniWorker->orientationValue();
 }
 
 int OpenNIControllerWidget::walkSpeedValue() const
 {
-    OpenNIApplication *app = _openniWorker->app();
-    if(app != nullptr && app->started())
-    {
-        return app->lastWalkSpeed();
-    }
-    return -1;
+    return _openniWorker->walkSpeedValue();
 }
 
 // Re-implemented protected method
@@ -82,31 +125,11 @@ void OpenNIControllerWidget::timerEvent(QTimerEvent *event)
     if(event->timerId() == _timerID)
     {
         // Output the image
-        OpenNIApplication *app = _openniWorker->app();
-        if(app != nullptr && app->started())
+        OpenNIUtil::CameraInformations camInfo = _openniWorker->camInfo();
+        if(!camInfo.invalid)
         {
-            cv::Mat image = OpenCVUtil::drawOpenNIData(app->lastCamInfo());
+            cv::Mat image = OpenCVUtil::drawOpenNIData(camInfo);
             _viewer->showImage(image);
         }
     }
-}
-
-void OpenNIControllerWidget::keyPressEvent(QKeyEvent *event)
-{
-    switch(event->key())
-    {
-        case Qt::Key_Left:
-        case Qt::Key_Right:
-            _openniWorker->needResetMotorAngle();
-            break;
-        case Qt::Key_Up:
-            _openniWorker->needIncreaseMotorAngle();
-            break;
-        case Qt::Key_Down:
-            _openniWorker->needDecreaseMotorAngle();
-            break;
-        default:
-            break;
-    }
-    event->accept();
 }

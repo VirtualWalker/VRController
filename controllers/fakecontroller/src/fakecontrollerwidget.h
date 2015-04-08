@@ -40,13 +40,6 @@ class FakeControllerWidget : public QWidget
         int orientationValue() const;
         int walkSpeedValue() const;
 
-    signals:
-        void orientationChanged(int newOrientation);
-        void walkSpeedChanged(int newWalkSpeed);
-
-        // Emitted when the orientation or the walk speed changed.
-        void valueChanged();
-
     private:
         QGridLayout *_mainLayout;
 

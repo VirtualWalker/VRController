@@ -31,7 +31,7 @@ namespace OpenNIUtil
     {
         XnSkeletonJoint type;
         // Check if the join is active
-        bool isActive;
+        bool isActive = false;
         XnSkeletonJointPosition info;
         XnPoint3D projectivePosition;
     };
@@ -46,7 +46,7 @@ namespace OpenNIUtil
     struct User
     {
         XnUserID id;
-        bool isTracking;
+        bool isTracking = false;
 
         // The timestamp when this object was generated
         // Represent the time in milliseconds since the epoch time
@@ -77,7 +77,23 @@ namespace OpenNIUtil
         // The depth map (values are in mm)
         const XnDepthPixel* depthData;
         User user;
+
+        // Tell if we are using two sensors
+        // In this case, the second user is set in the first camera information
+        bool hasSecondView = false;
+        User secondUser;
+        int mixedRotation = -1;
+        int mixedWalkSpeed = -1;
+
+        bool invalid = false;
     };
+
+    inline CameraInformations createInvalidCamInfo()
+    {
+        CameraInformations camInfo;
+        camInfo.invalid = true;
+        return camInfo;
+    }
 
     inline bool isJointAcceptable(const Joint joint)
     {
