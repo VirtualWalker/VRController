@@ -47,6 +47,28 @@ void OpenCVUtil::drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const 
         cv::line(image, OpenCVUtil::pointTo2DCV(joint1.projectivePosition, res), OpenCVUtil::pointTo2DCV(joint2.projectivePosition, res), color, 2*res);
 }
 
+void OpenCVUtil::drawJointsOfUser(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar rightColor, const cv::Scalar leftColor, const int res)
+{
+    drawJoint(image, user.leftLeg.hip, leftColor, res);
+    drawJoint(image, user.leftLeg.knee, leftColor, res);
+    drawJoint(image, user.leftLeg.foot, leftColor, res);
+
+    drawJoint(image, user.rightLeg.hip, rightColor, res);
+    drawJoint(image, user.rightLeg.knee, rightColor, res);
+    drawJoint(image, user.rightLeg.foot, rightColor, res);
+}
+
+void OpenCVUtil::drawLimbsOfUsers(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar color, const int res)
+{
+    drawLimb(image, user.leftLeg.hip, user.leftLeg.knee, color, res);
+    drawLimb(image, user.leftLeg.knee, user.leftLeg.foot, color, res);
+
+    drawLimb(image, user.rightLeg.hip, user.rightLeg.knee, color, res);
+    drawLimb(image, user.rightLeg.knee, user.rightLeg.foot, color, res);
+
+    drawLimb(image, user.leftLeg.hip, user.rightLeg.hip, color, res);
+}
+
 void OpenCVUtil::drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,
                       const int& fontFace, const double& fontScale, const cv::Scalar& color,
                       const int& thickness)
@@ -123,23 +145,16 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
         }
     }
 
-    // Draw the limbs
-    drawLimb(outputMat, camInfo.user.leftLeg.hip, camInfo.user.leftLeg.knee, CV_RGB(0, 255, 0), 2);
-    drawLimb(outputMat, camInfo.user.leftLeg.knee, camInfo.user.leftLeg.foot, CV_RGB(0, 255, 0), 2);
+    drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 2);
+    drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(100, 0, 0), 2);
 
-    drawLimb(outputMat, camInfo.user.rightLeg.hip, camInfo.user.rightLeg.knee, CV_RGB(0, 255, 0), 2);
-    drawLimb(outputMat, camInfo.user.rightLeg.knee, camInfo.user.rightLeg.foot, CV_RGB(0, 255, 0), 2);
-
-    drawLimb(outputMat, camInfo.user.leftLeg.hip, camInfo.user.rightLeg.hip, CV_RGB(0, 255, 0), 2);
-
-    // Now draw the joints of the user
-    drawJoint(outputMat, camInfo.user.leftLeg.hip, CV_RGB(128, 0, 0), 2);
-    drawJoint(outputMat, camInfo.user.leftLeg.knee, CV_RGB(255, 69, 0), 2);
-    drawJoint(outputMat, camInfo.user.leftLeg.foot, CV_RGB(218, 165, 32), 2);
-
-    drawJoint(outputMat, camInfo.user.rightLeg.hip, CV_RGB(0, 0, 255), 2);
-    drawJoint(outputMat, camInfo.user.rightLeg.knee, CV_RGB(30, 144, 255), 2);
-    drawJoint(outputMat, camInfo.user.rightLeg.foot, CV_RGB(127, 255, 212), 2);
+    //
+    // Draw limbs and joints of the user 2
+    if(camInfo.hasSecondView)
+    {
+        drawLimbsOfUsers(outputMat, camInfo.secondUser, CV_RGB(180, 180, 0), 2);
+        drawJointsOfUser(outputMat, camInfo.secondUser, CV_RGB(0, 0, 255), CV_RGB(0, 0, 100), 2);
+    }
 
     //
     // Right part
@@ -153,10 +168,11 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     std::string textRotation = "???";
 
     // Check if we have the rotation
-    if(camInfo.user.rotation != -1)
+    const int camInfoRotation = camInfo.hasSecondView ? camInfo.averageRotation : camInfo.user.rotation;
+    if(camInfoRotation != -1)
     {
-        guiDialOrientation = camInfo.user.rotation;
-        textRotation = std::to_string(camInfo.user.rotation);
+        guiDialOrientation = camInfoRotation;
+        textRotation = std::to_string(camInfoRotation);
     }
     else
     {
@@ -190,10 +206,11 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     std::string textWalkSpeed = "??";
 
     // Draw vertical line and walk speed value
-    if(camInfo.user.walkSpeed != -1)
+    const int camInfoWalkSpeed = camInfo.hasSecondView ? camInfo.averageWalkSpeed : camInfo.user.walkSpeed;
+    if(camInfoWalkSpeed != -1)
     {
-        guiWalkSpeed = camInfo.user.walkSpeed;
-        textWalkSpeed = std::to_string(camInfo.user.walkSpeed);
+        guiWalkSpeed = camInfoWalkSpeed;
+        textWalkSpeed = std::to_string(camInfoWalkSpeed);
     }
     else
     {

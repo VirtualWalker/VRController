@@ -82,8 +82,8 @@ namespace OpenNIUtil
         // In this case, the second user is set in the first camera information
         bool hasSecondView = false;
         User secondUser;
-        int mixedRotation = -1;
-        int mixedWalkSpeed = -1;
+        int averageRotation = -1;
+        int averageWalkSpeed = -1;
 
         bool invalid = false;
     };

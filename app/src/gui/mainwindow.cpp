@@ -48,6 +48,7 @@ MainWindow::MainWindow(LogBrowser *logBrowser, bool autoStart, const QString& co
     {
         _logBrowser->setParent(this);
         _logDock = new QDockWidget(tr("Console log"), this);
+        _logDock->setObjectName(qPrintable("dock-log"));
         _logDock->setWidget(_logBrowser->widget());
         _logDock->setAllowedAreas(Qt::BottomDockWidgetArea);
         _logDock->setFeatures(QDockWidget::DockWidgetClosable);

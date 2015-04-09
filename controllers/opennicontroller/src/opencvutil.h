@@ -34,6 +34,9 @@ namespace OpenCVUtil
     // Draw a lamb between two joints
     void drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const OpenNIUtil::Joint joint2, const cv::Scalar color, const int res = 1);
 
+    void drawJointsOfUser(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar rightColor, const cv::Scalar leftColor, const int res = 1);
+    void drawLimbsOfUsers(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar color, const int res = 1);
+
     // Draw a text centered relative to the specified point
     void drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,
                           const int &fontFace, const double &fontScale, const cv::Scalar& color,

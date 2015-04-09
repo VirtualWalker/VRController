@@ -193,7 +193,7 @@ OpenNIUtil::CameraInformations OpenNIApplication::lastCamInfo()
 int OpenNIApplication::lastOrientation()
 {
     _lastCamInfoMutex.lock();
-    const int orientation = _lastCamInfo.user.rotation;
+    const int orientation = _lastCamInfo.hasSecondView ? _lastCamInfo.averageRotation : _lastCamInfo.user.rotation;
     _lastCamInfoMutex.unlock();
     return orientation;
 }
@@ -201,7 +201,7 @@ int OpenNIApplication::lastOrientation()
 int OpenNIApplication::lastWalkSpeed()
 {
     _lastCamInfoMutex.lock();
-    const int walkSpeed = _lastCamInfo.user.walkSpeed;
+    const int walkSpeed = _lastCamInfo.hasSecondView ? _lastCamInfo.averageWalkSpeed : _lastCamInfo.user.walkSpeed;
     _lastCamInfoMutex.unlock();
     return walkSpeed;
 }
@@ -502,19 +502,51 @@ XnStatus OpenNIApplication::start()
             _lastCamInfoMutex.unlock();
         }
         else
-        {
-            // This is the rotation of the sensor 2, projected into the sensor 1 image
-            _clockwiseMutex.lock();
-            int projectedRotation2 = _sensorsList[1].camInfo.user.rotation + (90 * _clockwise);
-            _clockwiseMutex.unlock();
+        {      
+            int averageRotation;
+            int averageWalkSpeed;
 
-            if(projectedRotation2 >= 360)
-                projectedRotation2 -= 360;
-            else if(projectedRotation2 < 0)
-                projectedRotation2 = 360 + projectedRotation2;
+            //
+            // Mix rotation
+            //
 
-            int mixedRotation = (_sensorsList[0].camInfo.user.rotation + projectedRotation2) / 2;
-            int mixedWalkSpeed = (_sensorsList[0].camInfo.user.walkSpeed + _sensorsList[1].camInfo.user.walkSpeed) / 2;
+            if(_sensorsList[0].camInfo.user.rotation == -1)
+                averageRotation = _sensorsList[1].camInfo.user.rotation;
+            else if(_sensorsList[1].camInfo.user.rotation == -1)
+                averageRotation = _sensorsList[0].camInfo.user.rotation;
+            else
+            {
+                // This is the rotation of the sensor 2, projected into the sensor 1 image
+                _clockwiseMutex.lock();
+                int projectedRotation2 = _sensorsList[1].camInfo.user.rotation + (90 * _clockwise);
+                _clockwiseMutex.unlock();
+
+                if(projectedRotation2 >= 360)
+                    projectedRotation2 -= 360;
+                else if(projectedRotation2 < 0)
+                    projectedRotation2 = 360 + projectedRotation2;
+
+                // Use coefficients in the average
+                averageRotation = ((_sensorsList[0].camInfo.user.rotation * _sensorsList[0].camInfo.user.rotationConfidence)
+                        + (projectedRotation2 * _sensorsList[1].camInfo.user.rotationConfidence))
+                        / (_sensorsList[0].camInfo.user.rotationConfidence + _sensorsList[1].camInfo.user.rotationConfidence);
+            }
+
+            //
+            // Mix walkSpeed
+            //
+
+            if(_sensorsList[0].camInfo.user.walkSpeed == -1)
+                averageWalkSpeed = _sensorsList[1].camInfo.user.walkSpeed;
+            else if(_sensorsList[1].camInfo.user.walkSpeed == -1)
+                averageWalkSpeed = _sensorsList[0].camInfo.user.walkSpeed;
+            else
+            {
+                averageWalkSpeed = ((_sensorsList[0].camInfo.user.walkSpeed * _sensorsList[0].camInfo.user.walkSpeedConfidence)
+                        + (_sensorsList[1].camInfo.user.walkSpeed) * _sensorsList[1].camInfo.user.walkSpeedConfidence)
+                        / (_sensorsList[0].camInfo.user.walkSpeedConfidence + _sensorsList[1].camInfo.user.walkSpeedConfidence);
+            }
+
 
             _lastCamInfoMutex.lock();
             _lastCamInfo = OpenNIUtil::CameraInformations();
@@ -522,8 +554,8 @@ XnStatus OpenNIApplication::start()
             _lastCamInfo.user = _sensorsList[0].camInfo.user;
             _lastCamInfo.hasSecondView = true;
             _lastCamInfo.secondUser = _sensorsList[1].camInfo.user;
-            _lastCamInfo.mixedRotation = mixedRotation;
-            _lastCamInfo.mixedWalkSpeed = mixedWalkSpeed;
+            _lastCamInfo.averageRotation = averageRotation;
+            _lastCamInfo.averageWalkSpeed = averageWalkSpeed;
             _lastCamInfoMutex.unlock();
         }
 
@@ -548,8 +580,8 @@ OpenNIUtil::Joint OpenNIApplication::createJoint(const XnSkeletonJoint jointType
     {
         // Get the position info
         _sensorsList[sensorID].userGenerator.GetSkeletonCap().GetSkeletonJointPosition(userID, jointType, joint.info);
-        // Get the projectives positions
-        _sensorsList[sensorID].depthGenerator.ConvertRealWorldToProjective(1, &joint.info.position, &joint.projectivePosition);
+        // Get the projectives positions (based on the first depth map)
+        _sensorsList[0].depthGenerator.ConvertRealWorldToProjective(1, &joint.info.position, &joint.projectivePosition);
     }
     return joint;
 }
