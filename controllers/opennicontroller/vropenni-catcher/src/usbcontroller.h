@@ -86,6 +86,7 @@ class USBController: public QObject
             }
 
             XnStatus errorCode = XN_STATUS_OK;
+
             const QString devicePathStr = devicePath.toString();
 
             errorCode = xnUSBOpenDeviceByPath(devicePathStr.toStdString().c_str(), &_dev);

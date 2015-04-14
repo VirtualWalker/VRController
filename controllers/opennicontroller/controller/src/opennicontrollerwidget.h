@@ -21,7 +21,7 @@
 
 #include "opencvwidget.h"
 #include "opencvutil.h"
-#include "openniworker.h"
+#include "openniprocessworker.h"
 
 #include <QSpinBox>
 #include <QThread>
@@ -39,6 +39,7 @@ class OpenNIControllerWidget: public QWidget
 
         int orientationValue() const;
         int walkSpeedValue() const;
+        int specialCode() const;
 
     protected:
         void timerEvent(QTimerEvent *event);
@@ -47,8 +48,7 @@ class OpenNIControllerWidget: public QWidget
 
         OpenCVWidget *_viewer;
 
-        // The worker handle all openni operations inside a separate thread
-        OpenNIWorker *_openniWorker;
+        OpenNIProcessWorker *_openniProcessWorker;
         QThread _openniThread;
 
         QSpinBox *_spinBox1;

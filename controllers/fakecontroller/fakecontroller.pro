@@ -23,6 +23,7 @@
 ########################################
 
 CONTROLLER_NAME = fakecontroller
+APP_PATH = ../../app
 include($$PWD/../controllerscommon.pri)
 
 QT += gui widgets

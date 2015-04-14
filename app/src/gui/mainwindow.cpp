@@ -273,6 +273,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
     if(event->timerId() == _btTimer)
     {
         _numberOfTimerExec++;
+        _numberOfTimerExec2++;
 #ifndef NO_BLUETOOTH
         if(_btMgr == nullptr)
         {
@@ -288,20 +289,30 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
         const int walkSpeed = _controllerPlugin->walkSpeed();
         const int orientation = _controllerPlugin->orientation();
+        int specialCode = _controllerPlugin->specialCode();
 
         // Only send if an orientation and a walkSpeed is detected
-        if(orientation == -1 || walkSpeed == -1)
+        if(orientation == -1 || walkSpeed == -1 || specialCode < 0)
             return;
 
-        // The message contains 3 numbers
+        // Before 3 seconds, send the special code 254
+        if(_numberOfTimerExec2 < _listeningWidget->frequency() * 3)
+            specialCode = 1;
+        // At 3 seconds, send the code 253
+        else if(_numberOfTimerExec2 == _listeningWidget->frequency() * 3)
+            specialCode = 3;
+
+        // The message contains 4 numbers
         // First:  0xFF --> specify that the message begins
         // Second: Walk speed, a number between 0 and 254
         // Third:  Orientation, a number between 0 and 254 (a ratio with the originally 0-360 range)
-        std::uint8_t msg[3];
+        // Fourth: Special code, a number used to send special commands to the game
+        std::uint8_t msg[4];
 
         msg[0] = 0xFF;
         msg[1] = walkSpeed;
         msg[2] = orientation * ORIENTATION_DECREASE_RATIO;
+        msg[3] = specialCode;
 
         // Show the debug message only one time per second
         if(_numberOfTimerExec == _listeningWidget->frequency())
@@ -312,7 +323,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
             _numberOfTimerExec = 0;
         }
 #ifndef NO_BLUETOOTH
-        _btMgr->sendMessage(&msg, 3);
+        _btMgr->sendMessage(&msg, 4);
 #endif
     }
 }

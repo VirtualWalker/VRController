@@ -16,37 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENNICONTROLLER_H
-#define OPENNICONTROLLER_H
+#ifndef OPENNIAPPLICATIONDEFINES_H
+#define OPENNIAPPLICATIONDEFINES_H
 
-#include "ControllerInterface"
+#define DBUS_ROOT_OBJECT "/OpenNIApplication"
 
-#include "opennicontrollerwidget.h"
+#define DBUS_SERVICE_NAME_1 "fr.tjdev.VRController.OpenNIController.First"
+#define DBUS_SERVICE_NAME_2 "fr.tjdev.VRController.OpenNIController.Second"
 
-/**
- * This controller allow the use of the OpenNI SDK to send orientation and walk speed informations
- * to the connected device.
- */
-class OpenNIController: public ControllerInterface
-{
-        Q_OBJECT
-        Q_INTERFACES(ControllerInterface)
-        Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
+#define SHARED_MEM_DEPTH_1 "VRController-OpenNIController-Shared-Memmoty-One"
+#define SHARED_MEM_DEPTH_2 "VRController-OpenNIController-Shared-Memmoty-Two"
 
-    public:
-        explicit OpenNIController(QObject *parent = nullptr);
-        virtual ~OpenNIController();
+#define SHARED_MEM_INFO_1 "VRController-OpenNIController-Shared-Memmoty-One-Info"
+#define SHARED_MEM_INFO_2 "VRController-OpenNIController-Shared-Memmoty-Two-Info"
 
-        void start();
+#define SHARED_MEM_DEPTH_SIZE (2*640*480)
 
-        QWidget *widget();
+#endif // OPENNIAPPLICATIONDEFINES_H
 
-        int orientation();
-        int walkSpeed();
-
-    private:
-
-        OpenNIControllerWidget *_widget;
-};
-
-#endif // OPENNICONTROLLER_H

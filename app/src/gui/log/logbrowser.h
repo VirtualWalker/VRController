@@ -36,9 +36,6 @@ class LogBrowser : public QObject
     public slots:
         void outputMessage(const QString &msg);
 
-    signals:
-        void sendMessage(const QString &msg);
-
     private:
         LogBrowserWidget *_browserWidget;
 

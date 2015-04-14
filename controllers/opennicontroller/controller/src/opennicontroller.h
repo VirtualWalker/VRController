@@ -16,21 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FAKECONTROLLER_H
-#define FAKECONTROLLER_H
+#ifndef OPENNICONTROLLER_H
+#define OPENNICONTROLLER_H
 
 #include "ControllerInterface"
-#include "fakecontrollerwidget.h"
 
-class FakeController: public ControllerInterface
+#include "opennicontrollerwidget.h"
+
+/**
+ * This controller allow the use of the OpenNI SDK to send orientation and walk speed informations
+ * to the connected device.
+ */
+class OpenNIController: public ControllerInterface
 {
         Q_OBJECT
         Q_INTERFACES(ControllerInterface)
         Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
 
     public:
-        explicit FakeController(QObject *parent = nullptr);
-        virtual ~FakeController();
+        explicit OpenNIController(QObject *parent = nullptr);
+        virtual ~OpenNIController();
 
         void start();
 
@@ -42,7 +47,7 @@ class FakeController: public ControllerInterface
 
     private:
 
-        FakeControllerWidget *_widget;
+        OpenNIControllerWidget *_widget;
 };
 
-#endif // FAKECONTROLLER_H
+#endif // OPENNICONTROLLER_H

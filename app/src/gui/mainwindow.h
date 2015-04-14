@@ -102,6 +102,7 @@ class MainWindow : public QMainWindow
         int _btTimer = 0;
         // These variables is used to count the number of executions of the method timerEvent()
         int _numberOfTimerExec = 0;
+        int _numberOfTimerExec2 = 0;
 
         QSettings *_settings;
 };

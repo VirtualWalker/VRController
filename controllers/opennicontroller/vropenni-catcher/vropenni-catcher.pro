@@ -18,41 +18,44 @@
 ##
 #############################################################################
 
-#########################################
-# Controllers common configuration file #
-#########################################
+##################################################################
+# Project file for the separate process used to grab OpenNI data #
+##################################################################
 
-#
-# The plugin must define this variable :
-# - CONTROLLER_NAME (the name used for this controller in lower letters)
-# - APP_PATH (the path to the "app" directory)
-#
+# Default defines
+APPLICATION_TARGET = vropenni-catcher
+APPLICATION_NAME = VROpenNI-Catcher
 
-# Plugin configuration
-TEMPLATE = lib
-CONFIG += dll plugin c++11
+# Add defines to compiler
+DEFINES += "APPLICATION_TARGET=\\\"$${APPLICATION_TARGET}\\\"" \
+    "APPLICATION_NAME=\\\"$${APPLICATION_NAME}\\\""
 
-# Qt modules
-QT += core
-QT -= gui
+# The executable name
+TARGET = $$quote($${APPLICATION_TARGET})
 
-# Output name
-TARGET = $${CONTROLLER_NAME}
+QT += core dbus network
+CONFIG += c++11
+TEMPLATE = app
 
-# Check if we are in a NO_GUI build
-CONFIG(NO_GUI) {
-    DEFINES += NO_GUI
+# Add OpenNI libs
+LIBS += -lOpenNI
+INCLUDEPATH += /usr/include/ni
+DEFINES += linux
+QMAKE_CXXFLAGS += -Wno-unknown-pragmas
+
+# Check for 32 bits systems and add the correct define for OpenNI
+linux-g++-32|linux-g++:!contains($$system(uname -m), x86_64) {
+    DEFINES += i386
 }
 
 BUILD_PATH = build
-BIN_PATH = $${APP_PATH}/bin
+BIN_PATH = ../../../app/bin
 BUILD_STR = debug
 
 CONFIG(debug, debug|release) {
     # Debug
     BUILD_STR = debug
     DEFINES += CORE_DEBUG
-    TARGET = $$join(TARGET,,,d)
     CONFIG += warn_on
 }
 else {
@@ -68,27 +71,24 @@ UI_DIR = $${BUILD_PATH}/$${BUILD_STR}/ui
 MOC_DIR = $${BUILD_PATH}/$${BUILD_STR}/moc
 RCC_DIR = $${BUILD_PATH}/$${BUILD_STR}/rcc
 
-DESTDIR = $${BIN_PATH}/$${BUILD_STR}/controllers
+DESTDIR = $${BIN_PATH}/$${BUILD_STR}
 
-CUSTOM_INCDEP_PATH = \
-    $${_PRO_FILE_PWD_} \
-    $${_PRO_FILE_PWD_}/src \
-    $$PWD/../app/src \
-    $$PWD/../app/src/interfaces \
-    $$PWD/../app/src/commonwidgets
-
-INCLUDEPATH += \
-    $$CUSTOM_INCDEP_PATH
-
-DEPENDPATH += \
-    $$CUSTOM_INCDEP_PATH
-
-HEADERS += \
-    src/$${CONTROLLER_NAME}.h \
-    $${APP_PATH}/src/interfaces/ControllerInterface.h
+DBUS_ADAPTORS += openniapplication.xml
 
 SOURCES += \
-    src/$${CONTROLLER_NAME}.cpp
+    src/openniapplication.cpp \
+    src/main.cpp
 
-OTHER_FILES += \
-    spec.json
+HEADERS += \
+    src/openniapplication.h \
+    src/openniutil.h \
+    src/usbcontroller.h \
+    src/openniworker.h \
+    src/openniapplicationdefines.h
+
+# French translation
+TRANSLATIONS += \
+    $$PWD/i18n/$${APPLICATION_TARGET}_fr.ts
+
+# Add qt-unix-signals files
+include(thirdparty/qt-unix-signals/sigwatch.pri)

@@ -82,6 +82,13 @@ class ControllerInterface: public QObject
         // Must be a number between 0 and 254.
         virtual int walkSpeed() = 0;
 
+        // Return the current special code
+        // - 0: nothing
+        // - 1: init the rotation
+        // - 2: update the rotation with the specified one
+        // - 3: start the game !
+        virtual int specialCode() = 0;
+
         unsigned int dataFrequency() const
         {
             return _dataFrenquency;

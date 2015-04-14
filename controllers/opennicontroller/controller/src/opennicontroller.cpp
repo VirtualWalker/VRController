@@ -17,6 +17,7 @@
  */
 
 #include "opennicontroller.h"
+#include "controllercommon.h"
 
 OpenNIController::OpenNIController(QObject *parent): ControllerInterface(parent)
 {
@@ -50,7 +51,15 @@ int OpenNIController::orientation()
 
 int OpenNIController::walkSpeed()
 {
-    return _widget->walkSpeedValue();
+    const int walkSpeed = _widget->walkSpeedValue();
+    if (walkSpeed*2 > MAX_WALK_SPEED)
+        return MAX_WALK_SPEED;
+    return walkSpeed > MIN_COMPUTED_WALKSPEED ? walkSpeed*2 : 0;
+}
+
+int OpenNIController::specialCode()
+{
+    return _widget->specialCode();
 }
 
 QWidget *OpenNIController::widget()

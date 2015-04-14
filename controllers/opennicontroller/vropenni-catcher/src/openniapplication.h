@@ -25,7 +25,8 @@
 #include <mutex>
 
 #include <QObject>
-#include <QList>
+#include <QSharedMemory>
+
 
 #include "openniutil.h"
 #include "usbcontroller.h"
@@ -39,6 +40,10 @@ struct Sensor
     USBDevicePath cameraPath;
     USBDevicePath motorPath;
 
+    // Tell if the first or the second sensor
+    // Used to set the LED color
+    bool firstSensor;
+
     // Only used if we use a Kinect
     USBController *kinectUSB;
 
@@ -46,6 +51,7 @@ struct Sensor
     xn::UserGenerator userGenerator;
 
     OpenNIUtil::CameraInformations camInfo;
+    OpenNIUtil::DepthMaps depthMaps;
 };
 
 // This class is a bridge between the program and the OpenNI API.
@@ -56,17 +62,17 @@ class OpenNIApplication: public QObject
     public:
         // Nothing is created in the constructor.
         // Please call init() to start the process
-        OpenNIApplication(bool useAKinect = false, bool useTwoSensors = false, QObject *parent = nullptr);
+        OpenNIApplication(int frequency, bool useAKinect, bool firstSensor, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent = nullptr);
         ~OpenNIApplication();
 
         // Check if the app is initialized
-        bool initialized() const;
+        bool isInitialized() const;
 
         // Check if the app is started
-        bool started();
+        bool isStarted();
 
         // Check if the app is stopped
-        bool stopped();
+        bool isStopped();
 
         // Request the stop of the app
         void requestStop();
@@ -82,23 +88,13 @@ class OpenNIApplication: public QObject
         XnStatus start();
 
         // Don't call these functions directly, they are usually called from the Callbacks methods
-        XnStatus startCalibration(const XnUserID userID, const int sensorID);
-        XnStatus startTracking(const XnUserID userID, const int sensorID);
-
-        // Getters
-        OpenNIUtil::CameraInformations lastCamInfo();
-        int lastOrientation();
-        int lastWalkSpeed();
-
-        bool useAKinect() const;
-        int sensorsCount() const;
+        XnStatus startCalibration(const XnUserID userID);
+        XnStatus startTracking(const XnUserID userID);
 
     public slots:
         // These functions are only available if you are using a Kinect sensor
-        void moveToAngle(const int kinectID, const int angle);
-        void setLight(const int kinectID, const USBController::LightType type);
-
-        void setAngleBetweenSensors(bool clockwise);
+        void moveToAngle(const int angle);
+        void setLight(const USBController::LightType type);
 
     private:
 
@@ -110,18 +106,17 @@ class OpenNIApplication: public QObject
         bool _stopped = false;
         std::mutex _stoppedMutex;
 
+        bool _stopRequested = false;
+        std::mutex _stopRequestedMutex;
+
+        int _frequency;
+
         // Tell if we are using a kinect sensor or not
         bool _useAKinect;
+        Sensor _sensor;
 
-        // Sensors count (1 or 2)
-        int _sensorsCount;
-        QList<Sensor> _sensorsList;
-
-        // Tell if the angle between two kinects is clockwise or counterclockwise
-        // 1 --> clockwise
-        // -1 --> counterclockwise
-        int _clockwise = 1;
-        std::mutex _clockwiseMutex;
+        QSharedMemory *_depthMemory;
+        QSharedMemory *_infoMemory;
 
         xn::Context _context;
 
@@ -134,13 +129,7 @@ class OpenNIApplication: public QObject
         XnCallbackHandle _calibrationStartCBHandler;
         XnCallbackHandle _calibrationEndCBHandler;
 
-        bool _stopRequested = false;
-        std::mutex _stopRequestedMutex;
-
-        OpenNIUtil::CameraInformations _lastCamInfo;
-        std::mutex _lastCamInfoMutex;
-
-        OpenNIUtil::Joint createJoint(const XnSkeletonJoint jointType, const XnUserID userID, const int sensorID);
+        OpenNIUtil::Joint createJoint(const XnSkeletonJoint jointType, const XnUserID userID);
 
         // Cleanup all OpenNI objects
         void cleanup();

@@ -18,52 +18,10 @@
 ##
 #############################################################################
 
-##########################################
-# Project file for the OpenNI controller #
-##########################################
+TEMPLATE = subdirs
+CONFIG += ordered
 
-CONTROLLER_NAME = opennicontroller
-include($$PWD/../controllerscommon.pri)
+SUBDIRS += \
+    controller \
+    vropenni-catcher
 
-QT += gui widgets opengl
-
-# Add OpenCV libs
-LIBS += \
-    -lopencv_core \
-    -lopencv_imgproc
-
-INCLUDEPATH += /usr/include/
-
-# Add OpenNI libs
-LIBS += -lOpenNI
-INCLUDEPATH += /usr/include/ni
-DEFINES += linux
-QMAKE_CXXFLAGS += -Wno-unknown-pragmas
-
-# Check for 32 bits systems and add the correct define for OpenNI
-linux-g++-32|linux-g++:!contains($$system(uname -m), x86_64) {
-    DEFINES += i386
-}
-
-SOURCES += \
-    src/opennicontrollerwidget.cpp \
-    src/opencvutil.cpp \
-    src/openniapplication.cpp \
-    src/opencvwidget.cpp
-
-HEADERS += \
-    src/opennicontrollerwidget.h \
-    src/opencvutil.h \
-    src/openniapplication.h \
-    src/opencvwidget.h \
-    src/openniutil.h \
-    ../../app/src/core/utility.h \
-    src/usbcontroller.h \
-    src/openniworker.h
-
-RESOURCES += \
-    $$PWD/$${CONTROLLER_NAME}.qrc
-
-# French translation
-TRANSLATIONS += \
-    $$PWD/i18n/$${CONTROLLER_NAME}_fr.ts

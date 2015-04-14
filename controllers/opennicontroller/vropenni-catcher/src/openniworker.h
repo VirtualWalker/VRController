@@ -20,7 +20,12 @@
 #define OPENNIWORKER
 
 #include <QObject>
+#include <QtDBus/QDBusConnection>
+#include <QDebug>
+
 #include "openniapplication.h"
+#include "openniapplication_adaptor.h"
+#include "openniapplicationdefines.h"
 
 // Used to run the OpenNIApplication in a different thread
 class OpenNIWorker : public QObject
@@ -29,43 +34,28 @@ class OpenNIWorker : public QObject
     private:
         OpenNIApplication *_app = nullptr;
         bool _useAKinect;
-        bool _useTwoSensors;
+        bool _firstSensor;
+        int _frequency;
+        USBDevicePath _camPath;
+        USBDevicePath _motorPath;
 
     public:
-        OpenNIWorker(bool useAKinect = false, bool useTwoSensors = false, QObject *parent = nullptr): QObject(parent)
+        OpenNIWorker(int frequency, bool useAKinect, bool firstSensor, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent = nullptr): QObject(parent)
         {
+            _frequency = frequency;
             _useAKinect = useAKinect;
-            _useTwoSensors = useTwoSensors;
+            _firstSensor = firstSensor;
+            _camPath = camPath;
+            _motorPath = motorPath;
         }
 
         ~OpenNIWorker()
         {
             // Wait for the frame loop stop
-            while(!_app->stopped())
+            while(!_app->isStopped())
             {}
             delete _app;
             _app = nullptr;
-        }
-
-        int orientationValue()
-        {
-            if(_app != nullptr && _app->started())
-                return _app->lastOrientation();
-            return -1;
-        }
-
-        int walkSpeedValue()
-        {
-            if(_app != nullptr && _app->started())
-                return _app->lastWalkSpeed();
-            return -1;
-        }
-
-        OpenNIUtil::CameraInformations camInfo()
-        {
-            if(_app != nullptr && _app->started())
-                return _app->lastCamInfo();
-            return OpenNIUtil::createInvalidCamInfo();
         }
 
         OpenNIApplication* app()
@@ -73,10 +63,9 @@ class OpenNIWorker : public QObject
             return _app;
         }
 
-    public slots:
         void launch()
         {
-            _app = new OpenNIApplication(_useAKinect, _useTwoSensors);
+            _app = new OpenNIApplication(_frequency, _useAKinect, _firstSensor, _camPath, _motorPath);
 
             if(_app->init() != XN_STATUS_OK)
                 requestStop();
@@ -84,10 +73,10 @@ class OpenNIWorker : public QObject
                 requestStop();
         }
 
-        void setMotorAngle(const int kinectID, const int angle)
+        void moveToAngle(int angle)
         {
-            if(_app != nullptr && _app->initialized())
-                _app->moveToAngle(kinectID, angle);
+            if(_app != nullptr && _app->isInitialized())
+                _app->moveToAngle(angle);
         }
 
         void requestStop()
@@ -95,11 +84,30 @@ class OpenNIWorker : public QObject
             if(_app != nullptr)
                 _app->requestStop();
         }
+};
 
-        void setAngleBetweenSensors(bool clockwise)
+// Only used for D-Bus functions
+class OpenNIWorkerAdaptator : public QObject
+{
+        Q_OBJECT
+    private:
+        OpenNIWorker *_worker;
+    signals:
+        void needMotorAngleUpdate(int angle);
+
+    public slots:
+        void moveToAngle(int angle)
         {
-            if(_app != nullptr)
-                _app->setAngleBetweenSensors(clockwise);
+            while(_worker->app() == nullptr || !_worker->app()->isInitialized())
+            {}
+            _worker->app()->moveToAngle(angle);
+        }
+
+    public:
+
+        OpenNIWorkerAdaptator(OpenNIWorker* worker, QObject *parent = nullptr): QObject(parent)
+        {
+            _worker = worker;
         }
 };
 

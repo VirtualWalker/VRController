@@ -44,6 +44,11 @@ int FakeController::walkSpeed()
     return _widget->walkSpeedValue();
 }
 
+int FakeController::specialCode()
+{
+    return 0;
+}
+
 QWidget *FakeController::widget()
 {
     return _widget;

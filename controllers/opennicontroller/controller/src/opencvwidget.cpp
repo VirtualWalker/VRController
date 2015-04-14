@@ -21,7 +21,7 @@
 OpenCVWidget::OpenCVWidget(QWidget *parent): QGLWidget(parent)
 {
     _sceneChanged = false;
-    _bgColor = QColor::fromRgb(150, 150, 150);
+    _bgColor = QColor::fromRgb(10, 10, 10);
 
     _outHeight = 0;
     _outWidth = 0;
@@ -34,12 +34,12 @@ OpenCVWidget::OpenCVWidget(QWidget *parent): QGLWidget(parent)
 void OpenCVWidget::initializeGL()
 {
     makeCurrent();
-    qglClearColor(_bgColor.darker());
+    qglClearColor(_bgColor);
 }
 
 void OpenCVWidget::resizeGL(int width, int height)
 {
-    qglClearColor(_bgColor.darker());
+    qglClearColor(_bgColor);
     glViewport(0, 0, (GLint)width, (GLint)height);
 
     glMatrixMode(GL_PROJECTION);

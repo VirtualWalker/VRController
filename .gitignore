@@ -60,6 +60,12 @@ docgen/
 #Qt transalation files (compiled)
 *.qm
 
+# Qt D-Bus files
+*_adaptor.cpp
+*_adaptor.h
+*_interface.h
+*_interface.cpp
+
 # OS generated files #
 ######################
 .DS_Store?

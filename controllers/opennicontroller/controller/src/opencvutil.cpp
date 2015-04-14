@@ -30,43 +30,49 @@ cv::Point3f OpenCVUtil::pointToCV(const XnVector3D pt)
     return cv::Point3f(pt.X, pt.Y, pt.Z);
 }
 
-cv::Point2i OpenCVUtil::pointTo2DCV(const XnVector3D pt, const int res)
+cv::Point2i OpenCVUtil::pointTo2DCV(const XnVector3D pt, const int offsetX, const int offsetY, const int res)
 {
-    return cv::Point2i(pt.X*res, pt.Y*res);
+    return cv::Point2i(offsetX + pt.X*res, offsetY + pt.Y*res);
 }
 
-void OpenCVUtil::drawJoint(cv::Mat& image, const OpenNIUtil::Joint joint, const cv::Scalar color, const int res)
+void OpenCVUtil::drawJoint(cv::Mat& image, const OpenNIUtil::Joint joint, const cv::Scalar color,
+                           const int offsetX, const int offsetY, const int res)
 {
     if(OpenNIUtil::isJointAcceptable(joint))
-        cv::circle(image, OpenCVUtil::pointTo2DCV(joint.projectivePosition, res), 6*res, color, CV_FILLED);
+        cv::circle(image, OpenCVUtil::pointTo2DCV(joint.projectivePosition, offsetX, offsetY, res),
+                   6*res, color, CV_FILLED);
 }
 
-void OpenCVUtil::drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const OpenNIUtil::Joint joint2, const cv::Scalar color, const int res)
+void OpenCVUtil::drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const OpenNIUtil::Joint joint2, const cv::Scalar color,
+                          const int offsetX, const int offsetY, const int res)
 {
     if(OpenNIUtil::isJointAcceptable(joint1) && OpenNIUtil::isJointAcceptable(joint2))
-        cv::line(image, OpenCVUtil::pointTo2DCV(joint1.projectivePosition, res), OpenCVUtil::pointTo2DCV(joint2.projectivePosition, res), color, 2*res);
+        cv::line(image, OpenCVUtil::pointTo2DCV(joint1.projectivePosition, offsetX, offsetY, res),
+                 OpenCVUtil::pointTo2DCV(joint2.projectivePosition, offsetX, offsetY, res), color, 2*res);
 }
 
-void OpenCVUtil::drawJointsOfUser(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar rightColor, const cv::Scalar leftColor, const int res)
+void OpenCVUtil::drawJointsOfUser(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar rightColor, const cv::Scalar leftColor,
+                                  const int offsetX, const int offsetY, const int res)
 {
-    drawJoint(image, user.leftLeg.hip, leftColor, res);
-    drawJoint(image, user.leftLeg.knee, leftColor, res);
-    drawJoint(image, user.leftLeg.foot, leftColor, res);
+    drawJoint(image, user.leftLeg.hip, leftColor, offsetX, offsetY, res);
+    drawJoint(image, user.leftLeg.knee, leftColor, offsetX, offsetY, res);
+    drawJoint(image, user.leftLeg.foot, leftColor, offsetX, offsetY, res);
 
-    drawJoint(image, user.rightLeg.hip, rightColor, res);
-    drawJoint(image, user.rightLeg.knee, rightColor, res);
-    drawJoint(image, user.rightLeg.foot, rightColor, res);
+    drawJoint(image, user.rightLeg.hip, rightColor, offsetX, offsetY, res);
+    drawJoint(image, user.rightLeg.knee, rightColor, offsetX, offsetY, res);
+    drawJoint(image, user.rightLeg.foot, rightColor, offsetX, offsetY, res);
 }
 
-void OpenCVUtil::drawLimbsOfUsers(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar color, const int res)
+void OpenCVUtil::drawLimbsOfUsers(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar color,
+                                  const int offsetX, const int offsetY, const int res)
 {
-    drawLimb(image, user.leftLeg.hip, user.leftLeg.knee, color, res);
-    drawLimb(image, user.leftLeg.knee, user.leftLeg.foot, color, res);
+    drawLimb(image, user.leftLeg.hip, user.leftLeg.knee, color, offsetX, offsetY, res);
+    drawLimb(image, user.leftLeg.knee, user.leftLeg.foot, color, offsetX, offsetY, res);
 
-    drawLimb(image, user.rightLeg.hip, user.rightLeg.knee, color, res);
-    drawLimb(image, user.rightLeg.knee, user.rightLeg.foot, color, res);
+    drawLimb(image, user.rightLeg.hip, user.rightLeg.knee, color, offsetX, offsetY, res);
+    drawLimb(image, user.rightLeg.knee, user.rightLeg.foot, color, offsetX, offsetY, res);
 
-    drawLimb(image, user.leftLeg.hip, user.rightLeg.hip, color, res);
+    drawLimb(image, user.leftLeg.hip, user.rightLeg.hip, color, offsetX, offsetY, res);
 }
 
 void OpenCVUtil::drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,
@@ -79,10 +85,42 @@ void OpenCVUtil::drawTextCentered(cv::Mat& image, const std::string& text, const
     cv::putText(image, text, origin, fontFace, fontScale, color, thickness);
 }
 
-#define LEFT_PART_WIDTH (640*2)
-#define RIGHT_PART_WIDTH (400*2)
+// The image type must be CV_8UC3
+void OpenCVUtil::drawDepthMap(cv::Mat &image, XnDepthPixel* depthMap,
+                              const int startX, const int startY, const int res)
+{
+    const int depthMapWidth = 640 * res;
+    const int depthMapHeight = 480 * res;
+
+    XnDepthPixel* depthData = depthMap;
+
+    uint8_t* pixelPtr = (uint8_t*)image.data;
+    for(int r=startY; r < startY + depthMapHeight; r += res)
+    {
+        for(int c=startX; c < startX + depthMapWidth; c += res)
+        {
+            const uint16_t realColor = (*depthData) * DEPTH_IMAGE_RATIO;
+            const uint8_t color = realColor > UINT8_MAX ? UINT8_MAX : realColor;
+
+            for(int i=0; i < res; ++i)
+            {
+                for(int j=0; j < res; ++j)
+                {
+                    pixelPtr[(r+i)*image.cols*3 + (c+j)*3] = color;
+                    pixelPtr[(r+i)*image.cols*3 + (c+j)*3 + 1] = color;
+                    pixelPtr[(r+i)*image.cols*3 + (c+j)*3 + 2] = color;
+                }
+            }
+            depthData++;
+        }
+    }
+}
+
+#define IMG_RES 2
+#define LEFT_PART_WIDTH (640*IMG_RES)
+#define RIGHT_PART_WIDTH (400*IMG_RES)
 #define IMG_WIDTH (LEFT_PART_WIDTH + RIGHT_PART_WIDTH)
-#define IMG_HEIGHT (480*2)
+#define IMG_HEIGHT (480*IMG_RES)
 
 #define FONT_FACE cv::FONT_HERSHEY_DUPLEX
 #define ROT_FONTSCALE 4
@@ -106,54 +144,45 @@ static int guiWalkSpeedIncrease = 5;
 // There is two parts in the image:
 // - left part with the depth data and skeleton
 // - right part with some informations
-cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
+cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenNIUtil::DepthMaps depthMaps)
 {
     const cv::Scalar backColor = CV_RGB(10,10,10);
     cv::Mat outputMat = cv::Mat(IMG_HEIGHT, IMG_WIDTH, CV_8UC3, backColor);
-    uint8_t* pixelPtr = (uint8_t*)outputMat.data;
 
     //
     // Left part
+    // (with all depth maps)
     //
 
-    // Draw depth map
-    const XnDepthPixel* depthData = camInfo.depthData;
-    for(int r=0; r < IMG_HEIGHT; r+=2)
+    // Draw a large depth map if there is only one sensor
+    if(!camInfo.hasSecondView)
     {
-        for(int c=0; c < LEFT_PART_WIDTH; c+=2)
-        {
-            const uint16_t realColor = *depthData * DEPTH_IMAGE_RATIO;
-            const uint8_t color = realColor > UINT8_MAX ? UINT8_MAX : realColor;
+        drawDepthMap(outputMat, depthMaps.depthData, 0, 0, IMG_RES);
 
-            pixelPtr[r*IMG_WIDTH*3 + c*3] = color;
-            pixelPtr[r*IMG_WIDTH*3 + c*3 + 1] = color;
-            pixelPtr[r*IMG_WIDTH*3 + c*3 + 2] = color;
-
-            pixelPtr[r*IMG_WIDTH*3 + (c+1)*3] = color;
-            pixelPtr[r*IMG_WIDTH*3 + (c+1)*3 + 1] = color;
-            pixelPtr[r*IMG_WIDTH*3 + (c+1)*3 + 2] = color;
-
-            pixelPtr[(r+1)*IMG_WIDTH*3 + c*3] = color;
-            pixelPtr[(r+1)*IMG_WIDTH*3 + c*3 + 1] = color;
-            pixelPtr[(r+1)*IMG_WIDTH*3 + c*3 + 2] = color;
-
-            pixelPtr[(r+1)*IMG_WIDTH*3 + (c+1)*3] = color;
-            pixelPtr[(r+1)*IMG_WIDTH*3 + (c+1)*3 + 1] = color;
-            pixelPtr[(r+1)*IMG_WIDTH*3 + (c+1)*3 + 2] = color;
-
-            depthData++;
-        }
+        drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, IMG_RES);
+        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(100, 0, 0), 0, 0, IMG_RES);
     }
-
-    drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 2);
-    drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(100, 0, 0), 2);
-
-    //
-    // Draw limbs and joints of the user 2
-    if(camInfo.hasSecondView)
+    else
     {
-        drawLimbsOfUsers(outputMat, camInfo.secondUser, CV_RGB(180, 180, 0), 2);
-        drawJointsOfUser(outputMat, camInfo.secondUser, CV_RGB(0, 0, 255), CV_RGB(0, 0, 100), 2);
+        // First sensor
+        drawDepthMap(outputMat, depthMaps.depthData, 0, 0, 1);
+
+        drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, 1);
+        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(100, 0, 0), 0, 0, 1);
+
+        std::string rotText1 = std::to_string(camInfo.user.rotation);
+        drawTextCentered(outputMat, rotText1, cv::Point(640 + 640/2, 480/2), FONT_FACE, ROT_FONTSCALE, COLOR_1, ROT_THICKNESS);
+
+        // Second sensor
+        drawDepthMap(outputMat, depthMaps.secondDepthData, 640, 480, 1);
+
+        drawLimbsOfUsers(outputMat, camInfo.secondUser, CV_RGB(180, 180, 0), 640, 480, 1);
+        drawJointsOfUser(outputMat, camInfo.secondUser, CV_RGB(0, 0, 255), CV_RGB(0, 0, 100), 640, 480, 1);
+
+        std::string rotText2 = std::to_string(camInfo.secondUser.rotation);
+        rotText2 += "/";
+        rotText2 += std::to_string(camInfo.secondRotationProjected);
+        drawTextCentered(outputMat, rotText2, cv::Point(640/2, 480 + 480/2), FONT_FACE, 3, COLOR_1, ROT_THICKNESS);
     }
 
     //

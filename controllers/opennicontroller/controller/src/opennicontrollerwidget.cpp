@@ -49,7 +49,7 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
     _spinBox1->setSuffix("°");
     _spinBox1->setValue(0);
     connect(_spinBox1, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this](int angle){
-        _openniWorker->setMotorAngle(0, angle);
+        _openniProcessWorker->setMotorAngle(0, angle);
     });
 
     QFormLayout *layoutSensor1 = new QFormLayout();
@@ -63,7 +63,7 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
         _spinBox2->setSuffix("°");
         _spinBox2->setValue(0);
         connect(_spinBox2, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this](int angle){
-            _openniWorker->setMotorAngle(1, angle);
+            _openniProcessWorker->setMotorAngle(1, angle);
         });
 
         QFormLayout *layoutSensor2 = new QFormLayout();
@@ -77,7 +77,7 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
         _angleButtonGroup->addButton(_clockwiseButton, CLOCKWISE_BUTTON_ID);
         _angleButtonGroup->addButton(_counterclockwiseButton, COUNTERCLOCKWISE_BUTTON_ID);
         connect(_angleButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [this](int id){
-            _openniWorker->setAngleBetweenSensors(id == CLOCKWISE_BUTTON_ID);
+            _openniProcessWorker->setAngleBetweenSensors(id == CLOCKWISE_BUTTON_ID);
         });
 
         QHBoxLayout *clockwiseLayout = new QHBoxLayout();
@@ -89,12 +89,12 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
         mainLayout->addLayout(clockwiseFormLayout);
     }
 
-    _openniWorker = new OpenNIWorker(useAKinect, _useTwoSensors);
+    _openniProcessWorker = new OpenNIProcessWorker(frequency, useAKinect, _useTwoSensors);
 
-    connect(&_openniThread, &QThread::finished, _openniWorker, &QObject::deleteLater);
-    connect(&_openniThread, &QThread::started, _openniWorker, &OpenNIWorker::launch);
+    connect(&_openniThread, &QThread::finished, _openniProcessWorker, &QObject::deleteLater);
+    connect(&_openniThread, &QThread::started, _openniProcessWorker, &OpenNIProcessWorker::launch);
 
-    _openniWorker->moveToThread(&_openniThread);
+    _openniProcessWorker->moveToThread(&_openniThread);
     _openniThread.start();
 
     // Start a timer
@@ -103,7 +103,7 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
 
 OpenNIControllerWidget::~OpenNIControllerWidget()
 {
-    _openniWorker->requestStop();
+    _openniProcessWorker->requestStop();
     _openniThread.quit();
     _openniThread.wait();
 }
@@ -111,12 +111,17 @@ OpenNIControllerWidget::~OpenNIControllerWidget()
 // Getters
 int OpenNIControllerWidget::orientationValue() const
 {
-    return _openniWorker->orientationValue();
+    return _openniProcessWorker->orientationValue();
 }
 
 int OpenNIControllerWidget::walkSpeedValue() const
 {
-    return _openniWorker->walkSpeedValue();
+    return _openniProcessWorker->walkSpeedValue();
+}
+
+int OpenNIControllerWidget::specialCode() const
+{
+
 }
 
 // Re-implemented protected method
@@ -125,10 +130,11 @@ void OpenNIControllerWidget::timerEvent(QTimerEvent *event)
     if(event->timerId() == _timerID)
     {
         // Output the image
-        OpenNIUtil::CameraInformations camInfo = _openniWorker->camInfo();
-        if(!camInfo.invalid)
+        OpenNIUtil::CameraInformations camInfo = _openniProcessWorker->cameraInformations();
+        OpenNIUtil::DepthMaps depthMaps = _openniProcessWorker->depthMaps();
+        if(!camInfo.invalid && !depthMaps.invalid)
         {
-            cv::Mat image = OpenCVUtil::drawOpenNIData(camInfo);
+            cv::Mat image = OpenCVUtil::drawOpenNIData(camInfo, depthMaps);
             _viewer->showImage(image);
         }
     }

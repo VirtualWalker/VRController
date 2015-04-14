@@ -222,123 +222,123 @@ Impossible de les sauvegardez !</translation>
         <translation>Journal d&apos;évènements</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="93"/>
+        <location filename="../src/gui/mainwindow.cpp" line="94"/>
         <source>UUID used for the SDP service: %1</source>
         <translation>UUID utilisé par le service SDP: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="94"/>
+        <location filename="../src/gui/mainwindow.cpp" line="95"/>
         <source>Start listening on channel %1.</source>
         <translation>Début de l&apos;écoute sur le canal %1.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="99"/>
+        <location filename="../src/gui/mainwindow.cpp" line="100"/>
         <source>RFCOMM channel has been auto-generated to %1.</source>
         <translation>Le canal RFCOMM a été auto-généré sur %1.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="136"/>
+        <location filename="../src/gui/mainwindow.cpp" line="137"/>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="139"/>
+        <location filename="../src/gui/mainwindow.cpp" line="140"/>
         <source>&amp;Exit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="143"/>
+        <location filename="../src/gui/mainwindow.cpp" line="144"/>
         <source>&amp;Reboot</source>
         <translation>&amp;Redémarrer</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="146"/>
+        <location filename="../src/gui/mainwindow.cpp" line="147"/>
         <source>Rebooting the application ...</source>
         <translation>Redémarage de l&apos;application ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="159"/>
+        <location filename="../src/gui/mainwindow.cpp" line="160"/>
         <source>&amp;Log</source>
         <translation>&amp;Journal</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="164"/>
-        <location filename="../src/gui/mainwindow.cpp" line="167"/>
+        <location filename="../src/gui/mainwindow.cpp" line="165"/>
+        <location filename="../src/gui/mainwindow.cpp" line="168"/>
         <source>&amp;About</source>
         <translation>A &amp;propos</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="171"/>
+        <location filename="../src/gui/mainwindow.cpp" line="172"/>
         <source>About &amp;Qt</source>
         <translation>A propos de &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="184"/>
+        <location filename="../src/gui/mainwindow.cpp" line="185"/>
         <source>State: %1</source>
         <translation>État: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="185"/>
+        <location filename="../src/gui/mainwindow.cpp" line="186"/>
         <source>State changed ! New state: %1</source>
         <translation>Changement d&apos;état ! Nouvel état: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="191"/>
+        <location filename="../src/gui/mainwindow.cpp" line="192"/>
         <source>Connected to %1 on channel %2.</source>
         <translation>Connecté à %1 sur le canal %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="195"/>
+        <location filename="../src/gui/mainwindow.cpp" line="196"/>
         <source>Show the selected controller ...</source>
         <translation>Affichage du contrôleur spécifié ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="199"/>
+        <location filename="../src/gui/mainwindow.cpp" line="200"/>
         <source>Start sending data %1 times per second.</source>
         <translation>Début de l&apos;envoi de données %1 fois par seconde.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="200"/>
+        <location filename="../src/gui/mainwindow.cpp" line="201"/>
         <source>Output Bluetooth data in the console every second ...</source>
         <translation>Affichage des données Bluetooth dans la console toutes les secondes ...</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="215"/>
+        <location filename="../src/gui/mainwindow.cpp" line="216"/>
         <source>Error: %1</source>
         <translation>Erreur: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="218"/>
+        <location filename="../src/gui/mainwindow.cpp" line="219"/>
         <source>Bluetooth error: %1 (error code: %2)</source>
         <translation>Erreur bluetooth: %1 (code: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="221"/>
+        <location filename="../src/gui/mainwindow.cpp" line="222"/>
         <source>Error detail: %1 (errno value: %2)</source>
         <translation>Détail de l&apos;erreur: %1 (valeur de errno: %2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="239"/>
+        <location filename="../src/gui/mainwindow.cpp" line="240"/>
         <source>Auto starting the application.</source>
         <translation>Lancement automatique de l&apos;application.</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="266"/>
+        <location filename="../src/gui/mainwindow.cpp" line="267"/>
         <source>Connected to device %1 on channel %2</source>
         <translation>Connecté au périphérique %1 sur le cannal %2</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="278"/>
+        <location filename="../src/gui/mainwindow.cpp" line="280"/>
         <source>The bluetooth manager is not created !</source>
         <translation>Le gestionnaire bluetooth n&apos;a pas été créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="284"/>
+        <location filename="../src/gui/mainwindow.cpp" line="286"/>
         <source>The controller is not created !</source>
         <translation>Le contrôleur n&apos;est pas créé !</translation>
     </message>
     <message>
-        <location filename="../src/gui/mainwindow.cpp" line="310"/>
+        <location filename="../src/gui/mainwindow.cpp" line="322"/>
         <source>Send message: speed=%1 orientation=%2 (real orientation: %3)</source>
         <translation>Envoi d&apos;un message: vitesse=%1 orientation=%2 (orientation réelle: %3)</translation>
     </message>
@@ -346,50 +346,58 @@ Impossible de les sauvegardez !</translation>
 <context>
     <name>QCoreApplication</name>
     <message>
-        <location filename="../src/main.cpp" line="137"/>
+        <location filename="../src/main.cpp" line="172"/>
         <source>Simple application that allow the control of an Android VR app with the Bluetooth and a 3D depth sensor.</source>
         <translation>Application permettant le contrôle d&apos;un jeu de réalité augmentée sur Android via Bluetooth (et à l&apos;aide d&apos;un capteur de profondeur 3D comme la Kinect).</translation>
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <location filename="../src/main.cpp" line="63"/>
+        <source>From %1: %2</source>
+        <translation>Depuis %1: %2</translation>
+    </message>
+</context>
+<context>
     <name>options</name>
     <message>
-        <location filename="../src/main.cpp" line="141"/>
+        <location filename="../src/main.cpp" line="176"/>
         <source>Auto start the bluetooth listening (don&apos;t wait for the user click).</source>
         <translation>Lancer automatiquement l&apos;écoute Bluetooth.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="142"/>
+        <location filename="../src/main.cpp" line="177"/>
         <source>The controller &lt;controller-name&gt; will be used.</source>
         <translation>Le contrôlleur &lt;controlleur-voulu&gt; sera utilisé.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="142"/>
+        <location filename="../src/main.cpp" line="177"/>
         <source>controller-name</source>
         <translation>controlleur-voulu</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="143"/>
+        <location filename="../src/main.cpp" line="178"/>
         <source>The Bluetooth engine will listen on the specified &lt;port-number&gt;. The &lt;port-number&gt; must be in range 1-30. Set to 0 if you want to select the first available.</source>
         <translation>Le gestionnaire Bluetooth écoutera sur le port &lt;port-voulu&gt;. Le &lt;port-voulu&gt; doit être compris entre 1 et 30. Mettez-le à 0 pour choisir le premier disponible.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="143"/>
+        <location filename="../src/main.cpp" line="178"/>
         <source>port-number</source>
         <translation>port-voulu</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="144"/>
+        <location filename="../src/main.cpp" line="179"/>
         <source>Frequency for emitting data to the bluetooth device (number of data per second)</source>
         <translation>Spécifie la fréquence d&apos;envoi des données Bluetooth (nombre d&apos;envoi par seconde)</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="144"/>
+        <location filename="../src/main.cpp" line="179"/>
         <source>number-per-second</source>
         <translation>nombre-par-seconde</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="145"/>
+        <location filename="../src/main.cpp" line="180"/>
         <source>Don&apos;t show the log console in the bottom of the window.</source>
         <translation>Ne pas afficher la console d&apos;informations au bas de la fenêtre.</translation>
     </message>

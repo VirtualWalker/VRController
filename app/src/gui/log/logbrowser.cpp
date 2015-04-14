@@ -22,7 +22,6 @@ LogBrowser::LogBrowser(QObject *parent): QObject(parent)
 {
     _browserWidget = new LogBrowserWidget();
     _browserWidget->setShowDate(true);
-    connect(this, &LogBrowser::sendMessage, _browserWidget, &LogBrowserWidget::outputMessage, Qt::QueuedConnection);
     _browserWidget->show();
 }
 
@@ -38,5 +37,5 @@ LogBrowserWidget* LogBrowser::widget()
 
 void LogBrowser::outputMessage(const QString &msg)
 {
-    emit sendMessage(msg);
+    QMetaObject::invokeMethod(_browserWidget, "outputMessage", Q_ARG(QString, msg));
 }

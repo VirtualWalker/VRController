@@ -22,7 +22,13 @@
 #include <ni/XnTypes.h>
 #include <cmath>
 
-#include "controllercommon.h"
+#include <QVector>
+
+#define PI 3.14159265358979323846
+#define RAD2DEG (180.0/PI)
+
+#define DEPTH_MAP_LENGTH (640*480)
+#define MIN_COMPUTED_WALKSPEED 35
 
 // Contains some structures for OpenNI data
 namespace OpenNIUtil
@@ -70,20 +76,34 @@ namespace OpenNIUtil
         // Represent the confidence we have in the current walk speed
         // In normal conditions, should be in range 6.5536 - 16
         XnConfidence walkSpeedConfidence = -1.0f;
+
+        // Summary the number of frames since the last move
+        int numberOfFramesWithoutMove = 0;
     };
 
+    // Only contaisn informations about the users
+    // Depth map are stored separately
     struct CameraInformations
     {
-        // The depth map (values are in mm)
-        const XnDepthPixel* depthData;
         User user;
 
         // Tell if we are using two sensors
-        // In this case, the second user is set in the first camera information
         bool hasSecondView = false;
+
         User secondUser;
+        int secondRotationProjected = -1;
         int averageRotation = -1;
         int averageWalkSpeed = -1;
+
+        bool invalid = false;
+    };
+
+    struct DepthMaps
+    {
+        // The depth map (values are in mm)
+        XnDepthPixel *depthData = nullptr;
+        // Only set if there is a second user
+        XnDepthPixel *secondDepthData = nullptr;
 
         bool invalid = false;
     };
@@ -95,13 +115,20 @@ namespace OpenNIUtil
         return camInfo;
     }
 
+    inline DepthMaps createInvalidDepthMaps()
+    {
+        DepthMaps maps;
+        maps.invalid = true;
+        return maps;
+    }
+
     inline bool isJointAcceptable(const Joint joint)
     {
         return joint.isActive && joint.info.fConfidence >= 0.6;
     }
 
     // The previous rotation parameter is used to avoid big differences between two rotation
-    inline float rotationFrom2Joints(const Joint rightJoint, const Joint leftJoint, float previousRotation, XnConfidence *resultConfidence)
+    inline float rotationFrom2Joints(const int frequency, const Joint rightJoint, const Joint leftJoint, float previousRotation, XnConfidence *resultConfidence)
     {
         if(isJointAcceptable(rightJoint) && isJointAcceptable(leftJoint))
         {
@@ -165,18 +192,20 @@ namespace OpenNIUtil
                         previousRotation += 360.0f;
                 }
 
+                const float margin = (1.0f/frequency) * 70.0f;
+
                 const float diffRotation = rotation - previousRotation;
-                if(std::abs(diffRotation) > 10.0f)
+                if(std::abs(diffRotation) > margin)
                 {
                     // If new rotation is higher
                     if(diffRotation > 0.0f)
                     {
-                        rotation = previousRotation + 10.0f;
+                        rotation = previousRotation + margin;
                     }
                     // If new rotation is lower
                     else
                     {
-                        rotation = previousRotation - 10.0f;
+                        rotation = previousRotation - margin;
                     }
                 }
 
