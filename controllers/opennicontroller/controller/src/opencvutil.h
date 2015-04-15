@@ -36,7 +36,8 @@ namespace OpenCVUtil
     void drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const OpenNIUtil::Joint joint2, const cv::Scalar color,
                   const int offsetX = 0, const int offsetY = 0, const int res = 1);
 
-    void drawJointsOfUser(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar rightColor, const cv::Scalar leftColor,
+    void drawJointsOfUser(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar rightColor,
+                          const cv::Scalar leftColor, const cv::Scalar centerColor,
                           const int offsetX = 0, const int offsetY = 0, const int res = 1);
     void drawLimbsOfUsers(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar color,
                           const int offsetX = 0, const int offsetY = 0, const int res = 1);

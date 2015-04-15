@@ -121,7 +121,7 @@ int OpenNIControllerWidget::walkSpeedValue() const
 
 int OpenNIControllerWidget::specialCode() const
 {
-
+    return _openniProcessWorker->specialCode();
 }
 
 // Re-implemented protected method

@@ -39,7 +39,7 @@ void OpenCVUtil::drawJoint(cv::Mat& image, const OpenNIUtil::Joint joint, const 
                            const int offsetX, const int offsetY, const int res)
 {
     if(OpenNIUtil::isJointAcceptable(joint))
-        cv::circle(image, OpenCVUtil::pointTo2DCV(joint.projectivePosition, offsetX, offsetY, res),
+        cv::circle(image, OpenCVUtil::pointTo2DCV(joint.projectivePos, offsetX, offsetY, res),
                    6*res, color, CV_FILLED);
 }
 
@@ -47,32 +47,45 @@ void OpenCVUtil::drawLimb(cv::Mat& image, const OpenNIUtil::Joint joint1, const 
                           const int offsetX, const int offsetY, const int res)
 {
     if(OpenNIUtil::isJointAcceptable(joint1) && OpenNIUtil::isJointAcceptable(joint2))
-        cv::line(image, OpenCVUtil::pointTo2DCV(joint1.projectivePosition, offsetX, offsetY, res),
-                 OpenCVUtil::pointTo2DCV(joint2.projectivePosition, offsetX, offsetY, res), color, 2*res);
+        cv::line(image, OpenCVUtil::pointTo2DCV(joint1.projectivePos, offsetX, offsetY, res),
+                 OpenCVUtil::pointTo2DCV(joint2.projectivePos, offsetX, offsetY, res), color, 2*res);
 }
 
-void OpenCVUtil::drawJointsOfUser(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar rightColor, const cv::Scalar leftColor,
+void OpenCVUtil::drawJointsOfUser(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar rightColor,
+                                  const cv::Scalar leftColor, const cv::Scalar centerColor,
                                   const int offsetX, const int offsetY, const int res)
 {
-    drawJoint(image, user.leftLeg.hip, leftColor, offsetX, offsetY, res);
-    drawJoint(image, user.leftLeg.knee, leftColor, offsetX, offsetY, res);
-    drawJoint(image, user.leftLeg.foot, leftColor, offsetX, offsetY, res);
+    drawJoint(image, user.leftPart.hip, leftColor, offsetX, offsetY, res);
+    drawJoint(image, user.leftPart.knee, leftColor, offsetX, offsetY, res);
+    drawJoint(image, user.leftPart.foot, leftColor, offsetX, offsetY, res);
+    drawJoint(image, user.leftPart.shoulder, leftColor, offsetX, offsetY, res);
 
-    drawJoint(image, user.rightLeg.hip, rightColor, offsetX, offsetY, res);
-    drawJoint(image, user.rightLeg.knee, rightColor, offsetX, offsetY, res);
-    drawJoint(image, user.rightLeg.foot, rightColor, offsetX, offsetY, res);
+    drawJoint(image, user.rightPart.hip, rightColor, offsetX, offsetY, res);
+    drawJoint(image, user.rightPart.knee, rightColor, offsetX, offsetY, res);
+    drawJoint(image, user.rightPart.foot, rightColor, offsetX, offsetY, res);
+    drawJoint(image, user.rightPart.shoulder, rightColor, offsetX, offsetY, res);
+
+    drawJoint(image, user.torsoJoint, centerColor, offsetX, offsetY, res);
 }
 
 void OpenCVUtil::drawLimbsOfUsers(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar color,
                                   const int offsetX, const int offsetY, const int res)
 {
-    drawLimb(image, user.leftLeg.hip, user.leftLeg.knee, color, offsetX, offsetY, res);
-    drawLimb(image, user.leftLeg.knee, user.leftLeg.foot, color, offsetX, offsetY, res);
+    drawLimb(image, user.leftPart.hip, user.leftPart.knee, color, offsetX, offsetY, res);
+    drawLimb(image, user.leftPart.knee, user.leftPart.foot, color, offsetX, offsetY, res);
 
-    drawLimb(image, user.rightLeg.hip, user.rightLeg.knee, color, offsetX, offsetY, res);
-    drawLimb(image, user.rightLeg.knee, user.rightLeg.foot, color, offsetX, offsetY, res);
+    drawLimb(image, user.rightPart.hip, user.rightPart.knee, color, offsetX, offsetY, res);
+    drawLimb(image, user.rightPart.knee, user.rightPart.foot, color, offsetX, offsetY, res);
 
-    drawLimb(image, user.leftLeg.hip, user.rightLeg.hip, color, offsetX, offsetY, res);
+    drawLimb(image, user.leftPart.hip, user.rightPart.hip, color, offsetX, offsetY, res);
+
+    drawLimb(image, user.leftPart.hip, user.torsoJoint, color, offsetX, offsetY, res);
+    drawLimb(image, user.torsoJoint, user.leftPart.shoulder, color, offsetX, offsetY, res);
+
+    drawLimb(image, user.rightPart.hip, user.torsoJoint, color, offsetX, offsetY, res);
+    drawLimb(image, user.torsoJoint, user.rightPart.shoulder, color, offsetX, offsetY, res);
+
+    drawLimb(image, user.leftPart.shoulder, user.rightPart.shoulder, color, offsetX, offsetY, res);
 }
 
 void OpenCVUtil::drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,
@@ -160,7 +173,7 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenN
         drawDepthMap(outputMat, depthMaps.depthData, 0, 0, IMG_RES);
 
         drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, IMG_RES);
-        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(100, 0, 0), 0, 0, IMG_RES);
+        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(0, 0, 255), CV_RGB(120, 0, 0), 0, 0, IMG_RES);
     }
     else
     {
@@ -168,7 +181,7 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenN
         drawDepthMap(outputMat, depthMaps.depthData, 0, 0, 1);
 
         drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, 1);
-        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(100, 0, 0), 0, 0, 1);
+        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(120, 0, 0), CV_RGB(80, 0, 0), 0, 0, 1);
 
         std::string rotText1 = std::to_string(camInfo.user.rotation);
         drawTextCentered(outputMat, rotText1, cv::Point(640 + 640/2, 480/2), FONT_FACE, ROT_FONTSCALE, COLOR_1, ROT_THICKNESS);
@@ -177,7 +190,7 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenN
         drawDepthMap(outputMat, depthMaps.secondDepthData, 640, 480, 1);
 
         drawLimbsOfUsers(outputMat, camInfo.secondUser, CV_RGB(180, 180, 0), 640, 480, 1);
-        drawJointsOfUser(outputMat, camInfo.secondUser, CV_RGB(0, 0, 255), CV_RGB(0, 0, 100), 640, 480, 1);
+        drawJointsOfUser(outputMat, camInfo.secondUser, CV_RGB(0, 0, 255), CV_RGB(0, 0, 120), CV_RGB(0, 0, 80), 640, 480, 1);
 
         std::string rotText2 = std::to_string(camInfo.secondUser.rotation);
         rotText2 += "/";

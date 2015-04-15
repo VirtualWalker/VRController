@@ -21,12 +21,9 @@
 
 #include <QString>
 #include <QDebug>
-#include <QProcess>
-#include <QByteArray>
-#include <QDataStream>
 
 #include <chrono>
-#include <cstring>
+#include <cmath>
 
 // These defines are used to avoid to much code repetition
 #define CHECK_ERROR(retVal, what)                                                                                                                  \
@@ -346,28 +343,30 @@ XnStatus OpenNIApplication::start()
 
             user.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
-            user.leftLeg.hip = createJoint(XN_SKEL_LEFT_HIP, user.id);
-            user.leftLeg.knee = createJoint(XN_SKEL_LEFT_KNEE, user.id);
-            user.leftLeg.foot = createJoint(XN_SKEL_LEFT_FOOT, user.id);
-            user.rightLeg.hip = createJoint(XN_SKEL_RIGHT_HIP, user.id);
-            user.rightLeg.knee = createJoint(XN_SKEL_RIGHT_KNEE, user.id);
-            user.rightLeg.foot = createJoint(XN_SKEL_RIGHT_FOOT, user.id);
+            user.leftPart.hip = createJoint(XN_SKEL_LEFT_HIP, user.id);
+            user.leftPart.knee = createJoint(XN_SKEL_LEFT_KNEE, user.id);
+            user.leftPart.foot = createJoint(XN_SKEL_LEFT_FOOT, user.id);
+            user.leftPart.shoulder = createJoint(XN_SKEL_LEFT_SHOULDER, user.id);
+            user.rightPart.hip = createJoint(XN_SKEL_RIGHT_HIP, user.id);
+            user.rightPart.knee = createJoint(XN_SKEL_RIGHT_KNEE, user.id);
+            user.rightPart.foot = createJoint(XN_SKEL_RIGHT_FOOT, user.id);
+            user.rightPart.shoulder = createJoint(XN_SKEL_RIGHT_SHOULDER, user.id);
 
-            user.previousLeftLeg = previousUser.leftLeg;
-            user.previousRightLeg = previousUser.rightLeg;
+            user.torsoJoint = createJoint(XN_SKEL_TORSO, user.id);
 
-            // To compute the rotation of the player, we use the hip joints
-            user.rotation = static_cast<int>(OpenNIUtil::rotationFrom2Joints(_frequency, user.rightLeg.hip, user.leftLeg.hip, previousUser.rotation, &user.rotationConfidence));
+            user.previousLeftPart = previousUser.leftPart;
+            user.previousRightPart = previousUser.rightPart;
+
+            OpenNIUtil::rotationForUser(_frequency, previousUser.rotation, &user);
 
             // Only compute the walk speed if we are not in the first frame
             if(!firstLoop)
             {
-                user.walkSpeed = OpenNIUtil::walkSpeedForUser(user, previousUser.timestamp, previousUser.walkSpeed, &user.walkSpeedConfidence);
+                user.walkSpeed = OpenNIUtil::walkSpeedForUser(_frequency, user, previousUser.timestamp, previousUser.walkSpeed, &user.walkSpeedConfidence);
                 if(previousUser.walkSpeed != -1 && previousUser.walkSpeed <= MIN_COMPUTED_WALKSPEED)
                     user.numberOfFramesWithoutMove = previousUser.numberOfFramesWithoutMove + 1;
                 else
                     user.numberOfFramesWithoutMove = 0;
-
             }
         }
         else
@@ -419,7 +418,7 @@ OpenNIUtil::Joint OpenNIApplication::createJoint(const XnSkeletonJoint jointType
         // Get the position info
         _sensor.userGenerator.GetSkeletonCap().GetSkeletonJointPosition(userID, jointType, joint.info);
         // Get the projectives positions
-        _sensor.depthGenerator.ConvertRealWorldToProjective(1, &joint.info.position, &joint.projectivePosition);
+        _sensor.depthGenerator.ConvertRealWorldToProjective(1, &joint.info.position, &joint.projectivePos);
     }
     return joint;
 }

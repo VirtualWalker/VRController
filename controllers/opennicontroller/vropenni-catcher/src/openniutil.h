@@ -23,12 +23,13 @@
 #include <cmath>
 
 #include <QVector>
+#include <QDebug>
 
 #define PI 3.14159265358979323846
 #define RAD2DEG (180.0/PI)
 
 #define DEPTH_MAP_LENGTH (640*480)
-#define MIN_COMPUTED_WALKSPEED 35
+#define MIN_COMPUTED_WALKSPEED 40
 
 // Contains some structures for OpenNI data
 namespace OpenNIUtil
@@ -39,14 +40,16 @@ namespace OpenNIUtil
         // Check if the join is active
         bool isActive = false;
         XnSkeletonJointPosition info;
-        XnPoint3D projectivePosition;
+        XnPoint3D projectivePos;
     };
 
-    struct Leg
+    struct BodyPart
     {
         Joint hip;
         Joint knee;
         Joint foot;
+
+        Joint shoulder;
     };
 
     struct User
@@ -58,13 +61,15 @@ namespace OpenNIUtil
         // Represent the time in milliseconds since the epoch time
         int64_t timestamp;
 
-        // Current legs informations
-        Leg leftLeg;
-        Leg rightLeg;
+        Joint torsoJoint;
+
+        // Current body informations
+        BodyPart leftPart;
+        BodyPart rightPart;
 
         // Legs informations at the previous frame
-        Leg previousLeftLeg;
-        Leg previousRightLeg;
+        BodyPart previousLeftPart;
+        BodyPart previousRightPart;
 
         int rotation = -1;
         // Represent the confidence we have in the current rotation
@@ -81,7 +86,7 @@ namespace OpenNIUtil
         int numberOfFramesWithoutMove = 0;
     };
 
-    // Only contaisn informations about the users
+    // Only contains informations about the users
     // Depth map are stored separately
     struct CameraInformations
     {
@@ -125,6 +130,46 @@ namespace OpenNIUtil
     inline bool isJointAcceptable(const Joint joint)
     {
         return joint.isActive && joint.info.fConfidence >= 0.6;
+    }
+
+    // Return the angle in range [0;360[
+    inline float reduceAngle(const float angle)
+    {
+        if(angle >= 360.0f)
+            return angle - 360.0f;
+        else if(angle < 0.0f)
+            return 360.0f + angle;
+        return angle;
+    }
+
+    // Indexes of the 3x3 matrix are:
+    //
+    // ( 0  1  2 )   ( Xx  Yx  Zx )
+    // ( 3  4  5 ) = ( Xy  Yy  Zy )
+    // ( 6  7  8 )   ( Xz  Yz  Zz )
+    //
+    inline float orientationMatrixToRotation(XnFloat orientation[9])
+    {
+        // Get component Xx
+        float xRot = std::acos(orientation[0]) * RAD2DEG;
+
+        // Check the Z component of the X axis
+        if(orientation[6] < 0.0f)
+            xRot = 360.0f - xRot;
+
+        xRot = reduceAngle(xRot);
+
+        // Get component Zz
+        float zRot = std::asin(orientation[8] * RAD2DEG);
+
+        if(zRot > 0.0f)
+            zRot = 360.0f - zRot;
+        else
+            zRot = std::abs(zRot);
+
+        zRot = reduceAngle(zRot);
+
+        return (xRot + zRot) / 2.0f;
     }
 
     // The previous rotation parameter is used to avoid big differences between two rotation
@@ -181,9 +226,9 @@ namespace OpenNIUtil
 
             if(previousRotation != -1.0f)
             {
-                // If the difference of rotation is higher than 180 degree, we consider
-                // that we are move from the 360 deg to the 0 deg side
-                // In this case, add 360 degrees to the lower value
+                // If the difference of rotation is higher than 180°, we consider
+                // that we are move from the 360° to the 0° side
+                // In this case, add 360° to the lower value
                 if(std::abs(rotation - previousRotation) > 180.0f)
                 {
                     if(rotation < previousRotation)
@@ -192,7 +237,7 @@ namespace OpenNIUtil
                         previousRotation += 360.0f;
                 }
 
-                const float margin = (1.0f/frequency) * 70.0f;
+                const float margin = 55.0f / (float)frequency;
 
                 const float diffRotation = rotation - previousRotation;
                 if(std::abs(diffRotation) > margin)
@@ -213,15 +258,57 @@ namespace OpenNIUtil
                     rotation -= 360.0f;
             }
 
-            *resultConfidence = (leftJoint.info.fConfidence + 1.0f) * (rightJoint.info.fConfidence + 1.0f);
+            if(resultConfidence != nullptr)
+                *resultConfidence = (leftJoint.info.fConfidence + 1.0f) * (rightJoint.info.fConfidence + 1.0f);
+
             return rotation;
         }
 
-        *resultConfidence = -1.0f;
+        if(resultConfidence != nullptr)
+            *resultConfidence = -1.0f;
         return -1.0f;
     }
 
-    inline int walkSpeedForUser(const User& user, const int64_t& previousTimestamp, const int& previousSpeed, XnConfidence *resultConfidence)
+    inline void rotationForUser(const int frequency, const int previousRotation, User* user)
+    {
+        int rotations[4] = {-1, -1, -1, -1};
+
+        // right hip / left hip
+        rotations[0] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.hip, user->leftPart.hip,
+                                                            previousRotation, &(user->rotationConfidence)));
+        // right hip / torso
+        rotations[1] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.hip, user->torsoJoint,
+                                                            previousRotation, nullptr));
+        // torso / left hip
+        rotations[2] = static_cast<int>(rotationFrom2Joints(frequency, user->torsoJoint, user->leftPart.hip,
+                                                            previousRotation, nullptr));
+        // right shoulder / left shoulder
+        rotations[3] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.shoulder, user->leftPart.shoulder,
+                                                            previousRotation, nullptr));
+
+        // Make an average
+        int rotSum = 0;
+        int rotCount = 0;
+        for(int i=0; i < 4; ++i)
+        {
+            if(rotations[i] != -1)
+            {
+                if(rotations[i] > 180.0f)
+                    rotSum += (rotations[i] - 360.0f);
+                else
+                    rotSum += rotations[i];
+
+                rotCount++;
+            }
+        }
+
+        if(rotCount != 0)
+            user->rotation = reduceAngle(rotSum / rotCount);
+        else
+            user->rotation = -1;
+    }
+
+    inline int walkSpeedForUser(const int frequency, const User& user, const int64_t& previousTimestamp, const int& previousSpeed, XnConfidence *resultConfidence)
     {
         // Compute the x and z diff for the right and left foot
         float rdx = 0;
@@ -232,15 +319,15 @@ namespace OpenNIUtil
         // Tell if we are not able to compute the speed
         bool cantCompute = true;
 
-        if(isJointAcceptable(user.rightLeg.foot) && isJointAcceptable(user.previousRightLeg.foot))
+        if(isJointAcceptable(user.rightPart.foot) && isJointAcceptable(user.previousRightPart.foot))
         {
-            rdx = user.previousRightLeg.foot.info.position.X - user.rightLeg.foot.info.position.X;
-            rdz = user.previousRightLeg.foot.info.position.Z - user.rightLeg.foot.info.position.Z;
+            rdx = user.previousRightPart.foot.info.position.X - user.rightPart.foot.info.position.X;
+            rdz = user.previousRightPart.foot.info.position.Z - user.rightPart.foot.info.position.Z;
 
-            if(isJointAcceptable(user.leftLeg.foot) && isJointAcceptable(user.previousLeftLeg.foot))
+            if(isJointAcceptable(user.leftPart.foot) && isJointAcceptable(user.previousLeftPart.foot))
             {
-                ldx = user.previousLeftLeg.foot.info.position.X - user.leftLeg.foot.info.position.X;
-                ldz = user.previousLeftLeg.foot.info.position.Z - user.leftLeg.foot.info.position.Z;
+                ldx = user.previousLeftPart.foot.info.position.X - user.leftPart.foot.info.position.X;
+                ldz = user.previousLeftPart.foot.info.position.Z - user.leftPart.foot.info.position.Z;
                 cantCompute = false;
             }
         }
@@ -248,10 +335,10 @@ namespace OpenNIUtil
         if(cantCompute)
             return -1;
 
-        *resultConfidence = (user.rightLeg.foot.info.fConfidence + 1.0f)
-                * (user.previousRightLeg.foot.info.fConfidence + 1.0f)
-                * (user.leftLeg.foot.info.fConfidence + 1.0f)
-                * (user.previousLeftLeg.foot.info.fConfidence + 1.0f);
+        *resultConfidence = (user.rightPart.foot.info.fConfidence + 1.0f)
+                * (user.previousRightPart.foot.info.fConfidence + 1.0f)
+                * (user.leftPart.foot.info.fConfidence + 1.0f)
+                * (user.previousLeftPart.foot.info.fConfidence + 1.0f);
 
         const float rightDiff = std::sqrt(std::pow(rdx, 2.0) + std::pow(rdz, 2.0));
         const float leftDiff = std::sqrt(std::pow(ldx, 2.0) + std::pow(ldz, 2.0));
@@ -268,12 +355,14 @@ namespace OpenNIUtil
         // Smooth the value depending on the last one
         if(previousSpeed != -1)
         {
-            if(std::abs(speed - previousSpeed) > 15)
+            const int margin = 100.0f / (float)frequency;
+
+            if(std::abs(speed - previousSpeed) > margin)
             {
                 if(speed < previousSpeed)
-                    speed = previousSpeed - 15;
+                    speed = previousSpeed - margin;
                 else
-                    speed = previousSpeed + 15;
+                    speed = previousSpeed + margin;
             }
         }
 
