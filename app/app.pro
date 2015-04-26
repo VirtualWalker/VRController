@@ -101,7 +101,8 @@ HEADERS += \
     src/interfaces/controllerinterface.h \
     src/interfaces/controllercommon.h \
     src/gui/controllerchoicewidget.h \
-    src/commonwidgets/hintdialog.h
+    src/commonwidgets/hintdialog.h \
+    src/core/utility.h
 
 OTHER_FILES += \
     src/interfaces/ControllerInterface \
