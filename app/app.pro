@@ -95,7 +95,6 @@ HEADERS += \
     src/gui/log/logbrowser.h \
     src/gui/log/logbrowserwidget.h \
     src/gui/aboutdialog.h \
-    src/core/utility.h \
     src/core/licenses.h \
     src/commonwidgets/autoscrolltextbrowser.h \
     src/commonwidgets/dial.h \

@@ -152,12 +152,12 @@ class BluetoothManager
         {
             // Register all informations and UUIDs
             uuid_t rootUUID, l2capUUID, rfcommUUID, serviceUUID;
-            sdp_list_t *l2capList = 0,
-                       *rfcommList = 0,
-                       *rootList = 0,
-                       *protoList = 0,
-                       *accessProtocolList = 0;
-            sdp_data_t *channel = 0;
+            sdp_list_t *l2capList = nullptr,
+                       *rfcommList = nullptr,
+                       *rootList = nullptr,
+                       *protoList = nullptr,
+                       *accessProtocolList = nullptr;
+            sdp_data_t *channel = nullptr;
 
             // Contains infos of the SDP service
             sdp_record_t *record = sdp_record_alloc();
@@ -193,8 +193,6 @@ class BluetoothManager
                 delete _sdpSession;
                 _sdpSession = nullptr;
             }
-
-            _sdpSession = 0;
 
             // Connect to the local SDP server, register the service record
             _sdpSession = sdp_connect(&BDADDRAny, &BDADDRLocal, SDP_RETRY_IF_BUSY);

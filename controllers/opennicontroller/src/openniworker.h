@@ -16,32 +16,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef OPENNIPROCESSWORKER
+#define OPENNIPROCESSWORKER
 
-//
-// This file contains some utility methods
-//
+#include <QObject>
 
-#include <QString>
-#include <QTextStream>
-#include <QFile>
+#include "openniapplication.h"
 
-namespace FileUtil
+// Used to manage OpenNI main loop
+class OpenNIWorker : public QObject
 {
-    inline QString readFile(QFile &file)
-    {
-        if(!file.open(QFile::ReadOnly | QFile::Text))
-            return QString();
-        QTextStream in(&file);
-        return in.readAll();
-    }
+        Q_OBJECT
 
-    inline QString readFile(const QString &path)
-    {
-        QFile file(path);
-        return readFile(file);
-    }
-}
+    public:
+        OpenNIWorker(int frequency, bool useAKinect = false, QObject *parent = nullptr);
+        ~OpenNIWorker();
 
-#endif // UTILITY_H
+    public slots:
+        void launch();
+
+        void setMotorAngle(const int angle);
+        void requestStop();
+
+        int orientationValue();
+        int walkSpeedValue();
+        int specialCode();
+
+        OpenNIUtil::CameraInformations camInfo();
+
+    private:
+
+        int _frequency;
+        bool _useAKinect;
+        int _specialCode = 0;
+
+        OpenNIApplication *_app = nullptr;
+
+};
+
+#endif // OPENNIPROCESSWORKER
+

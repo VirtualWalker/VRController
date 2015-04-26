@@ -275,6 +275,8 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
     {
         qCritical() << qPrintable(tr("Controllers dir doesn't exist at \"%1\"").arg(path.canonicalPath()));
     }
+
+    mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 ControllerChoiceWidget::~ControllerChoiceWidget()

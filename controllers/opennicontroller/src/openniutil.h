@@ -52,6 +52,7 @@ namespace OpenNIUtil
         Joint shoulder;
     };
 
+    // Contains all informations about the user
     struct User
     {
         XnUserID id;
@@ -72,45 +73,22 @@ namespace OpenNIUtil
         BodyPart previousRightPart;
 
         int rotation = -1;
-        // Represent the confidence we have in the current rotation
-        // Computed by multiply the confidence of the two hip joints
-        // In normal conditions, should be in range 2.56 - 4
-        XnConfidence rotationConfidence = -1.0f;
-
         int walkSpeed = -1;
-        // Represent the confidence we have in the current walk speed
-        // In normal conditions, should be in range 6.5536 - 16
-        XnConfidence walkSpeedConfidence = -1.0f;
 
         // Summary the number of frames since the last move
         int numberOfFramesWithoutMove = 0;
     };
 
-    // Only contains informations about the users
-    // Depth map are stored separately
+    // Contains all data from the OpenNI loop
     struct CameraInformations
     {
         User user;
 
-        // Tell if we are using two sensors
-        bool hasSecondView = false;
-
-        User secondUser;
-        int secondRotationProjected = -1;
-        int averageRotation = -1;
-        int averageWalkSpeed = -1;
-
-        bool invalid = false;
-    };
-
-    struct DepthMaps
-    {
         // The depth map (values are in mm)
         XnDepthPixel *depthData = nullptr;
-        // Only set if there is a second user
-        XnDepthPixel *secondDepthData = nullptr;
 
         bool invalid = false;
+
     };
 
     inline CameraInformations createInvalidCamInfo()
@@ -118,13 +96,6 @@ namespace OpenNIUtil
         CameraInformations camInfo;
         camInfo.invalid = true;
         return camInfo;
-    }
-
-    inline DepthMaps createInvalidDepthMaps()
-    {
-        DepthMaps maps;
-        maps.invalid = true;
-        return maps;
     }
 
     inline bool isJointAcceptable(const Joint joint)
@@ -142,38 +113,8 @@ namespace OpenNIUtil
         return angle;
     }
 
-    // Indexes of the 3x3 matrix are:
-    //
-    // ( 0  1  2 )   ( Xx  Yx  Zx )
-    // ( 3  4  5 ) = ( Xy  Yy  Zy )
-    // ( 6  7  8 )   ( Xz  Yz  Zz )
-    //
-    inline float orientationMatrixToRotation(XnFloat orientation[9])
-    {
-        // Get component Xx
-        float xRot = std::acos(orientation[0]) * RAD2DEG;
-
-        // Check the Z component of the X axis
-        if(orientation[6] < 0.0f)
-            xRot = 360.0f - xRot;
-
-        xRot = reduceAngle(xRot);
-
-        // Get component Zz
-        float zRot = std::asin(orientation[8] * RAD2DEG);
-
-        if(zRot > 0.0f)
-            zRot = 360.0f - zRot;
-        else
-            zRot = std::abs(zRot);
-
-        zRot = reduceAngle(zRot);
-
-        return (xRot + zRot) / 2.0f;
-    }
-
     // The previous rotation parameter is used to avoid big differences between two rotation
-    inline float rotationFrom2Joints(const int frequency, const Joint rightJoint, const Joint leftJoint, float previousRotation, XnConfidence *resultConfidence)
+    inline float rotationFrom2Joints(const int frequency, const Joint rightJoint, const Joint leftJoint, float previousRotation)
     {
         if(isJointAcceptable(rightJoint) && isJointAcceptable(leftJoint))
         {
@@ -258,14 +199,9 @@ namespace OpenNIUtil
                     rotation -= 360.0f;
             }
 
-            if(resultConfidence != nullptr)
-                *resultConfidence = (leftJoint.info.fConfidence + 1.0f) * (rightJoint.info.fConfidence + 1.0f);
-
             return rotation;
         }
 
-        if(resultConfidence != nullptr)
-            *resultConfidence = -1.0f;
         return -1.0f;
     }
 
@@ -275,16 +211,16 @@ namespace OpenNIUtil
 
         // right hip / left hip
         rotations[0] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.hip, user->leftPart.hip,
-                                                            previousRotation, &(user->rotationConfidence)));
+                                                            previousRotation));
         // right hip / torso
         rotations[1] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.hip, user->torsoJoint,
-                                                            previousRotation, nullptr));
+                                                            previousRotation));
         // torso / left hip
         rotations[2] = static_cast<int>(rotationFrom2Joints(frequency, user->torsoJoint, user->leftPart.hip,
-                                                            previousRotation, nullptr));
+                                                            previousRotation));
         // right shoulder / left shoulder
         rotations[3] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.shoulder, user->leftPart.shoulder,
-                                                            previousRotation, nullptr));
+                                                            previousRotation));
 
         // Make an average
         int rotSum = 0;
@@ -308,7 +244,7 @@ namespace OpenNIUtil
             user->rotation = -1;
     }
 
-    inline int walkSpeedForUser(const int frequency, const User& user, const int64_t& previousTimestamp, const int& previousSpeed, XnConfidence *resultConfidence)
+    inline int walkSpeedForUser(const int frequency, const User& user, const int64_t& previousTimestamp, const int& previousSpeed)
     {
         // Compute the x and z diff for the right and left foot
         float rdx = 0;
@@ -334,11 +270,6 @@ namespace OpenNIUtil
 
         if(cantCompute)
             return -1;
-
-        *resultConfidence = (user.rightPart.foot.info.fConfidence + 1.0f)
-                * (user.previousRightPart.foot.info.fConfidence + 1.0f)
-                * (user.leftPart.foot.info.fConfidence + 1.0f)
-                * (user.previousLeftPart.foot.info.fConfidence + 1.0f);
 
         const float rightDiff = std::sqrt(std::pow(rdx, 2.0) + std::pow(rdz, 2.0));
         const float leftDiff = std::sqrt(std::pow(ldx, 2.0) + std::pow(ldz, 2.0));

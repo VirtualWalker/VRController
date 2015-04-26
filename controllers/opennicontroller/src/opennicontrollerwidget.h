@@ -21,12 +21,10 @@
 
 #include "opencvwidget.h"
 #include "opencvutil.h"
-#include "openniprocessworker.h"
+#include "openniworker.h"
 
 #include <QSpinBox>
 #include <QThread>
-#include <QRadioButton>
-#include <QButtonGroup>
 
 // Simple widget containing the image viewer
 // This viewer also launch the OpenNI thread
@@ -34,7 +32,7 @@ class OpenNIControllerWidget: public QWidget
 {
         Q_OBJECT
     public:
-        explicit OpenNIControllerWidget(unsigned int frequency, bool useAKinect = false, bool useTwoSensors = false, QWidget *parent = nullptr);
+        explicit OpenNIControllerWidget(unsigned int frequency, bool useAKinect = false, QWidget *parent = nullptr);
         ~OpenNIControllerWidget();
 
         int orientationValue() const;
@@ -48,20 +46,12 @@ class OpenNIControllerWidget: public QWidget
 
         OpenCVWidget *_viewer;
 
-        OpenNIProcessWorker *_openniProcessWorker;
+        OpenNIWorker *_openniWorker;
         QThread _openniThread;
 
-        QSpinBox *_spinBox1;
-        QSpinBox *_spinBox2;
-
-        // This elements are only used if we use two sensors
-        QButtonGroup *_angleButtonGroup;
-        QRadioButton *_clockwiseButton;
-        QRadioButton *_counterclockwiseButton;
+        QSpinBox *_spinBox;
 
         int _timerID = 0;
-
-        bool _useTwoSensors;
 };
 
 #endif // OPENNICONTROLLERWIDGET_H

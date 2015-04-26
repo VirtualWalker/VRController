@@ -21,7 +21,7 @@
 
 #include <string>
 #include <opencv2/core/core.hpp>
-#include "../../vropenni-catcher/src/openniutil.h"
+#include "openniutil.h"
 
 // Drawing functions
 namespace OpenCVUtil
@@ -51,7 +51,7 @@ namespace OpenCVUtil
                       const int startX, const int startY, const int res = 1);
 
     // Draw all informations and return the image
-    cv::Mat drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenNIUtil::DepthMaps depthMaps);
+    cv::Mat drawOpenNIData(OpenNIUtil::CameraInformations camInfo);
 }
 
 #endif // OPENCVUTIL_H

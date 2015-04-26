@@ -25,8 +25,6 @@
 #include <mutex>
 
 #include <QObject>
-#include <QSharedMemory>
-
 
 #include "openniutil.h"
 #include "usbcontroller.h"
@@ -40,18 +38,12 @@ struct Sensor
     USBDevicePath cameraPath;
     USBDevicePath motorPath;
 
-    // Tell if the first or the second sensor
-    // Used to set the LED color
-    bool firstSensor;
-
     // Only used if we use a Kinect
+    bool useAKinect;
     USBController *kinectUSB;
 
     xn::DepthGenerator depthGenerator;
     xn::UserGenerator userGenerator;
-
-    OpenNIUtil::CameraInformations camInfo;
-    OpenNIUtil::DepthMaps depthMaps;
 };
 
 // This class is a bridge between the program and the OpenNI API.
@@ -62,7 +54,7 @@ class OpenNIApplication: public QObject
     public:
         // Nothing is created in the constructor.
         // Please call init() to start the process
-        OpenNIApplication(int frequency, bool useAKinect, bool firstSensor, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent = nullptr);
+        OpenNIApplication(int frequency, bool useAKinect, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent = nullptr);
         ~OpenNIApplication();
 
         // Check if the app is initialized
@@ -91,6 +83,8 @@ class OpenNIApplication: public QObject
         XnStatus startCalibration(const XnUserID userID);
         XnStatus startTracking(const XnUserID userID);
 
+        OpenNIUtil::CameraInformations lastCamInfo();
+
     public slots:
         // These functions are only available if you are using a Kinect sensor
         void moveToAngle(const int angle);
@@ -109,14 +103,12 @@ class OpenNIApplication: public QObject
         bool _stopRequested = false;
         std::mutex _stopRequestedMutex;
 
+        OpenNIUtil::CameraInformations _lastCamInfo;
+        std::mutex _lastCamInfoMutex;
+
         int _frequency;
 
-        // Tell if we are using a kinect sensor or not
-        bool _useAKinect;
         Sensor _sensor;
-
-        QSharedMemory *_depthMemory;
-        QSharedMemory *_infoMemory;
 
         xn::Context _context;
 

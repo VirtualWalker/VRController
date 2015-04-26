@@ -107,18 +107,18 @@
         <translation>Le dossier de contrôleurs n&apos;existe pas à l&apos;emplacement &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="300"/>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="307"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="302"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="309"/>
         <source>The specified controller &quot;%1&quot; doesn&apos;t exists !</source>
         <translation>Le contrôleur spécifié &quot;%1&quot; n&apos;existe pas !</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="312"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="314"/>
         <source>The controller &quot;%1&quot; doesn&apos;t have an option named &quot;%2&quot;.</source>
         <translation>Le contrôleur \&quot;%1\&quot; n&apos;a pas d&apos;options nommée \&quot;%2\&quot;.</translation>
     </message>
     <message>
-        <location filename="../src/gui/controllerchoicewidget.cpp" line="336"/>
+        <location filename="../src/gui/controllerchoicewidget.cpp" line="338"/>
         <source>Could not load controller plugin &quot;%1&quot; (%2).</source>
         <translation>Impossible de charger le plugin de contrôle &quot;%1&quot; (%2).</translation>
     </message>

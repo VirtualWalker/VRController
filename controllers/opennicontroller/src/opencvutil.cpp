@@ -157,46 +157,19 @@ static int guiWalkSpeedIncrease = 5;
 // There is two parts in the image:
 // - left part with the depth data and skeleton
 // - right part with some informations
-cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenNIUtil::DepthMaps depthMaps)
+cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
 {
     const cv::Scalar backColor = CV_RGB(10,10,10);
     cv::Mat outputMat = cv::Mat(IMG_HEIGHT, IMG_WIDTH, CV_8UC3, backColor);
 
     //
     // Left part
-    // (with all depth maps)
     //
 
-    // Draw a large depth map if there is only one sensor
-    if(!camInfo.hasSecondView)
-    {
-        drawDepthMap(outputMat, depthMaps.depthData, 0, 0, IMG_RES);
+    drawDepthMap(outputMat, camInfo.depthData, 0, 0, IMG_RES);
 
-        drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, IMG_RES);
-        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(0, 0, 255), CV_RGB(120, 0, 0), 0, 0, IMG_RES);
-    }
-    else
-    {
-        // First sensor
-        drawDepthMap(outputMat, depthMaps.depthData, 0, 0, 1);
-
-        drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, 1);
-        drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(120, 0, 0), CV_RGB(80, 0, 0), 0, 0, 1);
-
-        std::string rotText1 = std::to_string(camInfo.user.rotation);
-        drawTextCentered(outputMat, rotText1, cv::Point(640 + 640/2, 480/2), FONT_FACE, ROT_FONTSCALE, COLOR_1, ROT_THICKNESS);
-
-        // Second sensor
-        drawDepthMap(outputMat, depthMaps.secondDepthData, 640, 480, 1);
-
-        drawLimbsOfUsers(outputMat, camInfo.secondUser, CV_RGB(180, 180, 0), 640, 480, 1);
-        drawJointsOfUser(outputMat, camInfo.secondUser, CV_RGB(0, 0, 255), CV_RGB(0, 0, 120), CV_RGB(0, 0, 80), 640, 480, 1);
-
-        std::string rotText2 = std::to_string(camInfo.secondUser.rotation);
-        rotText2 += "/";
-        rotText2 += std::to_string(camInfo.secondRotationProjected);
-        drawTextCentered(outputMat, rotText2, cv::Point(640/2, 480 + 480/2), FONT_FACE, 3, COLOR_1, ROT_THICKNESS);
-    }
+    drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, IMG_RES);
+    drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(0, 0, 255), CV_RGB(120, 0, 0), 0, 0, IMG_RES);
 
     //
     // Right part
@@ -210,11 +183,10 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenN
     std::string textRotation = "???";
 
     // Check if we have the rotation
-    const int camInfoRotation = camInfo.hasSecondView ? camInfo.averageRotation : camInfo.user.rotation;
-    if(camInfoRotation != -1)
+    if(camInfo.user.rotation != -1)
     {
-        guiDialOrientation = camInfoRotation;
-        textRotation = std::to_string(camInfoRotation);
+        guiDialOrientation = camInfo.user.rotation;
+        textRotation = std::to_string(camInfo.user.rotation);
     }
     else
     {
@@ -248,11 +220,10 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo, OpenN
     std::string textWalkSpeed = "??";
 
     // Draw vertical line and walk speed value
-    const int camInfoWalkSpeed = camInfo.hasSecondView ? camInfo.averageWalkSpeed : camInfo.user.walkSpeed;
-    if(camInfoWalkSpeed != -1)
+    if(camInfo.user.walkSpeed != -1)
     {
-        guiWalkSpeed = camInfoWalkSpeed;
-        textWalkSpeed = std::to_string(camInfoWalkSpeed);
+        guiWalkSpeed = camInfo.user.walkSpeed;
+        textWalkSpeed = std::to_string(camInfo.user.walkSpeed);
     }
     else
     {

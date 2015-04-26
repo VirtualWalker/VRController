@@ -17,7 +17,6 @@
  */
 
 #include "openniapplication.h"
-#include "openniapplicationdefines.h"
 
 #include <QString>
 #include <QDebug>
@@ -91,31 +90,24 @@ void XN_CALLBACK_TYPE calibrationEndCallback(xn::SkeletonCapability& /*capabilit
     }
 }
 
-OpenNIApplication::OpenNIApplication(int frequency, bool useAKinect, bool firstSensor, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent) : QObject(parent)
+OpenNIApplication::OpenNIApplication(int frequency, bool useAKinect, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent) : QObject(parent)
 {
     _frequency = frequency;
-    _useAKinect = useAKinect;
 
     _sensor.cameraPath = camPath;
     _sensor.motorPath = motorPath;
-    _sensor.firstSensor = firstSensor;
+    _sensor.useAKinect = useAKinect;
 }
 
 OpenNIApplication::~OpenNIApplication()
 {
     cleanup();
-    if(_useAKinect)
+    if(_sensor.useAKinect)
     {
-        _sensor.kinectUSB->setLight(USBController::LightType::LED_OFF);
+        _sensor.kinectUSB->setLight(USBController::LightType::LED_BLINK_GREEN);
         _sensor.kinectUSB->moveToAngle(0);
         _sensor.kinectUSB->deleteLater();
     }
-
-    _depthMemory->detach();
-    _depthMemory->deleteLater();
-
-    _infoMemory->detach();
-    _infoMemory->deleteLater();
 }
 
 // Private
@@ -153,6 +145,14 @@ bool OpenNIApplication::isStopped()
     return stopped;
 }
 
+OpenNIUtil::CameraInformations OpenNIApplication::lastCamInfo()
+{
+    _lastCamInfoMutex.lock();
+    OpenNIUtil::CameraInformations camInfo = _lastCamInfo;
+    _lastCamInfoMutex.unlock();
+    return camInfo;
+}
+
 // Setter
 void OpenNIApplication::requestStop()
 {
@@ -172,21 +172,6 @@ XnStatus OpenNIApplication::init()
     {
         qCritical() << qPrintable(tr("OpenNI already initialized !"));
         return 1;
-    }
-
-    // Try to attach to the shared memory
-    _depthMemory = new QSharedMemory(_sensor.firstSensor ? SHARED_MEM_DEPTH_1 : SHARED_MEM_DEPTH_2);
-    if(!_depthMemory->attach())
-    {
-        qCritical() << qPrintable(tr("Failed to attach to the depth shared memory ! Error: %1").arg(_depthMemory->errorString()));
-        return 10;
-    }
-
-    _infoMemory = new QSharedMemory(_sensor.firstSensor ? SHARED_MEM_INFO_1 : SHARED_MEM_INFO_2);
-    if(!_infoMemory->attach())
-    {
-        qCritical() << qPrintable(tr("Failed to attach to the information shared memory ! Error: %1").arg(_infoMemory->errorString()));
-        return 11;
     }
 
     qDebug() << qPrintable(tr("Initializing OpenNI ..."));
@@ -252,7 +237,7 @@ XnStatus OpenNIApplication::init()
             _sensor.userGenerator.GetSkeletonCap().SetSkeletonProfile(XN_SKEL_PROFILE_ALL);
 
             // Create the usb controller
-            if(_useAKinect)
+            if(_sensor.useAKinect)
             {
                 // Init the motor controller
                 _sensor.kinectUSB = new USBController(this);
@@ -261,14 +246,11 @@ XnStatus OpenNIApplication::init()
                 if(_sensor.kinectUSB->initialized())
                 {
                     _sensor.kinectUSB->moveToAngle(0);
-                    if(_sensor.firstSensor)
-                        _sensor.kinectUSB->setLight(USBController::LightType::LED_BLINK_GREEN);
-                    else
-                        _sensor.kinectUSB->setLight(USBController::LightType::LED_BLINK_RED_YELLOW);
+                    _sensor.kinectUSB->setLight(USBController::LightType::LED_GREEN);
                 }
             }
 
-            // Quit the for loop
+            // Exit the for loop
             break;
         }
     }
@@ -311,13 +293,14 @@ XnStatus OpenNIApplication::start()
         _stopRequestedMutex.unlock();
 
         // Get the previous user data
-        const OpenNIUtil::User previousUser = _sensor.camInfo.user;
-        _sensor.camInfo = OpenNIUtil::CameraInformations();
-        _sensor.depthMaps = OpenNIUtil::DepthMaps();
+        _lastCamInfoMutex.lock();
+        const OpenNIUtil::User previousUser = _lastCamInfo.user;
+        _lastCamInfoMutex.unlock();
+        OpenNIUtil::CameraInformations camInfo;
 
         _context.WaitAnyUpdateAll();
 
-        _sensor.depthMaps.depthData = const_cast<XnDepthPixel *>(_sensor.depthGenerator.GetDepthMap());
+        camInfo.depthData = const_cast<XnDepthPixel *>(_sensor.depthGenerator.GetDepthMap());
 
         // Try to get 5 users, but only save the first who is tracked
         XnUInt16 usersCount = 5;
@@ -362,7 +345,7 @@ XnStatus OpenNIApplication::start()
             // Only compute the walk speed if we are not in the first frame
             if(!firstLoop)
             {
-                user.walkSpeed = OpenNIUtil::walkSpeedForUser(_frequency, user, previousUser.timestamp, previousUser.walkSpeed, &user.walkSpeedConfidence);
+                user.walkSpeed = OpenNIUtil::walkSpeedForUser(_frequency, user, previousUser.timestamp, previousUser.walkSpeed);
                 if(previousUser.walkSpeed != -1 && previousUser.walkSpeed <= MIN_COMPUTED_WALKSPEED)
                     user.numberOfFramesWithoutMove = previousUser.numberOfFramesWithoutMove + 1;
                 else
@@ -375,32 +358,16 @@ XnStatus OpenNIApplication::start()
             user.isTracking = false;
         }
 
-        _sensor.camInfo.user = user;
-
-        // Copy to the shared memory
-        if(_depthMemory->isAttached())
-        {
-            _depthMemory->lock();
-            XnDepthPixel* mem = static_cast<XnDepthPixel*>(_depthMemory->data());
-            for(int i=0; i<DEPTH_MAP_LENGTH; ++i)
-                mem[i] = _sensor.depthMaps.depthData[i];
-            _depthMemory->unlock();
-        }
-
-        if(_infoMemory->isAttached())
-        {
-            _infoMemory->lock();
-            OpenNIUtil::CameraInformations* mem = static_cast<OpenNIUtil::CameraInformations*>(_infoMemory->data());
-            *mem = _sensor.camInfo;
-            _infoMemory->unlock();
-        }
+        _lastCamInfoMutex.lock();
+        _lastCamInfo = camInfo;
+        _lastCamInfo.user = user;
+        _lastCamInfoMutex.unlock();
 
         if(firstLoop)
         {
             _startedMutex.lock();
             firstLoop = false;
             _started = true;
-            qDebug() << "*****started*****";
             _startedMutex.unlock();
         }
     }
@@ -425,7 +392,7 @@ OpenNIUtil::Joint OpenNIApplication::createJoint(const XnSkeletonJoint jointType
 
 void OpenNIApplication::moveToAngle(const int angle)
 {
-    if(_useAKinect && _sensor.kinectUSB != nullptr && _sensor.kinectUSB->initialized())
+    if(_sensor.useAKinect && _sensor.kinectUSB != nullptr && _sensor.kinectUSB->initialized())
         _sensor.kinectUSB->moveToAngle(angle);
     else
         qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
@@ -433,7 +400,7 @@ void OpenNIApplication::moveToAngle(const int angle)
 
 void OpenNIApplication::setLight(const USBController::LightType type)
 {
-    if(_useAKinect && _sensor.kinectUSB != nullptr && _sensor.kinectUSB->initialized())
+    if(_sensor.useAKinect && _sensor.kinectUSB != nullptr && _sensor.kinectUSB->initialized())
         _sensor.kinectUSB->setLight(type);
     else
         qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
