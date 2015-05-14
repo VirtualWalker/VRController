@@ -92,19 +92,14 @@ class OpenNIApplication: public QObject
 
     private:
 
+        std::mutex _mutex;
+
         bool _init = false;
-
         bool _started = false;
-        std::mutex _startedMutex;
-
         bool _stopped = false;
-        std::mutex _stoppedMutex;
-
         bool _stopRequested = false;
-        std::mutex _stopRequestedMutex;
 
         OpenNIUtil::CameraInformations _lastCamInfo;
-        std::mutex _lastCamInfoMutex;
 
         int _frequency;
 

@@ -233,6 +233,7 @@ class BluetoothManager
 
             // Create the network socket
             _socket = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
             if(_socket < 0)
                 appendError(Error::SOCKET_CONNECTION);
             else
@@ -365,7 +366,12 @@ class BluetoothManager
                 }
 
                 // Accept one connection in an another thread
-                _acceptThread = std::thread(&BluetoothManager::acceptConnection, this, _socket, (struct sockaddr *)&_remoteSockAddr, &_remoteSockLength, [this](int clientID) {
+
+
+
+                _acceptThread = std::thread(&BluetoothManager::acceptConnection, this,
+                                            _socket, (struct sockaddr *)&_remoteSockAddr, &_remoteSockLength,
+                                            [this](int clientID) {
                     _client = clientID;
 
                     if(_client < 0)

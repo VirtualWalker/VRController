@@ -295,10 +295,10 @@ void MainWindow::timerEvent(QTimerEvent *event)
         if(orientation == -1 || walkSpeed == -1 || specialCode < 0)
             return;
 
-        // Before 3 seconds, send the special code 254
+        // Before 3 seconds
         if(_numberOfTimerExec2 < _listeningWidget->frequency() * 3)
             specialCode = 1;
-        // At 3 seconds, send the code 253
+        // At 3 seconds, it's the start
         else if(_numberOfTimerExec2 == _listeningWidget->frequency() * 3)
             specialCode = 3;
 

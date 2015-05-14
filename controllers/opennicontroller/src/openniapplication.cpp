@@ -42,7 +42,7 @@
 
 //
 // Internal callbacks, only called by OpenNI internaly
-// The OpenNIApplicationWrapper is represented by the *cookie pointer
+// The OpenNIApplicationr is represented by the *cookie pointer
 //
 
 void XN_CALLBACK_TYPE newUserCallback(xn::UserGenerator& /*generator*/, XnUserID userID, void* cookie)
@@ -118,9 +118,9 @@ void OpenNIApplication::cleanup()
 
     _context.Release();
 
-    _stoppedMutex.lock();
+    _mutex.lock();
     _stopped = true;
-    _stoppedMutex.unlock();
+    _mutex.unlock();
 }
 
 // Getters
@@ -131,34 +131,34 @@ bool OpenNIApplication::isInitialized() const
 
 bool OpenNIApplication::isStarted()
 {
-    _startedMutex.lock();
+    _mutex.lock();
     const bool started = _started;
-    _startedMutex.unlock();
+    _mutex.unlock();
     return started;
 }
 
 bool OpenNIApplication::isStopped()
 {
-    _stoppedMutex.lock();
+    _mutex.lock();
     const bool stopped = _stopped;
-    _stoppedMutex.unlock();
+    _mutex.unlock();
     return stopped;
 }
 
 OpenNIUtil::CameraInformations OpenNIApplication::lastCamInfo()
 {
-    _lastCamInfoMutex.lock();
+    _mutex.lock();
     OpenNIUtil::CameraInformations camInfo = _lastCamInfo;
-    _lastCamInfoMutex.unlock();
+    _mutex.unlock();
     return camInfo;
 }
 
 // Setter
 void OpenNIApplication::requestStop()
 {
-    _stopRequestedMutex.lock();
+    _mutex.lock();
     _stopRequested = true;
-    _stopRequestedMutex.unlock();
+    _mutex.unlock();
 
     // Directly call cleanup() method if the application is not yet started
     if(!isStarted())
@@ -283,19 +283,19 @@ XnStatus OpenNIApplication::start()
 
     while(true)
     {
-        _stopRequestedMutex.lock();
+        _mutex.lock();
         if(_stopRequested)
         {
-            _stopRequestedMutex.unlock();
+            _mutex.unlock();
             cleanup();
             break;
         }
-        _stopRequestedMutex.unlock();
+        _mutex.unlock();
 
         // Get the previous user data
-        _lastCamInfoMutex.lock();
+        _mutex.lock();
         const OpenNIUtil::User previousUser = _lastCamInfo.user;
-        _lastCamInfoMutex.unlock();
+        _mutex.unlock();
         OpenNIUtil::CameraInformations camInfo;
 
         _context.WaitAnyUpdateAll();
@@ -358,17 +358,17 @@ XnStatus OpenNIApplication::start()
             user.isTracking = false;
         }
 
-        _lastCamInfoMutex.lock();
+        _mutex.lock();
         _lastCamInfo = camInfo;
         _lastCamInfo.user = user;
-        _lastCamInfoMutex.unlock();
+        _mutex.unlock();
 
         if(firstLoop)
         {
-            _startedMutex.lock();
+            _mutex.lock();
             firstLoop = false;
             _started = true;
-            _startedMutex.unlock();
+            _mutex.unlock();
         }
     }
 
@@ -408,25 +408,25 @@ void OpenNIApplication::setLight(const USBController::LightType type)
 
 XnStatus OpenNIApplication::startCalibration(const XnUserID userID)
 {
-    _startedMutex.lock();
+    _mutex.lock();
     if(_started)
     {
-        _startedMutex.unlock();
+        _mutex.unlock();
         return _sensor.userGenerator.GetSkeletonCap().RequestCalibration(userID, TRUE);
     }
-    _startedMutex.unlock();
+    _mutex.unlock();
     return 100;
 }
 
 XnStatus OpenNIApplication::startTracking(const XnUserID userID)
 {
-    _startedMutex.lock();
+    _mutex.lock();
     if(_started)
     {
-        _startedMutex.unlock();
+        _mutex.unlock();
         return _sensor.userGenerator.GetSkeletonCap().StartTracking(userID);
     }
-    _startedMutex.unlock();
+    _mutex.unlock();
     return 101;
 }
 
