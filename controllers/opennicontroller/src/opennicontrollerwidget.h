@@ -32,7 +32,7 @@ class OpenNIControllerWidget: public QWidget
 {
         Q_OBJECT
     public:
-        explicit OpenNIControllerWidget(unsigned int frequency, bool useAKinect = false, QWidget *parent = nullptr);
+        explicit OpenNIControllerWidget(unsigned int frequency, QWidget *parent = nullptr);
         ~OpenNIControllerWidget();
 
         int orientationValue() const;

@@ -29,7 +29,7 @@ class OpenNIWorker : public QObject
         Q_OBJECT
 
     public:
-        OpenNIWorker(int frequency, bool useAKinect = false, QObject *parent = nullptr);
+        OpenNIWorker(int frequency, QObject *parent = nullptr);
         ~OpenNIWorker();
 
     public slots:
@@ -47,7 +47,6 @@ class OpenNIWorker : public QObject
     private:
 
         int _frequency;
-        bool _useAKinect;
         int _specialCode = 0;
 
         OpenNIApplication *_app = nullptr;

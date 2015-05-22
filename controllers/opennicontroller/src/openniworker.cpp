@@ -22,13 +22,9 @@
 #include <QProcess>
 #include <QStringList>
 
-OpenNIWorker::OpenNIWorker(int frequency, bool useAKinect, QObject *parent) : QObject(parent)
+OpenNIWorker::OpenNIWorker(int frequency, QObject *parent) : QObject(parent)
 {
     _frequency = frequency;
-    _useAKinect = useAKinect;
-
-    if(_useAKinect)
-            qDebug() << qPrintable(tr("The application will assume that a kinect sensor is used !"));
 }
 
 OpenNIWorker::~OpenNIWorker()
@@ -96,7 +92,7 @@ void OpenNIWorker::launch()
     }
 
     // Get the first sensor in lists
-    _app = new OpenNIApplication(_frequency, _useAKinect, camerasList[0], motorsList[0]);
+    _app = new OpenNIApplication(_frequency, camerasList[0], motorsList[0]);
 
     if(_app->init() != XN_STATUS_OK)
         requestStop();

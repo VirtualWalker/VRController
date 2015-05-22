@@ -90,31 +90,27 @@ void XN_CALLBACK_TYPE calibrationEndCallback(xn::SkeletonCapability& /*capabilit
     }
 }
 
-OpenNIApplication::OpenNIApplication(int frequency, bool useAKinect, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent) : QObject(parent)
+OpenNIApplication::OpenNIApplication(int frequency, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent) : QObject(parent)
 {
     _frequency = frequency;
 
-    _sensor.cameraPath = camPath;
-    _sensor.motorPath = motorPath;
-    _sensor.useAKinect = useAKinect;
+    _cameraPath = camPath;
+    _motorPath = motorPath;
 }
 
 OpenNIApplication::~OpenNIApplication()
 {
     cleanup();
-    if(_sensor.useAKinect)
-    {
-        _sensor.kinectUSB->setLight(USBController::LightType::LED_BLINK_GREEN);
-        _sensor.kinectUSB->moveToAngle(0);
-        _sensor.kinectUSB->deleteLater();
-    }
+    _kinectUSB->setLight(USBController::LightType::LED_BLINK_GREEN);
+    _kinectUSB->moveToAngle(0);
+    _kinectUSB->deleteLater();
 }
 
 // Private
 void OpenNIApplication::cleanup()
 {
-    _sensor.depthGenerator.Release();
-    _sensor.userGenerator.Release();
+    _depthGenerator.Release();
+    _userGenerator.Release();
 
     _context.Release();
 
@@ -188,66 +184,64 @@ XnStatus OpenNIApplication::init()
     CHECK_ERROR(status, tr("Search available devices", "on error"));
 
     // Check if the specified device in constructor exists
+    bool found = false;
     for(xn::NodeInfoList::Iterator it = devicesList.Begin(); it != devicesList.End(); ++it)
     {
         // A sensor was found, add to the list
-        if((*it).GetCreationInfo() == _sensor.cameraPath.toString())
+        if((*it).GetCreationInfo() == _cameraPath.toString())
         {
-            _sensor.nodeInfo = *it;
+            xn::NodeInfo nodeInfo = *it;
+            found = true;
 
-            qDebug() << qPrintable(tr("Creating device: %1").arg(_sensor.cameraPath.toString()));
+            qDebug() << qPrintable(tr("Creating device: %1").arg(_cameraPath.toString()));
 
-            status = _context.CreateProductionTree(_sensor.nodeInfo, _sensor.device);
+            status = _context.CreateProductionTree(nodeInfo, _device);
             CHECK_ERROR(status, tr("Create device", "on error"));
 
             // Create the query for the current node
             xn::Query query;
-            query.AddNeededNode(_sensor.nodeInfo.GetInstanceName());
+            query.AddNeededNode(nodeInfo.GetInstanceName());
 
             // Create the depth generator
-            status = _context.CreateAnyProductionTree(XN_NODE_TYPE_DEPTH, &query, _sensor.depthGenerator);
+            status = _context.CreateAnyProductionTree(XN_NODE_TYPE_DEPTH, &query, _depthGenerator);
             CHECK_ERROR(status, tr("Create depth generator", "on error"));
 
             // Create the user generator
-            status = _context.CreateAnyProductionTree(XN_NODE_TYPE_USER, &query, _sensor.userGenerator);
+            status = _context.CreateAnyProductionTree(XN_NODE_TYPE_USER, &query, _userGenerator);
             CHECK_ERROR(status, tr("Create user generator", "on error"));
 
             // Register all users callbacks
-            status = _sensor.userGenerator.RegisterUserCallbacks(&newUserCallback, &lostUserCallback, this, _userCBHandler);
+            status = _userGenerator.RegisterUserCallbacks(&newUserCallback, &lostUserCallback, this, _userCBHandler);
             CHECK_ERROR(status, tr("Register to user callbacks", "on error"));
-            status = _sensor.userGenerator.GetSkeletonCap().RegisterToCalibrationStart(&calibrationStartCallback, this, _calibrationStartCBHandler);
+            status = _userGenerator.GetSkeletonCap().RegisterToCalibrationStart(&calibrationStartCallback, this, _calibrationStartCBHandler);
             CHECK_ERROR(status, tr("Register to calibration start", "on error"));
-            status = _sensor.userGenerator.GetSkeletonCap().RegisterToCalibrationComplete(&calibrationEndCallback, this, _calibrationEndCBHandler);
+            status = _userGenerator.GetSkeletonCap().RegisterToCalibrationComplete(&calibrationEndCallback, this, _calibrationEndCBHandler);
             CHECK_ERROR(status, tr("Register to calibration complete", "on error"));
 
             // Check if the user generator support skeleton
-            if(!_sensor.userGenerator.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
+            if(!_userGenerator.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
             {
                 qCritical() << qPrintable(tr("Supplied user generator doesn't support skeleton capability."));
                 return 20;
             }
             // Check if the user generator need a pose for skeleton detection
-            if(_sensor.userGenerator.GetSkeletonCap().NeedPoseForCalibration())
+            if(_userGenerator.GetSkeletonCap().NeedPoseForCalibration())
             {
                 qCritical() << qPrintable(tr("Pose calibration required but not supported by this program."));
                 return 30;
             }
 
             // Set the skeleton profile
-            _sensor.userGenerator.GetSkeletonCap().SetSkeletonProfile(XN_SKEL_PROFILE_ALL);
+            _userGenerator.GetSkeletonCap().SetSkeletonProfile(XN_SKEL_PROFILE_ALL);
 
             // Create the usb controller
-            if(_sensor.useAKinect)
+            _kinectUSB = new USBController(this);
+            _kinectUSB->init(_motorPath);
+            // Move the kinect to the angle 0 at startup
+            if(_kinectUSB->initialized())
             {
-                // Init the motor controller
-                _sensor.kinectUSB = new USBController(this);
-                _sensor.kinectUSB->init(_sensor.motorPath);
-                // Move the kinect to the angle 0 at startup
-                if(_sensor.kinectUSB->initialized())
-                {
-                    _sensor.kinectUSB->moveToAngle(0);
-                    _sensor.kinectUSB->setLight(USBController::LightType::LED_GREEN);
-                }
+                _kinectUSB->moveToAngle(0);
+                _kinectUSB->setLight(USBController::LightType::LED_GREEN);
             }
 
             // Exit the for loop
@@ -255,7 +249,7 @@ XnStatus OpenNIApplication::init()
         }
     }
 
-    if(_sensor.nodeInfo == nullptr)
+    if(!found)
     {
         qCritical() << qPrintable(tr("The specified device doesn't exist !"));
         return 4;
@@ -300,17 +294,17 @@ XnStatus OpenNIApplication::start()
 
         _context.WaitAnyUpdateAll();
 
-        camInfo.depthData = const_cast<XnDepthPixel *>(_sensor.depthGenerator.GetDepthMap());
+        camInfo.depthData = const_cast<XnDepthPixel *>(_depthGenerator.GetDepthMap());
 
-        // Try to get 5 users, but only save the first who is tracked
+        // Try to get 5 users, but only save the first tracked
         XnUInt16 usersCount = 5;
         XnUserID usersArray[usersCount];
-        _sensor.userGenerator.GetUsers(usersArray, usersCount);
+        _userGenerator.GetUsers(usersArray, usersCount);
         // Get the first tracked user
         XnUserID firstTrackingID = 0;
         for(XnUserID id : usersArray)
         {
-            if(_sensor.userGenerator.GetSkeletonCap().IsTracking(id))
+            if(_userGenerator.GetSkeletonCap().IsTracking(id))
             {
                 firstTrackingID = id;
                 break;
@@ -379,31 +373,27 @@ OpenNIUtil::Joint OpenNIApplication::createJoint(const XnSkeletonJoint jointType
 {
     OpenNIUtil::Joint joint;
     joint.type = jointType;
-    joint.isActive = _sensor.userGenerator.GetSkeletonCap().IsJointActive(jointType);
+    joint.isActive = _userGenerator.GetSkeletonCap().IsJointActive(jointType);
     if(joint.isActive)
     {
         // Get the position info
-        _sensor.userGenerator.GetSkeletonCap().GetSkeletonJointPosition(userID, jointType, joint.info);
+        _userGenerator.GetSkeletonCap().GetSkeletonJointPosition(userID, jointType, joint.info);
         // Get the projectives positions
-        _sensor.depthGenerator.ConvertRealWorldToProjective(1, &joint.info.position, &joint.projectivePos);
+        _depthGenerator.ConvertRealWorldToProjective(1, &joint.info.position, &joint.projectivePos);
     }
     return joint;
 }
 
 void OpenNIApplication::moveToAngle(const int angle)
 {
-    if(_sensor.useAKinect && _sensor.kinectUSB != nullptr && _sensor.kinectUSB->initialized())
-        _sensor.kinectUSB->moveToAngle(angle);
-    else
-        qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
+    if(_kinectUSB != nullptr && _kinectUSB->initialized())
+        _kinectUSB->moveToAngle(angle);
 }
 
 void OpenNIApplication::setLight(const USBController::LightType type)
 {
-    if(_sensor.useAKinect && _sensor.kinectUSB != nullptr && _sensor.kinectUSB->initialized())
-        _sensor.kinectUSB->setLight(type);
-    else
-        qWarning() << qPrintable(tr("Trying to use a Kinect functionnality without enabling the support !"));
+    if(_kinectUSB != nullptr && _kinectUSB->initialized())
+        _kinectUSB->setLight(type);
 }
 
 XnStatus OpenNIApplication::startCalibration(const XnUserID userID)
@@ -412,7 +402,7 @@ XnStatus OpenNIApplication::startCalibration(const XnUserID userID)
     if(_started)
     {
         _mutex.unlock();
-        return _sensor.userGenerator.GetSkeletonCap().RequestCalibration(userID, TRUE);
+        return _userGenerator.GetSkeletonCap().RequestCalibration(userID, TRUE);
     }
     _mutex.unlock();
     return 100;
@@ -424,7 +414,7 @@ XnStatus OpenNIApplication::startTracking(const XnUserID userID)
     if(_started)
     {
         _mutex.unlock();
-        return _sensor.userGenerator.GetSkeletonCap().StartTracking(userID);
+        return _userGenerator.GetSkeletonCap().StartTracking(userID);
     }
     _mutex.unlock();
     return 101;

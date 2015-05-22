@@ -25,31 +25,6 @@
 #include <QMap>
 #include <QPluginLoader>
 #include <QVariant>
-#include <QPixmap>
-
-struct Hint
-{
-    QString text;
-    QPixmap image;
-    bool activated = false;
-};
-
-Q_DECLARE_METATYPE(Hint)
-
-// Typedef for the Controller options
-// Options are identified by their internalName (the key)
-// The value contains 3 elements:
-//  - the description (translated in the current locale)
-//  - the "real" value, so true or false
-//  - the hint object
-typedef QMap<QString, QList<QVariant>> ControllerOptionsList;
-
-// Simple wrapper that contains an options list and the QPluginLoader
-struct ControllerWrapper
-{
-    ControllerOptionsList options;
-    QPluginLoader *loader;
-};
 
 // Implements a basic interface used by all controllers.
 class ControllerInterface: public QObject
@@ -61,7 +36,6 @@ class ControllerInterface: public QObject
 
     private:
         unsigned int _dataFrenquency = 1;
-        ControllerOptionsList _launchOptions;
 
     public:
 
@@ -94,27 +68,11 @@ class ControllerInterface: public QObject
             return _dataFrenquency;
         }
 
-        ControllerOptionsList launchOptions() const
-        {
-            return _launchOptions;
-        }
-
-        bool hasLaunchOptions() const
-        {
-            return !_launchOptions.isEmpty();
-        }
-
     public slots:
         void setDataFrequency(unsigned int frequency)
         {
             _dataFrenquency = frequency;
         }
-
-        void setLaunchOptions(ControllerOptionsList options)
-        {
-            _launchOptions = options;
-        }
-
 };
 
 #define ControllerInterface_iid "vrcontroller.controllerinterface"

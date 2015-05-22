@@ -10,18 +10,6 @@
         }
     },
 
-    "launchOptions" : [
-        {
-            "internalName" : "useAKinect",
-            "description" : "Are you using a Kinect sensor ?",
-            "i18n" : {
-                "fr" : {
-                    "description" : "Utilisez-vous une caméra Kinect ?"
-                }
-            }
-        }
-    ],
-
     "3rdLicenses" : [
         {
             "name" : "OpenNI",

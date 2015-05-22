@@ -39,11 +39,6 @@ QT -= gui
 # Output name
 TARGET = $${CONTROLLER_NAME}
 
-# Check if we are in a NO_GUI build
-CONFIG(NO_GUI) {
-    DEFINES += NO_GUI
-}
-
 BUILD_PATH = build
 BIN_PATH = $${APP_PATH}/bin
 BUILD_STR = debug
@@ -86,9 +81,6 @@ DEPENDPATH += \
 HEADERS += \
     src/$${CONTROLLER_NAME}.h \
     $${APP_PATH}/src/interfaces/ControllerInterface.h
-
-SOURCES += \
-    src/$${CONTROLLER_NAME}.cpp
 
 OTHER_FILES += \
     spec.json

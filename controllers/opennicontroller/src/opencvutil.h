@@ -26,7 +26,6 @@
 // Drawing functions
 namespace OpenCVUtil
 {
-    cv::Point3f pointToCV(const XnVector3D pt);
     cv::Point2i pointTo2DCV(const XnVector3D pt, const int offsetX = 0, const int offsetY = 0, const int res = 1);
 
     // Draw a joint
@@ -39,8 +38,8 @@ namespace OpenCVUtil
     void drawJointsOfUser(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar rightColor,
                           const cv::Scalar leftColor, const cv::Scalar centerColor,
                           const int offsetX = 0, const int offsetY = 0, const int res = 1);
-    void drawLimbsOfUsers(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar color,
-                          const int offsetX = 0, const int offsetY = 0, const int res = 1);
+    void drawLimbsOfUser(cv::Mat& image, const OpenNIUtil::User user, const cv::Scalar color,
+                         const int offsetX = 0, const int offsetY = 0, const int res = 1);
 
     // Draw a text centered relative to the specified point
     void drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,

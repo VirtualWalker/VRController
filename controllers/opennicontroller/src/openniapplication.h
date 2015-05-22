@@ -29,23 +29,6 @@
 #include "openniutil.h"
 #include "usbcontroller.h"
 
-// Represent a Depth-Sensor
-struct Sensor
-{
-    xn::ProductionNode device;
-    xn::NodeInfo nodeInfo = xn::NodeInfo(nullptr);
-
-    USBDevicePath cameraPath;
-    USBDevicePath motorPath;
-
-    // Only used if we use a Kinect
-    bool useAKinect;
-    USBController *kinectUSB;
-
-    xn::DepthGenerator depthGenerator;
-    xn::UserGenerator userGenerator;
-};
-
 // This class is a bridge between the program and the OpenNI API.
 // When started, you can retrieve the last informations using lastCamInfo()
 class OpenNIApplication: public QObject
@@ -54,7 +37,7 @@ class OpenNIApplication: public QObject
     public:
         // Nothing is created in the constructor.
         // Please call init() to start the process
-        OpenNIApplication(int frequency, bool useAKinect, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent = nullptr);
+        OpenNIApplication(int frequency, USBDevicePath camPath, USBDevicePath motorPath, QObject *parent = nullptr);
         ~OpenNIApplication();
 
         // Check if the app is initialized
@@ -103,9 +86,15 @@ class OpenNIApplication: public QObject
 
         int _frequency;
 
-        Sensor _sensor;
+        USBDevicePath _cameraPath;
+        USBDevicePath _motorPath;
+
+        USBController *_kinectUSB;
 
         xn::Context _context;
+
+        xn::ProductionNode _device;
+        xn::NodeInfo _nodeInfo = xn::NodeInfo(nullptr);
 
         // Generators
         xn::DepthGenerator _depthGenerator;

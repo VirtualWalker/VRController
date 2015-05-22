@@ -28,21 +28,43 @@ class FakeController: public ControllerInterface
         Q_INTERFACES(ControllerInterface)
         Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
 
-    public:
-        explicit FakeController(QObject *parent = nullptr);
-        virtual ~FakeController();
-
-        void start();
-
-        QWidget *widget();
-
-        int orientation();
-        int walkSpeed();
-        int specialCode();
-
     private:
-
         FakeControllerWidget *_widget;
+
+    public:
+        explicit FakeController(QObject *parent = nullptr) : ControllerInterface(parent) {}
+
+        virtual ~FakeController()
+        {
+            if(_widget != nullptr)
+                _widget->deleteLater();
+        }
+
+        void start()
+        {
+            _widget = new FakeControllerWidget();
+        }
+
+        QWidget *widget()
+        {
+            return _widget;
+        }
+
+        int orientation()
+        {
+            return _widget->orientationValue();
+        }
+
+        int walkSpeed()
+        {
+            return _widget->walkSpeedValue();
+        }
+
+        // The special code is not used in this controller, since no calibration needed
+        int specialCode()
+        {
+            return 0;
+        }
 };
 
 #endif // FAKECONTROLLER_H

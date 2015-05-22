@@ -41,15 +41,12 @@ class ControllerChoiceWidget : public QWidget
         QString selectedControllerName();
         ControllerInterface *selectedController();
 
-        ControllerOptionsList optionsForSelectedController();
-
-        QMap<QString, ControllerWrapper> allControllersWrapper();
+        QMap<QString, QPluginLoader*> allControllers();
 
         QList<LicenseObject> thirdPartiesLicensesFromPlugins() const;
 
     public slots:
         void selectController(const QString& name);
-        void setOptionForController(const QString& controllerName, const QString& optionName, const bool value);
 
     private:
 
@@ -57,10 +54,7 @@ class ControllerChoiceWidget : public QWidget
         QButtonGroup *_buttonGroup;
 
         // Store all controllers by internal names
-        QMap<QString /*internalName*/, ControllerWrapper /*wrapper*/> _controllersMap;
-
-        // Store all options button group by the internal name and the option name
-        QMap<QString /*internalName*/, QMap<QString /*optionName*/, QButtonGroup* /*buttonGroup*/> /*optionsList*/> _optionsGroupMap;
+        QMap<QString /*internalName*/, QPluginLoader* /*loader*/> _controllersMap;
 
         // This list is filled when parsing the JSON files
         QList<LicenseObject> _thirdPartiesLicenses;

@@ -100,7 +100,7 @@ namespace OpenNIUtil
 
     inline bool isJointAcceptable(const Joint joint)
     {
-        return joint.isActive && joint.info.fConfidence >= 0.6;
+        return joint.isActive && joint.info.fConfidence == 1.0f;
     }
 
     // Return the angle in range [0;360[

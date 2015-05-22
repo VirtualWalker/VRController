@@ -30,11 +30,6 @@ APPLICATION_NAME = VRController
 DEFINES += "APPLICATION_TARGET=\\\"$${APPLICATION_TARGET}\\\"" \
     "APPLICATION_NAME=\\\"$${APPLICATION_NAME}\\\""
 
-# Check if we are in a NO_GUI build
-CONFIG(NO_GUI) {
-    DEFINES += NO_GUI
-}
-
 # Check if we don't need the bluetooth
 CONFIG(NO_BLUETOOTH) {
     DEFINES += NO_BLUETOOTH
@@ -85,8 +80,7 @@ SOURCES += \
     src/gui/aboutdialog.cpp \
     src/commonwidgets/autoscrolltextbrowser.cpp \
     src/commonwidgets/dial.cpp \
-    src/gui/controllerchoicewidget.cpp \
-    src/commonwidgets/hintdialog.cpp
+    src/gui/controllerchoicewidget.cpp
 
 HEADERS += \
     src/core/bluetoothmanager.h \
@@ -101,7 +95,6 @@ HEADERS += \
     src/interfaces/controllerinterface.h \
     src/interfaces/controllercommon.h \
     src/gui/controllerchoicewidget.h \
-    src/commonwidgets/hintdialog.h \
     src/core/utility.h
 
 OTHER_FILES += \

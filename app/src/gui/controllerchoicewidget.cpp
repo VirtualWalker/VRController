@@ -17,7 +17,6 @@
  */
 
 #include "controllerchoicewidget.h"
-#include "../commonwidgets/hintdialog.h"
 #include "../interfaces/controllercommon.h"
 
 #include <QDir>
@@ -40,12 +39,8 @@
 // Declaration here should be faster
 const QString nameStr = "name";
 const QString descStr = "description";
-const QString internalNameStr = "internalName";
 const QString thirdLicenceStr = "3rdLicenses";
 const QString i18nStr = "i18n";
-const QString launchOptionsStr = "launchOptions";
-const QString hintStr = "hint";
-const QString textStr = "text";
 
 ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent)
 {
@@ -83,7 +78,7 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                     QPluginLoader *loader = new QPluginLoader(filePath, this);
                     QJsonObject jsonObj = loader->metaData().value(QStringLiteral("MetaData")).toObject();
 
-                    const QString internalName = jsonObj.value(internalNameStr).toString();
+                    const QString internalName = jsonObj.value(QStringLiteral("internalName")).toString();
                     QString name = jsonObj.value(nameStr).toString();
                     QString description = jsonObj.value(descStr).toString();
 
@@ -128,141 +123,12 @@ ControllerChoiceWidget::ControllerChoiceWidget(QWidget *parent) : QWidget(parent
                         }
                     }
 
-                    // Check for launch options
-                    ControllerOptionsList optionsList;
-                    if(jsonObj.contains(launchOptionsStr))
-                    {
-                        QJsonArray optionsArray = jsonObj.value(launchOptionsStr).toArray();
-                        for(int i=0, end = optionsArray.size(); i<end; ++i)
-                        {
-                            QJsonObject optionObject = optionsArray.at(i).toObject();
-                            const QString optName = optionObject.value(internalNameStr).toString();
-                            QString optDesc = optionObject.value(descStr).toString();
-
-                            if(optName.isEmpty() || optDesc.isEmpty())
-                            {
-                                qWarning() << qPrintable(tr("Find a launch option for the controller \"%1\" but without a name or a description. Skip it !").arg(name));
-                                continue;
-                            }
-
-                            // Check for translations
-                            QJsonObject optLocaleObj;
-                            if(translationObject(optionObject, &optLocaleObj))
-                            {
-                                if(optLocaleObj.contains(descStr))
-                                    optDesc = optLocaleObj.value(descStr).toString(optDesc);
-                            }
-
-                            // Check for hint object
-                            Hint hint;
-                            hint.activated = false;
-                            if(optionObject.contains(hintStr))
-                            {
-                                hint.activated = true;
-
-                                QJsonObject hintObject = optionObject.value(hintStr).toObject();
-                                qDebug() << qPrintable(tr("The launch option named \"%1\" has a hint !").arg(optName));
-
-                                hint.text = hintObject.value(textStr).toString();
-                                const QByteArray imageBase64 = hintObject.value(qPrintable("image")).toString().toLocal8Bit();
-
-                                if(hint.text.isEmpty() || imageBase64.isEmpty())
-                                {
-                                    qWarning() << qPrintable(tr("The hint does't specify a correct text or image."));
-                                    continue;
-                                }
-
-                                QImage tempImage;
-                                tempImage.loadFromData(QByteArray::fromBase64(imageBase64), "PNG");
-                                hint.image = QPixmap::fromImage(tempImage);
-
-                                // Check for translations
-                                QJsonObject hintLocaleObj;
-                                if(translationObject(hintObject, &hintLocaleObj))
-                                {
-                                    if(hintLocaleObj.contains(textStr))
-                                        hint.text = hintLocaleObj.value(textStr).toString(hint.text);
-                                }
-                            }
-
-                            // Now add the option to the list
-                            optionsList.insert(optName, QList<QVariant>({QVariant(optDesc), QVariant(false), QVariant::fromValue(hint)}));
-                        }
-                    }
-
-                    ControllerWrapper controllerWrapper;
-                    controllerWrapper.options = optionsList;
-                    controllerWrapper.loader = loader;
-                    _controllersMap.insert(internalName, controllerWrapper);
+                    _controllersMap.insert(internalName, loader);
 
                     QRadioButton *button = new QRadioButton(QString("%1: %2").arg(name, description), this);
-                    button->setProperty(internalNameStr.toStdString().c_str(), internalName);
+                    button->setProperty("internalName", internalName);
                     _buttonGroup->addButton(button);
                     groupLayout->addWidget(button);
-
-                    QMap<QString, QButtonGroup*> optionsMap;
-                    // Add options if needed
-                    for(ControllerOptionsList::iterator it = optionsList.begin(), end = optionsList.end() ; it != end ; ++it)
-                    {
-                        QHBoxLayout *optionsLayout = new QHBoxLayout();
-                        QButtonGroup *optButtonGroup = new QButtonGroup(this);
-                        optButtonGroup->setProperty("optName", it.key());
-                        QRadioButton *yesButton = new QRadioButton(tr("Yes"), this);
-                        QRadioButton *noButton = new QRadioButton(tr("No"), this);
-                        optButtonGroup->addButton(yesButton, BUTTON_YES_ID);
-                        optionsLayout->addWidget(yesButton);
-                        optButtonGroup->addButton(noButton, BUTTON_NO_ID);
-                        optionsLayout->addWidget(noButton);
-
-                        // Align both buttons to the left side
-                        optionsLayout->addStretch(1);
-
-                        // Add the Hint button if exist
-                        Hint hintValue = it.value()[2].value<Hint>();
-                        if(hintValue.activated)
-                        {
-                            QPushButton *hintButton = new QPushButton(tr("Hint"), this);
-                            connect(hintButton, &QPushButton::clicked, this, [this, hintValue](){
-                                HintDialog *hintDialog = new HintDialog(hintValue.text, hintValue.image, this);
-                                hintDialog->exec();
-                            });
-                            optionsLayout->addWidget(hintButton);
-                        }
-
-                        QFormLayout *formLayout = new QFormLayout();
-
-                        // Add a margin to indent the content
-                        QMargins formLayoutMargin = formLayout->contentsMargins();
-                        formLayoutMargin.setLeft(30);
-                        formLayout->setContentsMargins(formLayoutMargin);
-
-                        formLayout->addRow(it.value()[0].toString(), optionsLayout);
-
-                        // Create a main widget
-                        // Used to hide all the content
-                        QWidget *optMainWidget = new QWidget(this);
-                        optMainWidget->setLayout(formLayout);
-                        groupLayout->addWidget(optMainWidget);
-
-                        // Connect the widget to the QCheckBox signals
-                        connect(button, &QRadioButton::toggled, this, [optMainWidget](bool checked) {
-                            if(checked)
-                                optMainWidget->show();
-                            else
-                                optMainWidget->hide();
-                        });
-
-                        // When a button is clicked in the group, update the value in the controller
-                        connect(optButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [internalName, this](int id) {
-                            _controllersMap[internalName].options[sender()->property("optName").toString()][1] = QVariant::fromValue(id == BUTTON_YES_ID);
-                        });
-
-                        // Add the button group to the current options map
-                        optionsMap.insert(it.key(), optButtonGroup);
-                    }
-
-                    // Add all options to the main map
-                    _optionsGroupMap.insert(internalName, optionsMap);
 
                     // Toggle the button one time (refresh the GUI)
                     button->toggle();
@@ -283,7 +149,7 @@ ControllerChoiceWidget::~ControllerChoiceWidget()
 {
     // Unload all plugins
     while(!_controllersMap.isEmpty())
-        _controllersMap.take(_controllersMap.firstKey()).loader->unload();
+        _controllersMap.take(_controllersMap.firstKey())->unload();
 }
 
 // Public slots
@@ -292,7 +158,7 @@ void ControllerChoiceWidget::selectController(const QString &name)
 {
     for(QAbstractButton *button : _buttonGroup->buttons())
     {
-        if(button->property(internalNameStr.toStdString().c_str()).toString() == name)
+        if(button->property("internalName").toString() == name)
         {
             button->setChecked(true);
             return;
@@ -302,35 +168,17 @@ void ControllerChoiceWidget::selectController(const QString &name)
     qWarning() << qPrintable(tr("The specified controller \"%1\" doesn't exists !").arg(name));
 }
 
-void ControllerChoiceWidget::setOptionForController(const QString &controllerName, const QString &optionName, const bool value)
-{
-    if(!_optionsGroupMap.contains(controllerName))
-    {
-        qWarning() << qPrintable(tr("The specified controller \"%1\" doesn't exists !").arg(controllerName));
-        return;
-    }
-    if(!_optionsGroupMap[controllerName].contains(optionName))
-    {
-        qWarning() << qPrintable(tr("The controller \"%1\" doesn't have an option named \"%2\".").arg(controllerName, optionName));
-        return;
-    }
-    // Check the "yes" or "no" button depending of the value parameter.
-    // Only click if the button is not already checked
-    if(!_optionsGroupMap[controllerName][optionName]->button(value ? BUTTON_YES_ID : BUTTON_NO_ID)->isChecked())
-        _optionsGroupMap[controllerName][optionName]->button(value ? BUTTON_YES_ID : BUTTON_NO_ID)->click();
-}
-
 // Getters
 
 QString ControllerChoiceWidget::selectedControllerName()
 {
-    return _buttonGroup->checkedButton()->property(internalNameStr.toStdString().c_str()).toString();
+    return _buttonGroup->checkedButton()->property("internalName").toString();
 }
 
 ControllerInterface *ControllerChoiceWidget::selectedController()
 {
     // Find the selected plugin
-    QPluginLoader *loader = _controllersMap.value(selectedControllerName()).loader;
+    QPluginLoader *loader = _controllersMap.value(selectedControllerName());
     // Try to load the plugin
     if(ControllerInterface *plugin = qobject_cast<ControllerInterface *>(loader->instance()))
         return plugin;
@@ -339,12 +187,7 @@ ControllerInterface *ControllerChoiceWidget::selectedController()
     return nullptr;
 }
 
-ControllerOptionsList ControllerChoiceWidget::optionsForSelectedController()
-{
-    return _controllersMap[selectedControllerName()].options;
-}
-
-QMap<QString, ControllerWrapper> ControllerChoiceWidget::allControllersWrapper()
+QMap<QString, QPluginLoader *> ControllerChoiceWidget::allControllers()
 {
     return _controllersMap;
 }

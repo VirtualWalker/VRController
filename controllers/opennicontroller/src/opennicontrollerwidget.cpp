@@ -26,7 +26,7 @@
 #define CLOCKWISE_BUTTON_ID 12
 #define COUNTERCLOCKWISE_BUTTON_ID 20
 
-OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useAKinect, QWidget *parent): QWidget(parent)
+OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, QWidget *parent): QWidget(parent)
 {
     _viewer = new OpenCVWidget(this);
 
@@ -38,7 +38,7 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
 
     _spinBox = new QSpinBox(this);
     _spinBox->setRange(-30, 30);
-    _spinBox->setSuffix("°");
+    _spinBox->setSuffix(QStringLiteral("°"));
     _spinBox->setValue(0);
     connect(_spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this](int angle){
         _openniWorker->setMotorAngle(angle);
@@ -48,7 +48,7 @@ OpenNIControllerWidget::OpenNIControllerWidget(unsigned int frequency, bool useA
     mainLayout->addLayout(layoutSensor);
     layoutSensor->addRow(QString("<b>%1</b>").arg(tr("Motor orientation :")), _spinBox);
 
-    _openniWorker = new OpenNIWorker(frequency, useAKinect);
+    _openniWorker = new OpenNIWorker(frequency);
 
     connect(&_openniThread, &QThread::finished, _openniWorker, &QObject::deleteLater);
     connect(&_openniThread, &QThread::started, _openniWorker, &OpenNIWorker::launch);

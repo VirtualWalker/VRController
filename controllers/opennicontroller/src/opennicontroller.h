@@ -20,8 +20,8 @@
 #define OPENNICONTROLLER_H
 
 #include "ControllerInterface"
-
 #include "opennicontrollerwidget.h"
+#include "controllercommon.h"
 
 /**
  * This controller allow the use of the OpenNI SDK to send orientation and walk speed informations
@@ -33,21 +33,47 @@ class OpenNIController: public ControllerInterface
         Q_INTERFACES(ControllerInterface)
         Q_PLUGIN_METADATA(IID ControllerInterface_iid FILE "spec.json")
 
-    public:
-        explicit OpenNIController(QObject *parent = nullptr);
-        virtual ~OpenNIController();
-
-        void start();
-
-        QWidget *widget();
-
-        int orientation();
-        int walkSpeed();
-        int specialCode();
-
     private:
-
         OpenNIControllerWidget *_widget;
+
+    public:
+        explicit OpenNIController(QObject *parent = nullptr): ControllerInterface(parent)
+        {
+        }
+
+        virtual ~OpenNIController()
+        {
+            if(_widget != nullptr)
+                _widget->deleteLater();
+        }
+
+        void start()
+        {
+            _widget = new OpenNIControllerWidget(dataFrequency());
+        }
+
+        QWidget *widget()
+        {
+            return _widget;
+        }
+
+        int orientation()
+        {
+            return _widget->orientationValue();
+        }
+
+        int walkSpeed()
+        {
+            const int walkSpeed = _widget->walkSpeedValue();
+            if (walkSpeed*2 > MAX_WALK_SPEED)
+                return MAX_WALK_SPEED;
+            return walkSpeed > MIN_COMPUTED_WALKSPEED ? walkSpeed*2 : 0;
+        }
+
+        int specialCode()
+        {
+            return _widget->specialCode();
+        }
 };
 
 #endif // OPENNICONTROLLER_H

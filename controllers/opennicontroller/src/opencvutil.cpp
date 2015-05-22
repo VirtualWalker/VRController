@@ -25,11 +25,6 @@
 // Use 10000 in the ratio since we don't want to see after 10 meters
 #define DEPTH_IMAGE_RATIO (256.0f / 10000.0f)
 
-cv::Point3f OpenCVUtil::pointToCV(const XnVector3D pt)
-{
-    return cv::Point3f(pt.X, pt.Y, pt.Z);
-}
-
 cv::Point2i OpenCVUtil::pointTo2DCV(const XnVector3D pt, const int offsetX, const int offsetY, const int res)
 {
     return cv::Point2i(offsetX + pt.X*res, offsetY + pt.Y*res);
@@ -68,8 +63,8 @@ void OpenCVUtil::drawJointsOfUser(cv::Mat &image, const OpenNIUtil::User user, c
     drawJoint(image, user.torsoJoint, centerColor, offsetX, offsetY, res);
 }
 
-void OpenCVUtil::drawLimbsOfUsers(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar color,
-                                  const int offsetX, const int offsetY, const int res)
+void OpenCVUtil::drawLimbsOfUser(cv::Mat &image, const OpenNIUtil::User user, const cv::Scalar color,
+                                 const int offsetX, const int offsetY, const int res)
 {
     drawLimb(image, user.leftPart.hip, user.leftPart.knee, color, offsetX, offsetY, res);
     drawLimb(image, user.leftPart.knee, user.leftPart.foot, color, offsetX, offsetY, res);
@@ -89,8 +84,8 @@ void OpenCVUtil::drawLimbsOfUsers(cv::Mat &image, const OpenNIUtil::User user, c
 }
 
 void OpenCVUtil::drawTextCentered(cv::Mat& image, const std::string& text, const cv::Point& centerPoint,
-                      const int& fontFace, const double& fontScale, const cv::Scalar& color,
-                      const int& thickness)
+                                  const int& fontFace, const double& fontScale, const cv::Scalar& color,
+                                  const int& thickness)
 {
     const cv::Size textRect = cv::getTextSize(text, fontFace, fontScale, thickness, nullptr);
     // Compute the text origin (to have the text at the center)
@@ -136,8 +131,6 @@ void OpenCVUtil::drawDepthMap(cv::Mat &image, XnDepthPixel* depthMap,
 #define IMG_HEIGHT (480*IMG_RES)
 
 #define FONT_FACE cv::FONT_HERSHEY_DUPLEX
-#define ROT_FONTSCALE 4
-#define ROT_THICKNESS 4
 
 #define WALK_LINE_START (LEFT_PART_WIDTH + 100)
 #define WALK_LINE_END (IMG_WIDTH - 100)
@@ -168,7 +161,7 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
 
     drawDepthMap(outputMat, camInfo.depthData, 0, 0, IMG_RES);
 
-    drawLimbsOfUsers(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, IMG_RES);
+    drawLimbsOfUser(outputMat, camInfo.user, CV_RGB(0, 180, 0), 0, 0, IMG_RES);
     drawJointsOfUser(outputMat, camInfo.user, CV_RGB(255, 0, 0), CV_RGB(0, 0, 255), CV_RGB(120, 0, 0), 0, 0, IMG_RES);
 
     //
@@ -199,16 +192,16 @@ cv::Mat OpenCVUtil::drawOpenNIData(OpenNIUtil::CameraInformations camInfo)
     const int dialStart = guiDialOrientation - 25;
     const int dialEnd = guiDialOrientation + 25;    
 
-    const cv::Point circleCenter((RIGHT_PART_WIDTH/2) + LEFT_PART_WIDTH, 280);
-    cv::circle(outputMat, circleCenter, 100*2, COLOR_1, 5*2);
-    cv::circle(outputMat, circleCenter, 80*2, COLOR_3, 15*2);
-    cv::ellipse(outputMat, circleCenter, cv::Size(94*2,94*2), 0, dialStart, dialEnd, COLOR_2, -1);
-    cv::ellipse(outputMat, circleCenter, cv::Size(91*2,91*2), 0, dialStart - 3, dialEnd + 3, backColor, -1);
-    cv::ellipse(outputMat, circleCenter, cv::Size(89*2,89*2), 0, dialStart, dialEnd, COLOR_2, -1);
-    cv::ellipse(outputMat, circleCenter, cv::Size(65*2,65*2), 0, dialStart - 3, dialEnd + 3, backColor, -1);
+    const cv::Point circleCenter((RIGHT_PART_WIDTH/IMG_RES) + LEFT_PART_WIDTH, 280);
+    cv::circle(outputMat, circleCenter, 100*IMG_RES, COLOR_1, 5*IMG_RES);
+    cv::circle(outputMat, circleCenter, 80*IMG_RES, COLOR_3, 15*IMG_RES);
+    cv::ellipse(outputMat, circleCenter, cv::Size(94*IMG_RES, 94*IMG_RES), 0, dialStart, dialEnd, COLOR_2, -1);
+    cv::ellipse(outputMat, circleCenter, cv::Size(91*IMG_RES, 91*IMG_RES), 0, dialStart - 3, dialEnd + 3, backColor, -1);
+    cv::ellipse(outputMat, circleCenter, cv::Size(89*IMG_RES, 89*IMG_RES), 0, dialStart, dialEnd, COLOR_2, -1);
+    cv::ellipse(outputMat, circleCenter, cv::Size(65*IMG_RES, 65*IMG_RES), 0, dialStart - 3, dialEnd + 3, backColor, -1);
 
     // Print rotation in the center of the circle
-    drawTextCentered(outputMat, textRotation, circleCenter, FONT_FACE, ROT_FONTSCALE, COLOR_1, ROT_THICKNESS);
+    drawTextCentered(outputMat, textRotation, circleCenter, FONT_FACE, 4, COLOR_1, 4);
 
     //
     // Draw the walk speed
