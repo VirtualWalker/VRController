@@ -46,12 +46,10 @@ struct USBDevicePath
 
     // Return a string representation in the format:
     // "idVendor/idProduct@BusID/DeviceID"
-    QString toString(bool useHexa = true) const
+    QString toString() const
     {
-        const int base = useHexa ? 16 : 10;
-        const int leadingZero = useHexa ? 4 : 0;
-        return QString("%1/%2@%3/%4").arg(vendor, leadingZero, base, QChar('0'))
-                .arg(product, leadingZero, base, QChar('0'))
+        return QString("%1/%2@%3/%4").arg(vendor, 4, 16, QChar('0'))
+                .arg(product, 4, 16, QChar('0'))
                 .arg(bus, 0, 10)
                 .arg(device, 0, 10);
     }

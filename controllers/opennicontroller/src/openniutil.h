@@ -25,8 +25,7 @@
 #include <QVector>
 #include <QDebug>
 
-#define PI 3.14159265358979323846
-#define RAD2DEG (180.0/PI)
+#include "controllercommon.h"
 
 #define DEPTH_MAP_LENGTH (640*480)
 #define MIN_COMPUTED_WALKSPEED 40
@@ -113,6 +112,29 @@ namespace OpenNIUtil
         return angle;
     }
 
+    // Compute the mean angle using the circular average method
+    // See <http://en.wikipedia.org/wiki/Mean_of_circular_quantities> for more informations
+    inline float meanAngle(float *angles, const int size)
+    {
+        float x = 0;
+        float y = 0;
+
+        // used to check if all values are set to -1.0f
+        bool allFalse = true;
+
+        for(int i = 0; i < size; ++i)
+        {
+            if(angles[i] != -1.0f)
+            {
+                allFalse = false;
+                x += std::cos(angles[i] * DEG2RAD);
+                y += std::sin(angles[i] * DEG2RAD);
+            }
+        }
+
+        return allFalse ? -1.0f : reduceAngle(std::atan2(y / size, x / size) * RAD2DEG);
+    }
+
     // The previous rotation parameter is used to avoid big differences between two rotation
     inline float rotationFrom2Joints(const int frequency, const Joint rightJoint, const Joint leftJoint, float previousRotation)
     {
@@ -129,7 +151,7 @@ namespace OpenNIUtil
                 rotation = 0.0f;
             // 90
             else if(rightJoint.info.position.X == leftJoint.info.position.X
-                    && rightJoint.info.position.Z > leftJoint.info.position.Z)
+                    && rightJoint.info.position.Z < leftJoint.info.position.Z)
                 rotation = 90.0f;
             // 180
             else if(rightJoint.info.position.Z == leftJoint.info.position.Z
@@ -137,8 +159,8 @@ namespace OpenNIUtil
                 rotation = 180.0f;
             // 270
             else if(rightJoint.info.position.X == leftJoint.info.position.X
-                    && rightJoint.info.position.Z < leftJoint.info.position.Z)
-                rotation = 90.0f;
+                    && rightJoint.info.position.Z > leftJoint.info.position.Z)
+                rotation = 270.0f;
 
             // 0 - 180
             else if(rightJoint.info.position.Z < leftJoint.info.position.Z)
@@ -168,7 +190,7 @@ namespace OpenNIUtil
             if(previousRotation != -1.0f)
             {
                 // If the difference of rotation is higher than 180°, we consider
-                // that we are move from the 360° to the 0° side
+                // that we move from the 360° to the 0° side
                 // In this case, add 360° to the lower value
                 if(std::abs(rotation - previousRotation) > 180.0f)
                 {
@@ -178,7 +200,7 @@ namespace OpenNIUtil
                         previousRotation += 360.0f;
                 }
 
-                const float margin = 55.0f / (float)frequency;
+                const float margin = 60.0f / (float)frequency;
 
                 const float diffRotation = rotation - previousRotation;
                 if(std::abs(diffRotation) > margin)
@@ -207,41 +229,23 @@ namespace OpenNIUtil
 
     inline void rotationForUser(const int frequency, const int previousRotation, User* user)
     {
-        int rotations[4] = {-1, -1, -1, -1};
+        float rotations[4] = {-1.0f, -1.0f, -1.0f, -1.0f};
 
         // right hip / left hip
-        rotations[0] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.hip, user->leftPart.hip,
-                                                            previousRotation));
+        rotations[0] = rotationFrom2Joints(frequency, user->rightPart.hip, user->leftPart.hip,
+                                            previousRotation);
         // right hip / torso
-        rotations[1] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.hip, user->torsoJoint,
-                                                            previousRotation));
+        rotations[1] = rotationFrom2Joints(frequency, user->rightPart.hip, user->torsoJoint,
+                                            previousRotation);
         // torso / left hip
-        rotations[2] = static_cast<int>(rotationFrom2Joints(frequency, user->torsoJoint, user->leftPart.hip,
-                                                            previousRotation));
+        rotations[2] = rotationFrom2Joints(frequency, user->torsoJoint, user->leftPart.hip,
+                                            previousRotation);
         // right shoulder / left shoulder
-        rotations[3] = static_cast<int>(rotationFrom2Joints(frequency, user->rightPart.shoulder, user->leftPart.shoulder,
-                                                            previousRotation));
+        rotations[3] = rotationFrom2Joints(frequency, user->rightPart.shoulder, user->leftPart.shoulder,
+                                            previousRotation);
 
         // Make an average
-        int rotSum = 0;
-        int rotCount = 0;
-        for(int i=0; i < 4; ++i)
-        {
-            if(rotations[i] != -1)
-            {
-                if(rotations[i] > 180.0f)
-                    rotSum += (rotations[i] - 360.0f);
-                else
-                    rotSum += rotations[i];
-
-                rotCount++;
-            }
-        }
-
-        if(rotCount != 0)
-            user->rotation = reduceAngle(rotSum / rotCount);
-        else
-            user->rotation = -1;
+        user->rotation = static_cast<int>(meanAngle(rotations, 4));
     }
 
     inline int walkSpeedForUser(const int frequency, const User& user, const int64_t& previousTimestamp, const int& previousSpeed)

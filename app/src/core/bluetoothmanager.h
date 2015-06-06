@@ -366,9 +366,6 @@ class BluetoothManager
                 }
 
                 // Accept one connection in an another thread
-
-
-
                 _acceptThread = std::thread(&BluetoothManager::acceptConnection, this,
                                             _socket, (struct sockaddr *)&_remoteSockAddr, &_remoteSockLength,
                                             [this](int clientID) {
