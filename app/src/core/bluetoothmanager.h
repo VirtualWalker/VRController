@@ -125,7 +125,10 @@ class BluetoothManager
 
         // Contains the UUID used for SDP service
         // Don't change this since it's the same UUID for all games that used this controller
-        const std::uint32_t UUID[4] = { 0x0123, 0x4567, 0x89AB, 0xCDEF };
+        // Same as "23010000-6745-0000-ab89-0000efcd0000"
+        // In fact, for a UUID = { 0x1122, 0x3344, 0x5566, 0x7788 }, the UUID string is
+        // "22110000-4433-0000-6655-000088770000"
+        const std::uint32_t _UUID[4] = { 0x0123, 0x4567, 0x89AB, 0xCDEF };
 
         //
         // Protected methods
@@ -163,7 +166,7 @@ class BluetoothManager
             sdp_record_t *record = sdp_record_alloc();
 
             // Set the general service UUID
-            sdp_uuid128_create(&serviceUUID, &UUID);
+            sdp_uuid128_create(&serviceUUID, &_UUID);
             sdp_set_service_id(record, serviceUUID);
 
             // Make the service record publicly browsable
@@ -434,7 +437,7 @@ class BluetoothManager
         std::string serviceUUID() const
         {
             uuid_t returnUUID;
-            sdp_uuid128_create(&returnUUID, &UUID);
+            sdp_uuid128_create(&returnUUID, &_UUID);
             return uuidToString(&returnUUID);
         }
 
