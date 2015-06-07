@@ -28,7 +28,7 @@
 #include "controllercommon.h"
 
 #define DEPTH_MAP_LENGTH (640*480)
-#define MIN_COMPUTED_WALKSPEED 40
+#define MIN_COMPUTED_WALKSPEED 70
 
 // Contains some structures for OpenNI data
 namespace OpenNIUtil
