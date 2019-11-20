@@ -55,7 +55,7 @@ VRController is licensed under the [GNU GPL] license v3. You can get a copy of t
 [Jenkins]:http://jenkins-ci.org/
 [BlueZ]:http://www.bluez.org/
 [GNU GPL]:http://www.gnu.org/licenses/gpl-3.0.en.html
-[RandCity]:https://github.com/Toutjuste/RandCity
+[RandCity]:https://github.com/VirtualWalker/RandCity
 [QProgressIndicator]:https://github.com/mojocorp/QProgressIndicator
-[OpenNI]:https://github.com/OpenNI/OpenNI
+[OpenNI]:https://github.com/VirtualWalker/OpenNI
 
